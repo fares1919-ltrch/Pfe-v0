@@ -1,0 +1,86 @@
+.body{
+    font-family: 'Roboto', sans-serif;
+    background-color: white;
+    color: #343a40; // Bootstrap's text-gray-800 equivalent
+}
+
+.text-muted {
+    color: #6c757d !important; // Bootstrap's text-gray-500 equivalent
+}
+
+.text-primary {
+    color: #007bff !important; // Bootstrap's primary color
+}
+
+.mt-4 {
+    margin-top: 1.5rem !important; // Bootstrap's mt-4 equivalent
+}
+
+.mt-2 {
+    margin-top: 0.5rem !important; // Bootstrap's mt-2 equivalent
+}
+
+.container {
+    padding: 2rem; // Custom padding for the container
+}
+
+.img-fluid {
+    max-width: 100%;
+    height: auto;
+}
+
+.use-cases-container {
+  padding: 4rem 2rem;
+  background-color: #f8f9fa;
+
+  h2 {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: #343a40;
+    font-weight: bold;
+  }
+
+  .use-cases-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .use-case-card {
+    background-color: white;
+    border-radius: 10px;
+    padding: 2rem;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+
+    &:hover {
+      transform: translateY(-10px);
+    }
+  }
+
+  .use-case-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1rem;
+
+    .material-icons {
+      font-size: 3rem;
+      color: #007bff;
+    }
+  }
+
+  h3 {
+    color: #343a40;
+    margin-bottom: 1rem;
+  }
+
+  p {
+    color: #6c757d;
+  }
+}

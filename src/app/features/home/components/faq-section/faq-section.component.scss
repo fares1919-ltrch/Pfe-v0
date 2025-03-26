@@ -1,0 +1,76 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap');
+
+
+
+h1{
+  color: black;
+}
+.body {
+    font-family: 'Roboto', sans-serif;
+}
+
+.faq-container {
+  backdrop-filter: blur(10px);
+  color: white;
+  padding: 2rem;
+
+  .container {
+    width: 100%; // Take full width
+    padding: 1.5rem;
+  }
+
+  .faq-subtitle {
+    font-size: 1rem; // Equivalent to text-xl
+    margin-bottom: 3rem; // Equivalent to mb-12
+    color: rgba(0, 0, 0, 0.6); // Equivalent to text-white text-opacity-60
+
+  }
+
+  .faq-list {
+    display: grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap: 1rem;
+  }
+
+  .faq-item {
+    border-bottom: 1px solid rgb(10, 10, 10);
+    transition: all 0.3s ease;
+    margin-bottom: 1rem; // Equivalent to mb-2
+
+    .faq-question {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0; // Equivalent to py-4
+      cursor: pointer;
+      position: relative;
+      color: black;
+
+      .faq-toggle-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        transition: transform 0.3s ease;
+
+        i {
+          color: rgba(0, 0, 0, 0.6);
+          font-size: 1.2rem; // Adjust as needed
+        }
+      }
+
+
+      &:hover .faq-toggle-icon {
+        transform: scale(1.1);
+      }
+    }
+
+    .faq-answer {
+      color: rgb(0, 0, 0);
+      max-width: 100%;
+      padding-bottom: 1rem; // Equivalent to pb-4
+      line-height: 1.6;
+    }
+  }
+}

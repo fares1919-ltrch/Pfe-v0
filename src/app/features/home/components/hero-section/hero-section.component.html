@@ -1,0 +1,54 @@
+<section class="hero-section">
+  <div class="video-container">
+    <video
+      #backgroundVideo
+      autoplay
+      loop
+      muted
+      playsinline
+      preload="auto"
+      src="assets/videos/unlock-the-world.mp4"
+      class="background-video"
+      (canplay)="onVideoCanPlay()"
+      (error)="onVideoError($event)"
+    ></video>
+
+    <!-- Fallback content -->
+    <div class="video-overlay"></div>
+    <div class="video-fallback" *ngIf="showFallback">
+      <img src="assets/images/video-fallback.jpg" alt="Hero section background">
+      <button class="play-button" (click)="manualPlayVideo()">
+        <svg><!-- Play icon SVG --></svg>
+        Play Video
+      </button>
+    </div>
+  </div>
+
+  <div class="content-container">
+    <div class="hero-content">
+      <div class="text-content">
+        <h1 class="text-4xl md:text-5xl font-bold">
+          Identity Secure
+        </h1>
+        <h2 class="text-xl md:text-2xl text-gray-200">
+          Digital Identity Management & Fraud Prevention
+        </h2>
+        <p class="text-gray-300 text-base">
+          Protection of Brazilian CPF identifiers through biometric verification and real-time fraud detection
+        </p>
+      </div>
+      <div class="cta-buttons">
+        <button class="primary-button">
+          Learn More
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="logo-container">
+    <img
+      src="assets/images/logo.png"
+      alt="Identity Secure Logo"
+    />
+  </div>
+</section>

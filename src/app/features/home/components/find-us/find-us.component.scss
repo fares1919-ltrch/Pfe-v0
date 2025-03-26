@@ -1,0 +1,75 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap');
+
+body {
+    font-family: 'Roboto', sans-serif;
+}
+
+.container {
+    padding: 1.5rem; // Equivalent to p-6
+    margin: 0 auto; // Center the container
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr; // Default to single column
+    gap: 2rem; // Equivalent to gap-8
+
+    @media (min-width: 768px) { // md breakpoint
+        grid-template-columns: repeat(2, 1fr); // Two columns on medium screens
+    }
+}
+
+.card {
+    background-color: white; // Optional: Add background color for cards
+    padding: 1.5rem; // Equivalent to p-6
+    border-radius: 0.5rem; // Optional: Add border radius
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); // Optional: Add shadow
+}
+
+.title {
+    font-size: 2.25rem; // Equivalent to text-4xl
+    font-weight: 300; // Equivalent to font-light
+    margin-bottom: 1rem; // Equivalent to mb-4
+}
+
+.description {
+  margin-bottom: 1rem; // Equivalent to mb-4
+}
+
+.contact-info {
+  margin-bottom: 0.5rem; // Equivalent to mb-2
+}
+
+.link {
+  color: #3b82f6; // Equivalent to text-blue-500
+  text-decoration: none;
+
+  &:hover {
+      text-decoration: underline; // Optional: Add underline on hover
+  }
+}
+
+button {
+  padding: 0.5rem 1.5rem; // Equivalent to px-6 py-2
+  border: 1px solid #3b82f6; // Equivalent to border border-blue-500
+  color: #3b82f6; // Equivalent to text-blue-500
+  border-radius: 9999px; // Equivalent to rounded-full
+  background-color: transparent; // Default background
+  transition: background-color 0.3s ease, color 0.3s ease; // Smooth transition for hover effects
+
+  // Hover state
+  &:hover {
+      background-color: #3b82f6; // Equivalent to hover:bg-blue-500
+      color: white; // Equivalent to hover:text-white
+  }
+
+  // Focus state (optional for accessibility)
+  &:focus {
+      outline: none; // Remove default outline
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5); // Add a focus ring
+  }
+}
+
+.mt-12 {
+  margin-top: 3rem; // Equivalent to mt-12
+}
