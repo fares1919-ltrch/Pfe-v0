@@ -4,9 +4,11 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "serve": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
+    "generate": "ng generate",
     "serve:ssr:Pfe-v0": "node dist/pfe-v0/server/server.mjs"
   },
   "private": true,

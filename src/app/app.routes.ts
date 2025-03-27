@@ -23,7 +23,7 @@ export const routes: Routes = [
   },
   // Auth routes would go here with different layout
   {
-    path: '**',
+    path: 'auth',
     redirectTo: 'home'
   }
 ];

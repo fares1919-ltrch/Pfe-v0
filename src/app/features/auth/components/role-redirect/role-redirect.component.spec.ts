@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { TrustIndicatorsComponent } from './trust-indicators.component';
+import { RoleRedirectComponent } from './role-redirect.component';
 
-describe('TrustIndicatorsComponent', () => {
-  let component: TrustIndicatorsComponent;
-  let fixture: ComponentFixture<TrustIndicatorsComponent>;
+describe('RoleRedirectComponent', () => {
+  let component: RoleRedirectComponent;
+  let fixture: ComponentFixture<RoleRedirectComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TrustIndicatorsComponent]
+      imports: [RoleRedirectComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(TrustIndicatorsComponent);
+    fixture = TestBed.createComponent(RoleRedirectComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
