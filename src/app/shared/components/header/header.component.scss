@@ -1,8 +1,9 @@
 .navbar {
   backdrop-filter: blur(10px);
-  background-color: rgba(20, 20, 30, 0.8) !important;
+
   box-shadow: 0 2px 15px rgba(0,0,0,0.2);
   transition: background-color 0.3s ease;
+  margin-left: auto;
 
   .navbar-brand {
     display: flex;
@@ -80,12 +81,38 @@
   }
 }
 
+.user-actions-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+
+  .dropdown {
+    margin-right: 1rem;
+  }
+
+  .auth-buttons {
+    display: flex;
+    align-items: center;
+  }
+}
+
+
 // Responsive adjustments
 @media (max-width: 992px) {
   .navbar {
     .navbar-collapse {
-      background-color: rgba(20, 20, 30, 0.95);
+
       backdrop-filter: blur(10px);
+    }
+
+    .user-actions-container {
+      flex-direction: column; // Stack elements vertically
+      align-items: flex-end; // Align to the right
+
+      .auth-buttons {
+        margin-top: 0.5rem;
+       // Add some spacing between language and buttons
+      }
     }
   }
 }
