@@ -1,59 +1,168 @@
-# PfeV0
+# Untitled
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.4.
+# API Endpoints Documentation
 
-## Development server
+## Authentication Endpoints
 
-To start a local development server, run:
+### 1. Sign Up
 
-```bash
-ng serve
+**Method:** POST
+
+**URL:** `http://localhost:8080/api/auth/signup`
+
+**Headers:**
+
+- `Content-Type: application/json`
+
+**Request Body (JSON):**
+
+```json
+{
+  "username": "example",
+  "email": "example@example.com",
+  "password": "123456"
+  "roles":["user"]
+}
+{
+  "username": "faress",
+  "email": "exadddd@example.com",
+  "password": "123456",
+  "roles": ["manager", "user"]  // This is perfectly valid
+}
+{
+  "username": "faress",
+  "email": "exadddd@example.com",
+  "password": "123456",
+  "roles": ["manager", "user", "officer"]  // This is also valid
+}
+
+"roles" not "role" 
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+**Description:** Registers a new user in the system.
 
-## Code scaffolding
+---
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+### 2. Sign In
 
-```bash
-ng generate component component-name
+**Method:** POST
+
+**URL:** `http://localhost:8080/api/auth/signin`
+
+**Headers:**
+
+- `Content-Type: application/json`
+
+**Request Body (JSON):**
+
+```json
+{
+  "username": "example",
+  "password": "123456"
+}
+
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+**Description:** Logs in a user and returns a JWT token.
 
-```bash
-ng generate --help
-```
+---
 
-## Building
+### 3. Sign Out
 
-To build the project run:
+**Method:** POST
 
-```bash
-ng build
-```
+**URL:** `http://localhost:8080/api/auth/signout`
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+**Headers:**
 
-## Running unit tests
+- `Authorization: Bearer <token>`
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+**Request Body:** None
 
-```bash
-ng test
-```
+**Description:** Logs out a user by invalidating the token.
 
-## Running end-to-end tests
+---
 
-For end-to-end (e2e) testing, run:
+## Public and Protected Content Endpoints
 
-```bash
-ng e2e
-```
+### 4. Public Content
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+**Method:** GET
 
-## Additional Resources
+**URL:** `http://localhost:8080/api/test/all`
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+**Headers:** None
+
+**Request Body:** None
+
+**Description:** Provides access to public content.
+
+---
+
+### 5. User Board
+
+**Method:** GET
+
+**URL:** `http://localhost:8080/api/test/user`
+
+**Headers:**
+
+- `Authorization: Bearer <token>`
+
+**Request Body:** None
+
+**Description:** Provides user-specific content.
+
+---
+
+### 6. Manager Board
+
+**Method:** GET
+
+**URL:** `http://localhost:8080/api/test/manager`
+
+**Headers:**
+
+- `Authorization: Bearer <token>`
+
+**Request Body:** None
+
+**Description:** Provides manager-specific content.
+
+---
+
+### 7. Officer Board
+
+**Method:** GET
+
+**URL:** `http://localhost:8080/api/test/officer`
+
+**Headers:**
+
+- `Authorization: Bearer <token>`
+
+**Request Body:** None
+
+**Description:** Provides officer-specific content.
+
+---
+
+### 8. Welcome Message
+
+**Method:** GET
+
+**URL:** `http://localhost:8080/`
+
+**Headers:** None
+
+**Request Body:** None
+
+**Description:** Root endpoint displaying a welcome message.
+
+---
+
+## Notes:
+
+- Replace `<token>` in the `Authorization` header with the actual JWT token received after logging in.
+- Ensure the `Content-Type` header is set to `application/json` for endpoints that require a request body.
+- Unauthorized access to protected endpoints will result in a `401 Unauthorized` response.
