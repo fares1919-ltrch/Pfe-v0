@@ -1,0 +1,7 @@
+<profile-header *ngIf="currentUser"></profile-header>
+    <profile-body *ngIf="currentUser"></profile-body>
+
+    <div class="auth-fallback" *ngIf="!currentUser">
+      <h2>Authentication Required</h2>
+      <a routerLink="/auth/login">Return to Login</a>
+    </div>

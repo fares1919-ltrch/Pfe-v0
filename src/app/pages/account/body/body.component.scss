@@ -1,0 +1,36 @@
+.main-content {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 2rem;
+
+  .role-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #ecf0f1;
+
+    h1 {
+      color: #2c3e50;
+      font-size: 1.8rem;
+    }
+  }
+
+  .dashboard-content {
+    background: white;
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+
+    section {
+      margin-bottom: 2rem;
+
+      h2 {
+        color: #34495e;
+        margin-bottom: 1rem;
+      }
+
+      p {
+        color: #7f8c8d;
+      }
+    }
+  }
+}

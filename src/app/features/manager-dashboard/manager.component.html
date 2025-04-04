@@ -1,5 +1,31 @@
-<app-hero-section></app-hero-section>
-<app-about></app-about>
-<app-features-showcase></app-features-showcase>
-<app-faq-section></app-faq-section>
-<app-find-us></app-find-us>
+<div class="container">
+  <header class="jumbotron">
+    <p>{{ content }}</p>
+  </header>
+  <div class="manager-dashboard">
+    <h1>Manager Dashboard</h1>
+    <div class="dashboard-grid">
+      <div class="dashboard-card">
+        <h2>Team Overview</h2>
+        <ul>
+          <li>Total Staff: 24</li>
+          <li>Active Projects: 5</li>
+          <li>Performance Rating: 4.2/5</li>
+        </ul>
+      </div>
+      <div class="dashboard-card">
+        <h2>Pending Approvals</h2>
+        <ul>
+          <li>Leave Requests: 3</li>
+          <li>Budget Proposals: 2</li>
+          <li>Project Submissions: 1</li>
+        </ul>
+      </div>
+      <div class="dashboard-card">
+        <h2>Quick Actions</h2>
+        <button>Review Requests</button>
+        <button>Generate Reports</button>
+      </div>
+    </div>
+  </div>
+</div>

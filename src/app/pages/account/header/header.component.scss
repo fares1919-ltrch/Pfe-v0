@@ -1,0 +1,159 @@
+@use 'sass:color';
+
+// Colors & Styling
+$primary-bg: #121212; // Dark background
+$secondary-bg: #1a1a1a; // Slightly lighter for depth
+$text-color: #e0e0e0; // Off-white for better readability
+$accent-color: #0a2d6f; // Even darker blue
+$accent-hover: #061c47; // Darkest blue for hover
+$border-radius: 8px;
+$padding: 12px 18px;
+
+.app-header {
+  background-color: $primary-bg;
+  padding: 15px 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+
+  .menu-button {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.8rem;
+    color: $text-color;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+
+    &:hover {
+      transform: scale(1.1);
+    }
+  }
+
+  nav {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    justify-content: space-between;
+
+    // Left section (User Info + Dashboard)
+    .left-section {
+      display: flex;
+      align-items: center;
+
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+
+        .user-greeting {
+          color: $text-color;
+          font-size: 1rem;
+          font-weight: 500;
+        }
+
+        .dashboard-button {
+          background-color: #4CAF50;
+          color: white;
+          border: none;
+          padding: 8px 16px;
+          border-radius: 4px;
+          margin-left: 10px;
+          cursor: pointer;
+          transition: background-color 0.3s ease;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+
+          &:hover {
+            background-color: #45a049;
+          }
+
+          i {
+            font-size: 16px;
+          }
+        }
+      }
+    }
+
+    // Right section (Roles + Logout)
+    .user-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      .user-role,
+      .logout-button {
+        background: $accent-color;
+        padding: $padding;
+        border-radius: $border-radius;
+        font-size: 1rem;
+        font-weight: 600;
+        color: white;
+        text-transform: uppercase;
+        min-width: 120px;
+        text-align: center;
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+
+        &:hover {
+          background: $accent-hover;
+          border-color: white;
+          transform: scale(1.05);
+        }
+
+        &:active {
+          transform: scale(0.98);
+        }
+      }
+
+      .user-role {
+        background: color.adjust($accent-color, $lightness: -10%);
+      }
+
+      .logout-button {
+        border: none;
+        cursor: pointer;
+      }
+    }
+  }
+}
+
+// **Responsive Design**
+@media (max-width: 768px) {
+  .menu-button {
+    display: block;
+  }
+
+  nav {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+
+    .left-section {
+      width: 100%;
+      justify-content: flex-start;
+
+      .user-info {
+        width: 100%;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+    }
+
+    .user-section {
+      flex-direction: column;
+      width: 100%;
+      align-items: flex-start;
+
+      .user-role,
+      .logout-button {
+        width: 100%;
+      }
+    }
+  }
+}

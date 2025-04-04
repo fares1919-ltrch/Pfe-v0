@@ -1,0 +1,23 @@
+<header class="app-header">
+  <nav>
+    <div class="left-section">
+      <div class="user-info">
+        <span class="user-greeting">Hi, {{ currentUser?.username }}</span>
+        <button [routerLink]="dashboardLink" class="dashboard-button">
+          <i class="fas fa-chart-line"></i> My Dashboard
+        </button>
+      </div>
+    </div>
+
+    <div class="menu-toggle" (click)="toggleMenu()">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+
+    <div class="user-section" [class.active]="menuOpen">
+      <span class="user-role">{{ currentUser?.roles[0].replace('_ROLE', '') | titlecase }}</span>
+      <button class="logout-button" (click)="logout()">Logout</button>
+    </div>
+  </nav>
+</header>

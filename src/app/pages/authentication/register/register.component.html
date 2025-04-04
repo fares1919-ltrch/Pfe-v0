@@ -1,0 +1,68 @@
+<div class="auth-main">
+  <div class="auth-wrapper">
+    <div class="auth-form">
+      <div class="card">
+        <div class="logo-container">
+          <div class="logo-circle">
+            <img src="assets/images/icons/sign-in.svg" alt="logo" />
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="auth-header">
+            <h2>Create Account</h2>
+            <p>Join us today and get started</p>
+          </div>
+          <div class="social-login">
+            <button type="button" class="google-btn">
+              <img src="assets/images/icons/icons8-google.svg" alt="google" />
+              <span>Sign Up With Google</span>
+            </button>
+          </div>
+          <div class="saprator">
+            <span>or</span>
+          </div>
+          <form (ngSubmit)="onSubmit(registerForm)" #registerForm="ngForm">
+            <div class="name-row">
+              <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" placeholder="Enter username"
+                  [(ngModel)]="username" required autocomplete="username"/>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" placeholder="Enter your email"
+                [(ngModel)]="email" required email autocomplete="email"/>
+            </div>
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input type="password" id="password" name="password" placeholder="Create a password"
+                [(ngModel)]="password" required autocomplete="new-password" />
+            </div>
+            <div class="form-group">
+              <label for="confirmPassword">Confirm Password</label>
+              <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password"
+                [(ngModel)]="confirmPassword" required autocomplete="new-password" />
+            </div>
+            <div class="terms-container">
+              <div class="terms-check">
+                <input type="checkbox" id="termsCheck" name="termsAccepted"
+                  [(ngModel)]="termsAccepted" required />
+                <label for="termsCheck">
+                  I agree to the <a href="javascript:">Terms of Service</a> and <a href="javascript:">Privacy Policy</a>
+                </label>
+              </div>
+            </div>
+            <div class="action-button">
+              <button type="submit" class="sign-up-btn" [disabled]="!registerForm.form.valid">Create Account</button>
+            </div>
+          </form>
+          <div class="login-prompt">
+            <span>Already have an account?</span>
+            <a [routerLink]="['/auth/login']">Sign In</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

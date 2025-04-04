@@ -1,0 +1,74 @@
+// auth-layout.component.scss
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #121212;
+  position: relative;
+  overflow: hidden;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.back-home {
+  position: absolute;
+  top: 2rem;
+  left: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #e0e0e0;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  background-color: #2a2a2a;
+  border: 1px solid #444;
+  animation: fadeIn 0.5s 0.2s ease-out both;
+
+  &:hover {
+    background-color: #333;
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    stroke: #a0a0a0;
+  }
+}
+
+.auth-card {
+  background-color: #1e1e1e;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  padding: 3rem;
+  width: 100%;
+  max-width: 450px;
+  margin: 2rem;
+  animation: cardEntrance 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+
+  @media (max-width: 480px) {
+    padding: 2rem;
+    margin: 1rem;
+  }
+}
+
+@keyframes cardEntrance {
+  from {
+    opacity: 0;
+    transform: translateY(40px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}

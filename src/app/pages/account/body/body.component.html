@@ -1,0 +1,31 @@
+<main class="main-content">
+  <div class="role-header">
+    <h1>{{ roleContent }}</h1>
+  </div>
+
+  <div [ngSwitch]="currentUser?.roles[0]" class="dashboard-content">
+    <!-- User Content -->
+    <div *ngSwitchCase="'user'" class="user-dashboard">
+      <section class="welcome-section">
+        <h2>Welcome back, {{ currentUser.username }}!</h2>
+        <p>Your recent updates will appear here</p>
+      </section>
+    </div>
+
+    <!-- Manager Content -->
+    <div *ngSwitchCase="'manager'" class="manager-dashboard">
+      <section class="team-overview">
+        <h2>Team Performance</h2>
+        <p>Management metrics will be displayed here</p>
+      </section>
+    </div>
+
+    <!-- Officer Content -->
+    <div *ngSwitchCase="'officer'" class="officer-dashboard">
+      <section class="system-analytics">
+        <h2>System Overview</h2>
+        <p>Administrative controls and analytics</p>
+      </section>
+    </div>
+  </div>
+</main>
