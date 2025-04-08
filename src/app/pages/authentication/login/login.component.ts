@@ -18,6 +18,9 @@ export class LoginComponent implements OnInit {
   username: string = '';
   password: string = '';
   rememberMe: boolean = true;
+  isLoading: boolean = false;
+  errorMessage: string = '';
+  returnUrl: string = '/profile';
 
   constructor(
     private authService: AuthService,
@@ -27,104 +30,92 @@ export class LoginComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // Get return url from route parameters or default to '/profile'
+    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/profile';
+
     // Check if a token already exists
     const existingToken = this.tokenStorage.getToken();
     if (existingToken) {
-      // Handle existing token (optional: redirect or refresh)
-      console.log('Existing token found');
-      this.router.navigate(['/profile']);
+      this.router.navigate([this.returnUrl]);
+    }
+
+    // Check for OAuth callback
+    const code = this.route.snapshot.queryParams['code'];
+    const provider = this.route.snapshot.queryParams['provider'];
+    if (code && provider) {
+      this.handleOAuthCallback(code, provider);
     }
   }
 
   onSubmit() {
+    this.errorMessage = '';
+    this.isLoading = true;
+
     // Trim whitespace from username and password
     this.username = this.username?.trim() || '';
     this.password = this.password?.trim() || '';
 
     // Validate username and password
     if (!this.username) {
-      console.error('Username is required');
-      alert('Username is required');
+      this.errorMessage = 'Username is required';
+      this.isLoading = false;
       return;
     }
 
     if (!this.password) {
-      console.error('Password is required');
-      alert('Password is required');
+      this.errorMessage = 'Password is required';
+      this.isLoading = false;
       return;
     }
 
-    // Disable submit button to prevent multiple submissions
-    const submitButton = document.getElementById('login-submit-btn');
-    if (submitButton) submitButton.setAttribute('disabled', 'true');
-
     this.authService.login(this.username, this.password).subscribe({
       next: (res) => {
-        console.group('Login Successful');
-        console.log('Login response:', res);
-
-        // Re-enable submit button
-        if (submitButton) submitButton.removeAttribute('disabled');
-
+        this.isLoading = false;
         if (res && res.accessToken) {
-          // Clear any existing tokens first
-          this.tokenStorage.signOut();
-
-          // Save access token
+          // Save tokens and user details
           this.tokenStorage.saveToken(res.accessToken);
-
-          // Save refresh token if exists
           if (res.refreshToken) {
             this.tokenStorage.saveRefreshToken(res.refreshToken);
           }
-
-          // Save user details
           this.tokenStorage.saveUser(res);
 
-          console.log('Login successful');
+          console.log('Login successful, navigating to', this.returnUrl);
 
-          // Detailed navigation logging
-          console.log('Attempting to navigate to profile');
-          this.router.navigate(['/profile'])
-            .then(() => {
-              console.log('Navigation to profile successful');
-            })
-            .catch(navErr => {
-              console.group('Navigation Error');
-              console.error('Failed to navigate to profile', navErr);
-              console.log('Current URL:', this.router.url);
-              console.log('Router state:', this.router.routerState);
-              console.groupEnd();
-
-              alert('Login successful, but unable to navigate to profile. Please contact support.');
-            });
-        } else {
-          console.error('Login failed: Unexpected response', res);
-          alert('Unexpected login response');
+          // Navigate to return URL
+          this.router.navigate([this.returnUrl]);
         }
-        console.groupEnd();
       },
-      error: (err) => {
-        // Re-enable submit button
-        if (submitButton) submitButton.removeAttribute('disabled');
-
-        console.group('Login Error');
-        console.error('Login failed', err);
-
-        // Provide user-friendly error message
-        const errorMessage = err.error?.message ||
-                             err.message ||
-                             'Login failed. Please check your credentials.';
-
-        console.error('Detailed error:', {
-          errorMessage,
-          fullError: err
-        });
-
-        // Show error to user
-        alert(errorMessage);
-        console.groupEnd();
+      error: (error) => {
+        this.isLoading = false;
+        this.errorMessage = error.error?.message || 'Login failed. Please check your credentials.';
       }
     });
+  }
+
+  handleOAuthCallback(code: string, provider: string) {
+    this.isLoading = true;
+    this.errorMessage = '';
+
+    this.authService.handleOAuthCallback(code, provider).subscribe({
+      next: (res) => {
+        this.isLoading = false;
+        if (res && res.accessToken) {
+          // Token storage is handled in the service
+          this.router.navigate([this.returnUrl]);
+        }
+      },
+      error: (error) => {
+        this.isLoading = false;
+        this.errorMessage = error.error?.message || 'OAuth authentication failed. Please try again.';
+      }
+    });
+  }
+
+  initiateGoogleAuth() {
+    this.authService.initiateGoogleAuth();
+  }
+
+  initiateGithubAuth() {
+    this.authService.initiateGithubAuth();
   }
 }

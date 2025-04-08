@@ -11,7 +11,8 @@ const AUTH_API = `${environment.apiUrl}/api/`;
 const httpOptions = {
     headers: new HttpHeaders({
         'Content-Type': 'application/json'
-    })
+    }),
+    withCredentials: true
 }
 
 @Injectable({
@@ -20,7 +21,8 @@ const httpOptions = {
 export class AuthService {
     constructor(
       private http: HttpClient,
-      private tokenStorageService: TokenStorageService
+      private tokenStorageService: TokenStorageService,
+      private router: Router
     ) { }
 
     login(username: string, password: string): Observable<any> {
@@ -34,12 +36,6 @@ export class AuthService {
                 'Content-Type': 'application/json'
             })
         }).pipe(
-          // Store tokens after successful login
-          tap((response: any) => {
-            this.tokenStorageService.saveToken(response.accessToken);
-            this.tokenStorageService.saveRefreshToken(response.refreshToken);
-            this.tokenStorageService.saveUser(response);
-          }),
             catchError((error) => {
                 console.error('Login error details:', {
                     status: error.status,
@@ -70,7 +66,7 @@ export class AuthService {
       );
   }
   forgotPassword(email: string): Observable<any> {
-    return this.http.post(AUTH_API + 'password/forgot', { email });
+    return this.http.post(AUTH_API + 'password/forgot', { email }, httpOptions);
 }
 
 resetPassword(token: string, password: string): Observable<any> {
@@ -89,12 +85,50 @@ changePassword(currentPassword: string, newPassword: string): Observable<any> {
 }
 
 logout(): Observable<any> {
-  return this.http.post(AUTH_API + 'auth/signout', {}); // New logout endpoint
+  return this.http.post(AUTH_API + 'auth/signout', {}, httpOptions).pipe(
+    tap(() => {
+      this.tokenStorageService.signOut();
+      this.router.navigate(['/login']);
+    })
+  );
 }
 
 refreshToken(refreshToken: string): Observable<any> {
   return this.http.post(AUTH_API + 'auth/refreshtoken', {
     refreshToken
-  });
+  }).pipe(
+    tap((response: any) => {
+      this.tokenStorageService.saveToken(response.accessToken);
+      this.tokenStorageService.saveRefreshToken(response.refreshToken);
+    })
+  );
+}
+
+// OAuth methods
+initiateGoogleAuth(): void {
+  window.location.href = `${AUTH_API}auth/google`;
+}
+
+initiateGithubAuth(): void {
+  window.location.href = `${AUTH_API}auth/github`;
+}
+
+handleOAuthCallback(code: string, provider: string): Observable<any> {
+  return this.http.get(`${AUTH_API}auth/${provider}/callback?code=${code}`, httpOptions).pipe(
+    tap((response: any) => {
+      // Clean token before saving (remove Bearer prefix if present)
+      const cleanToken = response.accessToken.replace(/^Bearer\s+/i, '');
+      this.tokenStorageService.saveToken(cleanToken);
+
+      if (response.refreshToken) {
+        this.tokenStorageService.saveRefreshToken(response.refreshToken);
+      }
+
+      this.tokenStorageService.saveUser(response);
+
+      console.log('OAuth login successful, token saved:',
+                 cleanToken.substring(0, 20) + '...');
+    })
+  );
 }
 }

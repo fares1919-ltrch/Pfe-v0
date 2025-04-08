@@ -1,23 +1,69 @@
-<header class="app-header">
-  <nav>
-    <div class="left-section">
-      <div class="user-info">
-        <span class="user-greeting">Hi, {{ currentUser?.username }}</span>
-        <button [routerLink]="dashboardLink" class="dashboard-button">
-          <i class="fas fa-chart-line"></i> My Dashboard
-        </button>
-      </div>
-    </div>
+<header class="header-container">
+  <div class="header-content">
+    <h1 class="header-title">
+      <span class="accent-text">{{ currentUser?.username }}</span
+      >'s Account
+    </h1>
 
-    <div class="menu-toggle" (click)="toggleMenu()">
-      <span></span>
-      <span></span>
-      <span></span>
-    </div>
+    <!-- Desktop Navigation -->
+    <nav class="desktop-nav">
+      <a
+        [routerLink]="['/']"
+        routerLinkActive="active-link"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="nav-link"
+      >
+        <span class="btn-icon">🏠</span>
+        <span>HOME</span>
+      </a>
+      <a
+        [routerLink]="[dashboardLink]"
+        routerLinkActive="active-link"
+        class="nav-link"
+      >
+        <span class="btn-icon">📊</span>
+        <span>DASHBOARD</span>
+      </a>
+      <button (click)="logout()" class="nav-link logout-btn">
+        <span class="btn-icon">🚪</span>
+        <span>LOGOUT</span>
+      </button>
+    </nav>
 
-    <div class="user-section" [class.active]="menuOpen">
-      <span class="user-role">{{ currentUser?.roles[0].replace('_ROLE', '') | titlecase }}</span>
-      <button class="logout-button" (click)="logout()">Logout</button>
+    <!-- Mobile Menu Button -->
+    <button
+      (click)="toggleMenu()"
+      class="mobile-menu-btn"
+      aria-label="Toggle mobile menu"
+    >
+      <fa-icon [icon]="menuOpen ? faTimes : faBars"></fa-icon>
+    </button>
+  </div>
+
+  <!-- Mobile Navigation -->
+  <nav [class.show]="menuOpen" class="mobile-nav">
+    <div class="nav-links">
+      <a
+        [routerLink]="['/']"
+        routerLinkActive="active-link"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="nav-link"
+      >
+        <span class="btn-icon">🏠</span>
+        <span>HOME</span>
+      </a>
+      <a
+        [routerLink]="[dashboardLink]"
+        routerLinkActive="active-link"
+        class="nav-link"
+      >
+        <span class="btn-icon">📊</span>
+        <span>DASHBOARD</span>
+      </a>
+      <button (click)="logout()" class="nav-link logout-btn">
+        <span class="btn-icon">🚪</span>
+        <span>LOGOUT</span>
+      </button>
     </div>
   </nav>
 </header>

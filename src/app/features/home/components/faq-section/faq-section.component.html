@@ -2,17 +2,12 @@
   <div class="container">
     <h1 class="text-5xl font-bold mb-4">FAQ</h1>
     <h3 class="faq-subtitle">
-      Looking to learn more about our product? Here are some of the most common questions.
+      Looking to learn more about our product? Here are some of the most common
+      questions.
     </h3>
     <div class="faq-list">
-      <div
-        *ngFor="let item of faqs"
-        class="faq-item"
-      >
-        <div
-          (click)="toggleQuestion(item)"
-          class="faq-question"
-        >
+      <div *ngFor="let item of faqs" class="faq-item">
+        <div (click)="toggleQuestion(item)" class="faq-question">
           <span class="faq-question-text">{{ item.question }}</span>
           <div class="faq-toggle-icon">
             <i
@@ -25,8 +20,7 @@
           *ngIf="item.isOpen"
           class="faq-answer"
           [innerHTML]="item.answer"
-        >
-        </div>
+        ></div>
       </div>
     </div>
   </div>

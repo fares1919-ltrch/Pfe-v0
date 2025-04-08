@@ -95,13 +95,16 @@
 
           .social-login {
             margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
 
-            .google-btn {
+            .google-btn, .github-btn {
               width: 100%;
               background-color: #333;
               color: #fff;
               border: none;
-              padding: 10px; // Slightly reduced
+              padding: 10px;
               border-radius: 8px;
               display: flex;
               align-items: center;
@@ -116,8 +119,8 @@
               }
 
               img {
-                width: 18px; // Slightly reduced
-                height: 18px; // Slightly reduced
+                width: 18px;
+                height: 18px;
                 margin-right: 10px;
               }
             }

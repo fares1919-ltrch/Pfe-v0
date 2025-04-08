@@ -1,31 +1,378 @@
-<main class="main-content">
-  <div class="role-header">
-    <h1>{{ roleContent }}</h1>
+<div class="container mx-auto p-4 pt-0">
+  <div class="bg-white shadow-md rounded-lg p-6 mt-4">
+    <!-- Main Profile Container -->
+    <div class="profile-container">
+      <!-- Profile Identity Section -->
+      <section class="profile-section identity-section mb-8" #profileSection>
+        <div class="section-glow"></div>
+        <h2 class="section-title">Profile Identity</h2>
+        <div class="identity-content">
+          <div class="profile-image-container">
+            <div class="image-wrapper">
+              <img
+                [src]="profileImageUrl"
+                alt="Profile"
+                class="profile-image"
+              />
+              <div class="image-halo"></div>
+            </div>
+            <div class="image-upload mt-2">
+              <input
+                type="file"
+                (change)="onFileSelected($event)"
+                accept="image/*"
+                id="photo"
+                class="hidden"
+              />
+              <label for="photo" class="upload-btn">
+                <span class="btn-icon">📷</span>
+                <span>Change Photo</span>
+              </label>
+            </div>
+            <div *ngIf="uploading" class="upload-progress mt-2">
+              <div class="spinner"></div>
+              <span>Uploading...</span>
+            </div>
+          </div>
+
+          <div class="identity-details">
+            <div class="form-group">
+              <label for="username">Username</label>
+              <input
+                type="text"
+                id="username"
+                [value]="profileForm.get('username')?.value"
+                readonly
+                class="form-control"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                [value]="profileForm.get('email')?.value"
+                readonly
+                class="form-control"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Form Container -->
+      <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+        <!-- Personal Information Section -->
+        <section class="profile-section mb-8" #profileSection>
+          <div class="section-glow"></div>
+          <h2 class="section-title">Personal Information</h2>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="firstName">First Name</label>
+              <input
+                type="text"
+                id="firstName"
+                formControlName="firstName"
+                class="form-control"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="lastName">Last Name</label>
+              <input
+                type="text"
+                id="lastName"
+                formControlName="lastName"
+                class="form-control"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="address">Address</label>
+              <input
+                type="text"
+                id="address"
+                formControlName="address"
+                class="form-control"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="city">City</label>
+              <input
+                type="text"
+                id="city"
+                formControlName="city"
+                class="form-control"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="country">Country</label>
+              <input
+                type="text"
+                id="country"
+                formControlName="country"
+                class="form-control"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="postalCode">Postal Code</label>
+              <input
+                type="text"
+                id="postalCode"
+                formControlName="postalCode"
+                class="form-control"
+              />
+            </div>
+
+            <div class="form-group full-width">
+              <label for="aboutMe">About Me</label>
+              <textarea
+                id="aboutMe"
+                formControlName="aboutMe"
+                rows="4"
+                class="form-control"
+              ></textarea>
+            </div>
+          </div>
+        </section>
+
+        <!-- Professional Information Section -->
+        <section class="profile-section mb-8" #profileSection>
+          <div class="section-glow"></div>
+          <h2 class="section-title">Professional Information</h2>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="work">Job Title</label>
+              <input
+                type="text"
+                id="work"
+                formControlName="work"
+                class="form-control"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="workplace">Workplace</label>
+              <input
+                type="text"
+                id="workplace"
+                formControlName="workplace"
+                class="form-control"
+              />
+            </div>
+          </div>
+        </section>
+
+        <!-- Form Actions -->
+        <div class="form-actions mb-8">
+          <button
+            type="submit"
+            [disabled]="profileForm.invalid || isSubmitting"
+            class="primary-btn"
+          >
+            <span class="btn-content">
+              <span *ngIf="isSubmitting" class="spinner-sm"></span>
+              <span *ngIf="isSubmitting">Saving...</span>
+              <span *ngIf="!isSubmitting">Save Changes</span>
+            </span>
+          </button>
+        </div>
+      </form>
+
+      <!-- Account Settings Section -->
+      <section class="profile-section mb-8" #profileSection>
+        <div class="section-glow"></div>
+        <h2 class="section-title">Account Settings</h2>
+        <div class="account-settings">
+          <button
+            type="button"
+            (click)="openChangePasswordModal()"
+            class="secondary-btn"
+          >
+            <span class="btn-icon">🔒</span>
+            <span>Change Password</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Active Sessions Section -->
+      <section class="profile-section mb-8" #profileSection>
+        <div class="section-glow"></div>
+        <h2 class="section-title">Active Sessions</h2>
+        <div *ngIf="isLoadingSessions" class="loading">
+          <div class="spinner"></div>
+          <span>Loading sessions...</span>
+        </div>
+        <div
+          *ngIf="!isLoadingSessions && activeSessions.length === 0"
+          class="no-sessions"
+        >
+          No active sessions found.
+        </div>
+        <div
+          *ngIf="!isLoadingSessions && activeSessions.length > 0"
+          class="sessions-list"
+        >
+          <div *ngFor="let session of activeSessions" class="session-item">
+            <div class="session-info">
+              <div class="session-device">
+                <i
+                  class="fas"
+                  [ngClass]="{
+                    'fa-desktop': session.deviceType === 'desktop',
+                    'fa-mobile': session.deviceType === 'mobile'
+                  }"
+                ></i>
+                {{ session.deviceType | titlecase }}
+              </div>
+              <div class="session-details">
+                <div class="session-location">{{ session.location }}</div>
+                <div class="session-time">
+                  Last active: {{ session.lastActive | date : "medium" }}
+                </div>
+              </div>
+            </div>
+            <button
+              *ngIf="!session.current"
+              (click)="revokeSession(session.token)"
+              class="danger-btn"
+            >
+              <span class="btn-icon">🚫</span>
+              <span>End Session</span>
+            </button>
+            <span *ngIf="session.current" class="current-session"
+              >Current Session</span
+            >
+          </div>
+        </div>
+      </section>
+
+      <!-- Danger Zone Section -->
+      <section class="profile-section danger-zone" #profileSection>
+        <div class="section-glow danger-glow"></div>
+        <h2 class="section-title danger-title">Danger Zone</h2>
+        <div class="danger-actions">
+          <button (click)="deleteAccount()" class="delete-btn">
+            <span class="btn-icon">⚠️</span>
+            <span>Delete Account</span>
+          </button>
+        </div>
+      </section>
+    </div>
   </div>
+</div>
 
-  <div [ngSwitch]="currentUser?.roles[0]" class="dashboard-content">
-    <!-- User Content -->
-    <div *ngSwitchCase="'user'" class="user-dashboard">
-      <section class="welcome-section">
-        <h2>Welcome back, {{ currentUser.username }}!</h2>
-        <p>Your recent updates will appear here</p>
-      </section>
+<!-- Change Password Modal -->
+<div *ngIf="showPasswordModal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Change Password</h3>
+      <button (click)="closePasswordModal()" class="close-btn">
+        <span class="btn-icon">✕</span>
+      </button>
     </div>
+    <form
+      [formGroup]="passwordForm"
+      (ngSubmit)="changePassword()"
+      class="password-form"
+      autocomplete="off"
+    >
+      <!-- Hidden username field for accessibility -->
+      <input
+        type="text"
+        name="username"
+        autocomplete="username"
+        style="display: none"
+      />
 
-    <!-- Manager Content -->
-    <div *ngSwitchCase="'manager'" class="manager-dashboard">
-      <section class="team-overview">
-        <h2>Team Performance</h2>
-        <p>Management metrics will be displayed here</p>
-      </section>
-    </div>
+      <div class="form-group">
+        <label for="currentPassword">Current Password</label>
+        <input
+          type="password"
+          id="currentPassword"
+          formControlName="currentPassword"
+          placeholder="Enter your current password"
+          class="form-control"
+          autocomplete="current-password"
+        />
+      </div>
 
-    <!-- Officer Content -->
-    <div *ngSwitchCase="'officer'" class="officer-dashboard">
-      <section class="system-analytics">
-        <h2>System Overview</h2>
-        <p>Administrative controls and analytics</p>
-      </section>
-    </div>
+      <div class="form-group">
+        <label for="newPassword">New Password</label>
+        <input
+          type="password"
+          id="newPassword"
+          formControlName="newPassword"
+          placeholder="Enter your new password"
+          class="form-control"
+          autocomplete="new-password"
+        />
+        <div class="password-requirements">
+          <div class="requirement" [class.valid]="hasMinLength()">
+            <span class="checkmark">✓</span>
+            <span>At least 8 characters</span>
+          </div>
+          <div class="requirement" [class.valid]="hasUpperCase()">
+            <span class="checkmark">✓</span>
+            <span>One uppercase letter</span>
+          </div>
+          <div class="requirement" [class.valid]="hasLowerCase()">
+            <span class="checkmark">✓</span>
+            <span>One lowercase letter</span>
+          </div>
+          <div class="requirement" [class.valid]="hasNumber()">
+            <span class="checkmark">✓</span>
+            <span>One number</span>
+          </div>
+          <div class="requirement" [class.valid]="hasSpecialChar()">
+            <span class="checkmark">✓</span>
+            <span>One special character (&#64;$!%*?&)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="confirmPassword">Confirm New Password</label>
+        <input
+          type="password"
+          id="confirmPassword"
+          formControlName="confirmPassword"
+          placeholder="Confirm your new password"
+          class="form-control"
+          autocomplete="new-password"
+        />
+      </div>
+
+      <div class="form-actions">
+        <button
+          type="button"
+          (click)="closePasswordModal()"
+          class="secondary-btn"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          [disabled]="passwordForm.invalid || isSubmittingPassword"
+          class="primary-btn"
+        >
+          <span class="btn-content">
+            <span *ngIf="isSubmittingPassword" class="spinner-sm"></span>
+            <span *ngIf="isSubmittingPassword">Changing...</span>
+            <span *ngIf="!isSubmittingPassword">Change Password</span>
+          </span>
+        </button>
+      </div>
+    </form>
   </div>
-</main>
+</div>
+
+<!-- Alert Message -->
+<div *ngIf="alertMessage" [class]="'alert ' + alertType">
+  {{ alertMessage }}
+  <button (click)="closeAlert()" class="close-alert">&times;</button>
+</div>

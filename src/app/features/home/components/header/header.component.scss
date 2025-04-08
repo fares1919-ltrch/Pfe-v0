@@ -1,113 +1,79 @@
-.navbar {
-  box-shadow: 0 2px 15px rgba(0,0,0,0.2);
-  transition: background-color 0.3s ease;
-  margin-left: auto;
+// Add any specific styles that can't be handled by Tailwind here
+// This file should be mostly empty as we're using Tailwind for styling
 
-  .navbar-brand {
-    display: flex;
-    align-items: center;
+// Fix for sticky header z-index issues
+:host {
+  display: block;
+  position: relative;
+  z-index: 50;
+}
 
-    img {
-      transition: transform 0.3s ease;
+// Add transition for mobile menu
+@media (max-width: 1023px) {
+  .navbar-menu-transition {
+    transition: all 0.3s ease-in-out;
+  }
 
-      &:hover {
-        transform: scale(1.1);
-      }
+  // Ensure mobile menu is properly positioned
+  [data-dropdown="mobile-menu"] {
+    position: fixed;
+    top: 60px; // Adjusted based on smaller header height
+    left: 0;
+    right: 0;
+    z-index: 40;
+  }
+
+  // Ensure toggle button is clickable
+  [data-toggle="mobile-menu"] {
+    position: relative;
+    z-index: 60;
+    cursor: pointer;
+  }
+}
+
+.nav-link {
+  position: relative;
+  transition: all 0.3s ease;
+  text-align: center;
+  padding: 0.25rem 0.5rem;
+
+  &::before {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #6b21a8;
+    transition: width 0.3s ease;
+  }
+
+  &:hover {
+    &::before {
+      width: 80%;
     }
   }
 
-  .navbar-nav {
-    .nav-item {
-      .nav-link {
-        position: relative;
-        color: rgba(255,255,255,0.7);
-        transition: color 0.3s ease;
-
-        &:hover,
-        &.active {
-          color: #ffffff;
-
-          &::after {
-            width: 100%;
-          }
-        }
-
-        &::after {
-          content: '';
-          position: absolute;
-          bottom: -5px;
-          left: 0;
-          width: 0;
-          height: 2px;
-          background-color: #6b21a8;
-          transition: width 0.3s ease;
-        }
-      }
+  @media (max-width: 1023px) {
+    &::before {
+      left: 0;
+      transform: none;
     }
-  }
-
-  .btn-primary {
-    background-color: rgba(255, 255, 255, 0.1);
-    border: 2px solid #6b21a8;
-    color: #ffffff;
-    border-radius: 0.5rem;
-    font-weight: 600;
-    transition: all 0.3s ease;
 
     &:hover {
-      background-color: #6b21a8;
-      color: white;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-  }
-
-  .dropdown-menu {
-    background-color: rgba(30, 30, 40, 0.9);
-    border: none;
-
-    .dropdown-item {
-      color: rgba(255,255,255,0.7);
-      transition: background-color 0.3s ease, color 0.3s ease;
-
-      &:hover {
-        background-color: rgba(107, 33, 168, 0.2);
-        color: #ffffff;
+      &::before {
+        width: 100%;
       }
     }
   }
 }
 
-.user-actions-container {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-
-  .dropdown {
-    margin-right: 1rem;
-  }
-
-  .auth-buttons {
+// Ensure proper centering of nav items
+@media (min-width: 1024px) {
+  ul {
     display: flex;
-    align-items: center;
-  }
-}
-
-
-// Responsive adjustments
-@media (max-width: 992px) {
-  .navbar {
-    .navbar-collapse {
-    }
-
-    .user-actions-container {
-      flex-direction: column; // Stack elements vertically
-      align-items: flex-end; // Align to the right
-
-      .auth-buttons {
-        margin-top: 0.5rem;
-       // Add some spacing between language and buttons
-      }
-    }
+    justify-content: center;
+    width: 100%;
   }
 }

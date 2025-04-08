@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { HeaderComponent } from '../header/header.component';
 import { BodyComponent } from '../body/body.component';
-import { CommonModule } from '@angular/common';
 import { TokenStorageService } from '../../../core/services/token-storage.service';
 
 @Component({

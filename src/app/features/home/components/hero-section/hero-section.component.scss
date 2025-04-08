@@ -41,7 +41,7 @@
 
   .content-container {
     width: 100%;
-    max-width: 1200px;
+    max-width: 1400px;
     padding: 2rem;
     display: flex;
     align-items: center;
@@ -66,26 +66,6 @@
   }
   h1 {
     text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-  }
-  .logo-container {
-
-    position: absolute;
-      top: 50%;
-      right: 2rem;
-      transform: translateY(-50%);
-      width: 12rem; // Increased size
-      max-width: 15rem;
-      opacity: 0.8;
-
-    &:hover {
-      opacity: 1;
-    }
-
-    img {
-      width: 100%;
-      height: auto;
-      filter: brightness(0) invert(1);
-    }
   }
 
   .cta-buttons {
@@ -121,16 +101,6 @@
 
     .cta-buttons {
       justify-content: center;
-    }
-
-    .logo-container {
-      position: absolute;
-      top: 50%;
-      right: 2rem;
-      transform: translateY(-50%);
-      width: 12rem; // Increased size
-      max-width: 15rem;
-      opacity: 0.8;
     }
   }
 }

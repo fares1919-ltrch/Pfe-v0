@@ -1,88 +1,196 @@
 <!-- Header -->
-<header class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm sticky-top">
-  <div class="container-fluid">
-    <!-- Logo -->
-    <a class="navbar-brand d-flex align-items-center" href="#">
-      <img
-        src="assets/images/logo.png"
-        alt=""
-        class="me-2"
-        style="height: 40px"
-      />
-      <span class="fw-bold">Identity Secure</span>
-    </a>
+<header
+  class="sticky top-0 bg-[rgba(20,20,30,0.9)] backdrop-blur-md shadow-sm z-50"
+>
+  <div class="container mx-auto px-2 md:px-3">
+    <div class="flex items-center justify-between py-3">
+      <!-- Logo -->
+      <a href="#" class="flex items-center shrink-0">
+        <img
+          src="assets/images/logo.png"
+          alt="Identity Secure Logo"
+          class="h-8 sm:h-10 mr-2"
+        />
+        <span class="font-bold text-white text-sm sm:text-base"
+          >Identity Secure</span
+        >
+      </a>
 
-    <!-- Mobile Toggle Button -->
-    <button
-      class="navbar-toggler"
-      type="button"
-      data-bs-toggle="collapse"
-      data-bs-target="#navbarNav"
-      aria-controls="navbarNav"
-      aria-expanded="false"
-      aria-label="Toggle navigation"
-    >
-      <span class="navbar-toggler-icon"></span>
-    </button>
+      <!-- Mobile Toggle Button -->
+      <button
+        class="lg:hidden text-white focus:outline-none relative z-50"
+        (click)="toggleMobileMenu()"
+        data-toggle="mobile-menu"
+        aria-label="Toggle navigation"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-6 w-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M4 6h16M4 12h16M4 18h16"
+          />
+        </svg>
+      </button>
 
-    <!-- Navigation Menu -->
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="#hero">Home</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#about">About</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#features">Features</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#guides">Guides</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#faq">FAQ</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#findus">Explore</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#contact">Contact</a>
-        </li>
-      </ul>
+      <!-- Navigation Menu -->
+      <div
+        class="hidden lg:flex lg:items-center lg:justify-center flex-1 mx-4"
+        [ngClass]="{
+          hidden: !isMobileMenuOpen,
+          'block fixed top-16 left-0 right-0 bg-[rgba(20,20,30,0.9)] backdrop-blur-md p-4 shadow-lg z-40':
+            isMobileMenuOpen
+        }"
+        data-dropdown="mobile-menu"
+      >
+        <ul
+          class="flex flex-col lg:flex-row lg:items-center lg:justify-center space-y-2 lg:space-y-0 w-full mx-auto"
+        >
+          <li class="lg:mx-2 xl:mx-3">
+            <a
+              href="#"
+              class="block py-2 text-white hover:text-[#6b21a8] relative nav-link"
+              >Home</a
+            >
+          </li>
+          <li class="lg:mx-2 xl:mx-3">
+            <a
+              href="#about"
+              class="block py-2 text-gray-300 hover:text-white relative nav-link"
+              >About</a
+            >
+          </li>
+          <li class="lg:mx-2 xl:mx-3">
+            <a
+              href="#features"
+              class="block py-2 text-gray-300 hover:text-white relative nav-link"
+              >Features</a
+            >
+          </li>
+          <li class="lg:mx-2 xl:mx-3">
+            <a
+              href="#guides"
+              class="block py-2 text-gray-300 hover:text-white relative nav-link"
+              >Guides</a
+            >
+          </li>
+          <li class="lg:mx-2 xl:mx-3">
+            <a
+              href="#faq"
+              class="block py-2 text-gray-300 hover:text-white relative nav-link"
+              >FAQ</a
+            >
+          </li>
+          <li class="lg:mx-2 xl:mx-3">
+            <a
+              href="#explore"
+              class="block py-2 text-gray-300 hover:text-white relative nav-link"
+              >Explore</a
+            >
+          </li>
+          <li class="lg:mx-2 xl:mx-3">
+            <a
+              href="#contact"
+              class="block py-2 text-gray-300 hover:text-white relative nav-link"
+              >Contact</a
+            >
+          </li>
+        </ul>
+      </div>
 
       <!-- User Actions Container -->
-      <div class="user-actions-container">
+      <div
+        class="flex flex-col lg:flex-row items-center space-y-2 lg:space-y-0 lg:space-x-2 shrink-0"
+      >
         <!-- Language Selector -->
-        <div class="dropdown me-3">
+        <div class="relative lg:mb-0 w-full lg:w-auto">
           <button
-            class="btn btn-outline-light dropdown-toggle"
-            type="button"
-            id="languageDropdown"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
+            (click)="toggleLanguageDropdown()"
+            class="flex items-center justify-center w-full lg:w-auto px-2 py-1.5 border border-gray-600 rounded text-white hover:bg-[#6b21a8] transition text-sm"
+            data-dropdown="language"
           >
-            <i class="fas fa-globe me-2"></i>Language
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-4 w-4 mr-1"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"
+              />
+            </svg>
+            <span class="hidden sm:inline">Language</span>
           </button>
-          <ul class="dropdown-menu" aria-labelledby="languageDropdown">
-            <li><a class="dropdown-item" href="#">English</a></li>
-            <li><a class="dropdown-item" href="#">Français</a></li>
-            <li><a class="dropdown-item" href="#">Português</a></li>
-          </ul>
+          <div
+            *ngIf="isLanguageDropdownOpen"
+            class="absolute right-0 mt-2 py-2 w-48 bg-[rgba(20,20,30,0.95)] backdrop-blur-md rounded-md shadow-lg z-50"
+          >
+            <a href="#" class="block px-4 py-2 text-white hover:bg-[#6b21a8]"
+              >English</a
+            >
+            <a href="#" class="block px-4 py-2 text-white hover:bg-[#6b21a8]"
+              >Français</a
+            >
+            <a href="#" class="block px-4 py-2 text-white hover:bg-[#6b21a8]"
+              >Português</a
+            >
+          </div>
         </div>
 
         <!-- Login/Signup Buttons -->
-        <div class="auth-buttons">
-          <a [routerLink]="['/auth/login']" class="btn btn-outline-light me-2">
-            <i class="fas fa-sign-in-alt me-2"></i>Login
+        <div class="flex flex-row w-full lg:w-auto space-x-2">
+          <a
+            [routerLink]="['/auth/login']"
+            class="flex items-center justify-center w-full lg:w-auto px-2 py-1.5 border border-gray-600 rounded text-white hover:bg-[#6b21a8] transition text-sm"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-4 w-4 mr-1"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
+              />
+            </svg>
+            <span class="hidden sm:inline">Login</span>
           </a>
-          <a [routerLink]="['/auth/register']" class="btn btn-primary">
-            <i class="fas fa-user-plus me-2"></i>Sign Up
+          <a
+            [routerLink]="['/auth/register']"
+            class="flex items-center justify-center w-full lg:w-auto px-2 py-1.5 border border-gray-600 rounded text-white hover:bg-[#6b21a8] transition text-sm"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-4 w-4 mr-1"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
+              />
+            </svg>
+            <span class="hidden sm:inline">Sign Up</span>
           </a>
         </div>
       </div>
     </div>
   </div>
 </header>
-
-<!-- Header -->

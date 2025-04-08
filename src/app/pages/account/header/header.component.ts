@@ -1,60 +1,52 @@
 import { Component, OnInit } from '@angular/core';
-import { TokenStorageService } from '../../../core/services/token-storage.service';
-import { Router, RouterLink } from '@angular/router';
-import { AuthService } from '../../../core/services/auth.service';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { TokenStorageService } from '../../../core/services/token-storage.service';
+import { Router } from '@angular/router';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faBars, faTimes } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
-  selector: 'profile-header',
-  imports: [RouterLink, CommonModule],
-  templateUrl: './header.component.html',
-  styleUrls: ['./header.component.scss'],
+  selector: 'app-header',
   standalone: true,
+  imports: [CommonModule, RouterModule, FontAwesomeModule],
+  templateUrl: './header.component.html',
+  styleUrls: ['./header.component.scss']
 })
 export class HeaderComponent implements OnInit {
   currentUser: any;
-  dashboardLink = '';
-  menuOpen = false;
+  menuOpen: boolean = false;
+  dashboardLink: string = '/dashboard';
+  faBars = faBars;
+  faTimes = faTimes;
 
   constructor(
     private tokenStorage: TokenStorageService,
-    private authService: AuthService,
     private router: Router
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.currentUser = this.tokenStorage.getUser();
-    console.log('User Roles:', this.currentUser?.roles);
-    this.setDashboardLink();
-  }
 
-  private setDashboardLink() {
-    const role = this.currentUser?.roles[0];
-    console.log('Current User Roles:', this.currentUser?.roles);
-    console.log('Selected Role:', role);
-    this.dashboardLink = {
-      'ROLE_CITIZEN': '/citizen-dashboard',
-      'ROLE_MANAGER': '/manager-dashboard',
-      'ROLE_OFFICER': '/officer-dashboard'
-    }[role as string] || '/';
-    console.log('Dashboard Link:', this.dashboardLink);
-  }
-
-  logout() {
-    this.authService.logout().subscribe({
-      complete: () => {
-        this.tokenStorage.signOut();
-        this.router.navigate(['/auth/login']);
-      },
-      error: (err) => {
-        console.error('Logout error:', err);
-        this.tokenStorage.signOut();
-        this.router.navigate(['/auth/login']);
+    // Determine dashboard link based on user role
+    if (this.currentUser && this.currentUser.roles) {
+      if (this.currentUser.roles.includes('ROLE_OFFICER')) {
+        this.dashboardLink = '/officer-dashboard';
+      } else if (this.currentUser.roles.includes('ROLE_MANAGER')) {
+        this.dashboardLink = '/manager-dashboard';
+      } else {
+        // Default to citizen dashboard
+        this.dashboardLink = '/citizen-dashboard';
       }
-    });
+    }
   }
 
-  toggleMenu() {
+  toggleMenu(): void {
     this.menuOpen = !this.menuOpen;
+  }
+
+  logout(): void {
+    this.tokenStorage.signOut();
+    this.router.navigate(['/auth/login']);
   }
 }

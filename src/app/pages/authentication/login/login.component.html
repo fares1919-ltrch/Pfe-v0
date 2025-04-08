@@ -12,44 +12,101 @@
             <h2>Welcome Back</h2>
             <p>Enter your credentials to continue</p>
           </div>
+
+          <!-- Error Message -->
+          <div class="error-message" *ngIf="errorMessage">
+            {{ errorMessage }}
+          </div>
+
           <div class="social-login">
-            <button type="button" class="google-btn">
+            <button
+              type="button"
+              class="google-btn"
+              (click)="initiateGoogleAuth()"
+              [disabled]="isLoading"
+            >
               <img src="assets/images/icons/icons8-google.svg" alt="google" />
               <span>Sign In With Google</span>
             </button>
+            <button
+              type="button"
+              class="github-btn"
+              (click)="initiateGithubAuth()"
+              [disabled]="isLoading"
+            >
+              <img
+                src="assets/images/icons/icons8-github.svg"
+                alt="github"
+                onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iI2ZmZiIgZD0iTTEyIDBDNS4zNyAwIDAgNS4zNyAwIDEyYzAgNS4zIDMuNDMgOS44IDguMiAxMS4zOC42LjEyLjgyLS4yNi44Mi0uNTcgMC0uMjgtLjAxLTEuMDQtLjAxLTIuMDItMy4zLjcyLTQuMi0xLjYxLTQuMi0xLjYxLS41NC0xLjM4LTEuMzItMS43NS0xLjMyLTEuNzUtMS4wOC0uNzQuMDgtLjcyLjA4LS43MiAxLjIuMDggMS44MyAxLjIzIDEuODMgMS4yMyAxLjA3IDEuODQgMi44IDEuMzEgMy41MiAxIC4xLS43OC40LTEuMzEuNzItMS42MS0yLjUxLS4yOC01LjItMS4yLTUuMi01LjIgMC0xLjE1LjQxLTIuMDkgMS4xNS0yLjgzLS4xMi0uMjgtLjUtMS40MS4xMS0yLjk0IDAgMCAuOTQtLjMgMy4wMyAxLjEzLjk4LS4yNyAyLjAzLS40IDMuMDctLjQxIDEuMDQuMDEgMi4wOS4xNCAzLjA3LjQxIDIuMDktMS40MyAzLjAzLTEuMTMgMy4wMy0xLjEzLjYxIDEuNTMuMjMgMi42Ni4xMSAyLjk0Ljg0Ljc0IDEuMTUgMS42OCAxLjE1IDIuODMgMCA0LjAyLTIuNyA0LjctNS4yIDAgLS42NS0uMjMtMS4yNy0uNjgtMS43Mi4wNy0uNjcuMjctMS4zMy4yNy0yLjY3IDAtMS45My0uMDEtMy40Ni0uMDEtMy45MyAwLS4yMS4xNS0uNDYuNTUtLjM4QzE4LjU3IDIuMjMgMjQgNi4zIDI0IDEyYzAgNi42My01LjM3IDEyLTEyIDEyWiIvPjwvc3ZnPg=='"
+              />
+              <span>Sign In With GitHub</span>
+            </button>
           </div>
+
           <div class="saprator">
             <span>or</span>
           </div>
+
           <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
             <div class="form-group">
               <label for="username">Username</label>
-              <input type="text" id="username" name="username" placeholder="Enter your username" [(ngModel)]="username" required autocomplete="username"/>
+              <input
+                type="text"
+                id="username"
+                name="username"
+                placeholder="Enter your username"
+                [(ngModel)]="username"
+                required
+                autocomplete="username"
+                [disabled]="isLoading"
+              />
             </div>
+
             <div class="form-group">
               <label for="password">Password</label>
-              <input type="password" id="password" name="password" placeholder="Enter your password" [(ngModel)]="password" required autocomplete="current-password" />
+              <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="Enter your password"
+                [(ngModel)]="password"
+                required
+                autocomplete="current-password"
+                [disabled]="isLoading"
+              />
             </div>
+
             <div class="options-row">
               <div class="remember-me">
-                <input type="checkbox" id="rememberCheck" name="rememberMe" ngModel />
+                <input
+                  type="checkbox"
+                  id="rememberCheck"
+                  name="rememberMe"
+                  [(ngModel)]="rememberMe"
+                  [disabled]="isLoading"
+                />
                 <label for="rememberCheck">Remember me</label>
               </div>
               <div class="forgot-link">
-                <a [routerLink]="['/auth/forgot-password']" class="forgot-link">Forgot Password?</a>
+                <a [routerLink]="['/auth/forgot-password']" class="forgot-link"
+                  >Forgot Password?</a
+                >
               </div>
             </div>
+
             <div class="action-button">
               <button
                 type="submit"
                 id="login-submit-btn"
                 class="sign-in-btn"
-                [disabled]="!loginForm.form.valid"
+                [disabled]="!loginForm.form.valid || isLoading"
               >
-                Sign In
+                <span *ngIf="!isLoading">Sign In</span>
+                <span *ngIf="isLoading" class="loading-spinner"></span>
               </button>
             </div>
           </form>
+
           <div class="register-prompt">
             <span>Don't have an account?</span>
             <a [routerLink]="['/auth/register']">Register</a>

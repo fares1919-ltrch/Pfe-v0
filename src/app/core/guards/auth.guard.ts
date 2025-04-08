@@ -7,67 +7,47 @@ export const authGuard: CanActivateFn = (route, state) => {
   const tokenStorage = inject(TokenStorageService);
   const router = inject(Router);
 
-  // Detailed token retrieval and logging
   const token = tokenStorage.getToken();
   const user = tokenStorage.getUser();
 
-  console.group('Auth Guard Diagnostics');
-  console.log('Route:', route.url);
-  console.log('State:', state.url);
-  console.log('Token exists:', !!token);
-  console.log('Access Token:', token);
-  console.log('Refresh Token:', tokenStorage.getRefreshToken());
-  console.log('User Details:', user);
-
-  // More robust token validation
   if (!token || !user) {
-    console.warn('No token or user found, redirecting to login');
-    console.groupEnd();
-
-    // Clear any potentially invalid storage
+    console.warn('Auth Guard: No token or user found, redirecting to login');
     tokenStorage.signOut();
-
-    // Redirect to login with the original attempted URL
     router.navigate(['/auth/login'], {
-      queryParams: {
-        returnUrl: state.url
-      }
+      queryParams: { returnUrl: state.url }
     });
     return false;
   }
 
-  // Optional: Check token expiration if you have expiration in your token
-  // This is a placeholder - you'd need to implement actual token expiration check
-  const isTokenExpired = false; // Replace with actual expiration check
+  // Check token expiration
+  try {
+    const tokenPayload = JSON.parse(atob(token.split('.')[1]));
+    const expirationTime = tokenPayload.exp * 1000; // Convert to milliseconds
+    const isTokenExpired = Date.now() >= expirationTime;
 
-  if (isTokenExpired) {
-    console.warn('Token expired, redirecting to login');
-    console.groupEnd();
-
-    // Clear expired token
+    if (isTokenExpired) {
+      console.warn('Auth Guard: Token expired, redirecting to login');
+      tokenStorage.signOut();
+      router.navigate(['/auth/login']);
+      return false;
+    }
+  } catch (error) {
+    console.error('Auth Guard: Error checking token expiration', error);
     tokenStorage.signOut();
-
     router.navigate(['/auth/login']);
     return false;
   }
 
-  // Handle multiple roles from route data
+  // Check roles if required
   const requiredRoles = route.data['roles'] as Array<string>;
-  if (requiredRoles) {
-    console.log('Required Roles:', requiredRoles);
-    console.log('User Roles:', user?.roles);
-
+  if (requiredRoles?.length > 0) {
     const hasRole = user?.roles?.some((role: string) => requiredRoles.includes(role));
-
     if (!hasRole) {
-      console.warn('User does not have required roles');
-      console.groupEnd();
+      console.warn('Auth Guard: User does not have required roles');
       router.navigate(['/access-denied']);
       return false;
     }
   }
 
-  console.log('Access Granted');
-  console.groupEnd();
   return true;
 };

@@ -33,8 +33,8 @@ h1 {
   }
 
   .container {
-    width: 100%; 
-    max-width: 1200px;
+    width: 100%;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 1.5rem;
 
@@ -44,9 +44,9 @@ h1 {
   }
 
   .faq-subtitle {
-    font-size: 1.25rem; 
-    margin-bottom: 3rem; 
-    color: rgba(0, 0, 0, 0.6); 
+    font-size: 1.25rem;
+    margin-bottom: 3rem;
+    color: rgba(0, 0, 0, 0.6);
     text-align: center;
 
     @media (max-width: 768px) {
@@ -83,7 +83,7 @@ h1 {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 1rem 0; 
+      padding: 1rem 0;
       cursor: pointer;
       position: relative;
       color: black;
@@ -106,7 +106,7 @@ h1 {
         }
 
         i {
-          color: rgba(0, 0, 0, 0.6); 
+          color: rgba(0, 0, 0, 0.6);
           font-size: 1.2rem;
 
           @media (max-width: 576px) {
@@ -123,7 +123,7 @@ h1 {
     .faq-answer {
       color: rgb(0, 0, 0);
       max-width: 100%;
-      padding-bottom: 1rem; 
+      padding-bottom: 1rem;
       line-height: 1.6;
 
       @media (max-width: 576px) {

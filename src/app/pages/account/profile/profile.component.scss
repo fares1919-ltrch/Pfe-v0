@@ -1,8 +1,55 @@
-.auth-fallback {
-  text-align: center;
-  padding: 2rem;
-  max-width: 500px;
-  margin: 2rem auto;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+.profile-container {
+  min-height: 100vh;
+  background-color: #121212;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow-x: hidden;
+
+  // Add subtle background animation
+  &::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background:
+      radial-gradient(
+        circle at 20% 20%,
+        rgba(124, 77, 255, 0.05) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle at 80% 80%,
+        rgba(3, 218, 198, 0.05) 0%,
+        transparent 50%
+      );
+    opacity: 0.6;
+    z-index: -1;
+    animation: ambientBg 15s ease-in-out infinite alternate;
+  }
+
+  @keyframes ambientBg {
+    0% {
+      background-position: 0% 0%;
+    }
+    100% {
+      background-position: 100% 100%;
+    }
+  }
+
+  // Make the header and body components flush against each other
+  app-header, app-body {
+    display: block;
+  }
+
+  app-body {
+    flex: 1;
+  }
+}
+
+.profile-body {
+  margin-top: 0;
+  padding-top: 0;
 }
