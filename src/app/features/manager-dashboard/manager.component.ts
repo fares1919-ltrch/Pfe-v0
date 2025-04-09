@@ -1,4 +1,4 @@
-import { Component,OnInit } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { UserService } from "../../core/services/user.service";
 
 @Component({
@@ -7,11 +7,11 @@ import { UserService } from "../../core/services/user.service";
   styleUrls: ['./manager.component.scss']
 })
 export class ManagerComponent implements OnInit {
-  content? : string;
+  content?: string;
   constructor(private userService: UserService) { }
 
   ngOnInit(): void {
-    this.userService.getPublicContent().subscribe({
+    this.userService.getManagerBoard().subscribe({
       next: data => {
         this.content = data;
       },

@@ -41,6 +41,15 @@ export class RegisterComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // Check if user is already logged in
+    const token = this.tokenStorage.getToken();
+    const user = this.tokenStorage.getUser();
+    if (token && user) {
+      console.log('Token found, redirecting to profile');
+      this.router.navigate(['/profile']);
+      return;
+    }
+
     // Check for OAuth callback
     const code = this.route.snapshot.queryParams['code'];
     const provider = this.route.snapshot.queryParams['provider'];
