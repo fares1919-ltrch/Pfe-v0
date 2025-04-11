@@ -5,6 +5,11 @@ const TOKEN_KEY = "auth-token";
 const USER_KEY = "auth-user";
 const REFRESH_TOKEN_KEY = "refreshToken";
 
+interface DecodedToken {
+  exp?: number;
+  [key: string]: any;
+}
+
 @Injectable({
   providedIn: 'root'  // Ensure service is provided at root level
 })
@@ -35,6 +40,26 @@ export class TokenStorageService {
   public getToken(): string | null {
     if (!this.isBrowser) return null;
     return window.localStorage.getItem(TOKEN_KEY);
+  }
+
+  public getDecodedToken(): DecodedToken | null {
+    const token = this.getToken();
+    if (!token) return null;
+
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      return JSON.parse(jsonPayload);
+    } catch (error) {
+      console.error('[TokenStorageService] Error decoding token:', error);
+      return null;
+    }
   }
 
   public getRefreshToken(): string | null {

@@ -1,0 +1,30 @@
+<header class="dashboard-header" [class.collapsed]="isSidebarCollapsed">
+  <div class="header-left">
+    <button class="menu-toggle" (click)="onMenuClick()">
+      <span class="material-icons">menu</span>
+    </button>
+    <div class="header-title">
+      <h1>{{ userRole }} Dashboard</h1>
+    </div>
+  </div>
+
+  <div class="header-right">
+    <div class="search-bar">
+      <input type="text" placeholder="Search..." />
+      <span class="material-icons">search</span>
+    </div>
+
+    <div class="header-actions">
+      <button class="notification-btn">
+        <span class="material-icons">notifications</span>
+        <span class="notification-badge">3</span>
+      </button>
+
+      <div class="user-profile">
+        <img src="assets/images/avatar-placeholder.png" alt="User avatar" />
+        <span class="username">{{ username }}</span>
+        <span class="material-icons">arrow_drop_down</span>
+      </div>
+    </div>
+  </div>
+</header>

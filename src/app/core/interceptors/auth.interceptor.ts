@@ -1,38 +1,69 @@
-import { HttpInterceptorFn } from "@angular/common/http";
-import { inject } from "@angular/core";
-import { TokenStorageService } from "../services/token-storage.service";
+import { HttpInterceptorFn, HttpRequest, HttpHandlerFn, HttpErrorResponse } from '@angular/common/http';
+import { inject } from '@angular/core';
+import { TokenStorageService } from '../services/token-storage.service';
+import { AuthService } from '../services/auth.service';
+import { catchError, switchMap, throwError } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
-export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  const tokenStorage = inject(TokenStorageService);
-  const token = tokenStorage.getToken();
+export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, next: HttpHandlerFn) => {
+  const tokenService = inject(TokenStorageService);
+  const authService = inject(AuthService);
 
-  // Debug request details
-  console.debug(`[Auth Interceptor] Request to: ${req.url}`, {
-    hasToken: !!token,
-    method: req.method
-  });
-
-  if (token) {
-    // Ensure token is properly formatted - remove Bearer prefix if present before adding it
-    // This prevents "Bearer Bearer xxx" issues
-    const cleanToken = token.replace(/^Bearer\s+/i, '');
-    const formattedToken = `Bearer ${cleanToken}`;
-
-    console.log('Adding auth header with token:', formattedToken.substring(0, 20) + '...');
-
-    const authReq = req.clone({
-      headers: req.headers.set('Authorization', formattedToken),
-      // Don't override withCredentials if already set
-      withCredentials: req.withCredentials === true ? true : req.withCredentials
-    });
-
-    console.debug(`[Auth Interceptor] Headers after adding token:`,
-      Array.from(authReq.headers.keys()).map(key => `${key}: ${authReq.headers.getAll(key)}`));
-
-    return next(authReq);
-  } else {
-    console.warn(' No token available for request to:', req.url);
+  // Skip token for auth endpoints
+  if (req.url.includes(`${environment.apiUrl}/auth`)) {
+    return next(req);
   }
 
-  return next(req);
+  const token = tokenService.getToken();
+  console.debug('[Auth Interceptor] Request URL:', req.url);
+  console.debug('[Auth Interceptor] Request method:', req.method);
+
+  if (!token) {
+    console.warn('[Auth Interceptor] No token available');
+    return next(req);
+  }
+
+  // Check if token is expired
+  const tokenData = tokenService.getDecodedToken();
+  if (tokenData && tokenData.exp && tokenData.exp * 1000 < Date.now()) {
+    console.debug('[Auth Interceptor] Token expired, attempting refresh');
+    // Try to refresh the token if it's expired
+    const refreshToken = tokenService.getRefreshToken();
+    if (!refreshToken) {
+      authService.logout().subscribe();
+      return throwError(() => new Error('No refresh token available'));
+    }
+
+    return authService.refreshToken(refreshToken).pipe(
+      switchMap((newToken) => {
+        console.debug('[Auth Interceptor] Token refreshed successfully');
+        const clonedReq = addTokenToRequest(req, newToken.accessToken);
+        return next(clonedReq);
+      }),
+      catchError((error) => {
+        console.error('[Auth Interceptor] Token refresh failed:', error);
+        tokenService.signOut();
+        return throwError(() => error);
+      })
+    );
+  }
+
+  const clonedReq = addTokenToRequest(req, token);
+  console.debug('[Auth Interceptor] Request headers after token:', clonedReq.headers.keys());
+
+  return next(clonedReq).pipe(
+    catchError((error: HttpErrorResponse) => {
+      if (error.status === 401) {
+        console.debug('[Auth Interceptor] 401 error, signing out');
+        tokenService.signOut();
+      }
+      return throwError(() => error);
+    })
+  );
 };
+
+function addTokenToRequest(req: HttpRequest<unknown>, token: string): HttpRequest<unknown> {
+  return req.clone({
+    headers: req.headers.set('Authorization', `Bearer ${token}`)
+  });
+}

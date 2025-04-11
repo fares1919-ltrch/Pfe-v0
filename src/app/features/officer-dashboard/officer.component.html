@@ -1,4 +1,87 @@
-<div class="officer-dashboard">
-  <h1>Officer Dashboard</h1>
-  <p>{{ content }}</p>
+<div class="dashboard-container">
+  <app-dashboard-sidebar
+    [userRole]="'Officer'"
+    [isCollapsed]="!isSidebarOpen"
+  ></app-dashboard-sidebar>
+  <div class="dashboard-content" [class.sidebar-collapsed]="!isSidebarOpen">
+    <app-dashboard-header
+      [userRole]="'Officer'"
+      [username]="'Officer Smith'"
+      [isSidebarCollapsed]="!isSidebarOpen"
+      (toggleSidebar)="toggleSidebar()"
+    ></app-dashboard-header>
+    <main class="main-content">
+      <div class="dashboard-grid">
+        <!-- Tasks Overview Card -->
+        <div class="dashboard-card">
+          <h2>Tasks Overview</h2>
+          <div class="card-content">
+            <div class="stat-item">
+              <span class="material-icons">assignment</span>
+              <div class="stat-info">
+                <h3>12</h3>
+                <p>Pending Tasks</p>
+              </div>
+            </div>
+            <button class="action-btn">View Tasks</button>
+          </div>
+        </div>
+
+        <!-- Citizens Card -->
+        <div class="dashboard-card">
+          <h2>Citizens</h2>
+          <div class="card-content">
+            <div class="stat-item">
+              <span class="material-icons">people</span>
+              <div class="stat-info">
+                <h3>45</h3>
+                <p>Active Cases</p>
+              </div>
+            </div>
+            <button class="action-btn">View All</button>
+          </div>
+        </div>
+
+        <!-- Schedule Card -->
+        <div class="dashboard-card">
+          <h2>Today's Schedule</h2>
+          <div class="card-content">
+            <div class="stat-item">
+              <span class="material-icons">calendar_today</span>
+              <div class="stat-info">
+                <h3>8</h3>
+                <p>Appointments</p>
+              </div>
+            </div>
+            <button class="action-btn">View Schedule</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Task Queue Section -->
+      <div class="task-queue">
+        <h2>Task Queue</h2>
+        <div class="queue-list">
+          <div class="queue-item">
+            <span class="material-icons priority-high">priority_high</span>
+            <div class="task-info">
+              <h4>Passport Verification</h4>
+              <p>Citizen ID: 12345</p>
+              <small>Due in 2 hours</small>
+            </div>
+            <button class="status-btn pending">Pending</button>
+          </div>
+          <div class="queue-item">
+            <span class="material-icons priority-medium">info</span>
+            <div class="task-info">
+              <h4>Document Review</h4>
+              <p>Citizen ID: 12346</p>
+              <small>Due tomorrow</small>
+            </div>
+            <button class="status-btn in-progress">In Progress</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
 </div>

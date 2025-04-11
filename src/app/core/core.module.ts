@@ -4,8 +4,6 @@ import { AuthService } from './services/auth.service';
 import { UserService } from './services/user.service';
 import { TokenStorageService } from './services/token-storage.service';
 import { ProfileService } from './services/profile.service';
-import { HTTP_INTERCEPTORS } from '@angular/common/http';
-import { authInterceptor } from './interceptors/auth.interceptor';
 
 @NgModule({
   declarations: [],
@@ -16,12 +14,7 @@ import { authInterceptor } from './interceptors/auth.interceptor';
     AuthService,
     UserService,
     TokenStorageService,
-    ProfileService,
-    {
-      provide: HTTP_INTERCEPTORS,
-      useValue: authInterceptor,
-      multi: true
-    }
+    ProfileService
   ]
 })
 export class CoreModule { }
