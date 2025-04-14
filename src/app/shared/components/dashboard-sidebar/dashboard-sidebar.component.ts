@@ -28,9 +28,9 @@ export class DashboardSidebarComponent {
   menuItems: MenuItems = {
     citizen: [
       { icon: 'home', label: 'Home', route: '/' },
-      { icon: 'dashboard', label: 'Dashboard', route: '/citizen-dashboard' },
+      { icon: 'dashboard', label: 'Dashboard', route: '/citizen-dashboard/dashboard' },
       { icon: 'description', label: 'My Documents', route: '/citizen-dashboard/documents' },
-      { icon: 'event', label: 'Appointments', route: '/citizen-dashboard/appointments' },
+      { icon: 'event', label: 'Appointments', route: '/citizen-dashboard/appointements' },
       { icon: 'notifications', label: 'Notifications', route: '/citizen-dashboard/notifications' },
       { icon: 'history', label: 'History', route: '/citizen-dashboard/history' }
     ],

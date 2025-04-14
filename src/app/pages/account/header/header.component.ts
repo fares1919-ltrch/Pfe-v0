@@ -36,7 +36,7 @@ export class HeaderComponent implements OnInit {
         this.dashboardLink = '/manager-dashboard';
       } else {
         // Default to citizen dashboard
-        this.dashboardLink = '/citizen-dashboard';
+        this.dashboardLink = '/citizen-dashboard/dashboard';
       }
     }
   }

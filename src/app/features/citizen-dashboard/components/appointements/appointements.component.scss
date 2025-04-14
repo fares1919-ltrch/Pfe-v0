@@ -1,0 +1,84 @@
+.main-content {
+  padding: 2rem;
+  display: flex;
+  background-color: #ffffff;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  width: 80vw;
+  position: absolute;
+  left: 17vw;
+  top:17vh;
+  height: 80vh;
+  border-radius: 15px;
+}
+.dashboard-container{
+  width: 100vw;
+  height: 100vh;
+  background-color: #f4f4f4;
+}
+
+.maps{
+  background-color: red;
+}
+.form{
+  background-color: #2C3E50;
+  height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: 26px -20px 0px -5px rgba(44,62,80,0.17);
+  -webkit-box-shadow: 26px -20px 0px -5px rgba(44,62,80,0.17);
+  -moz-box-shadow: 26px -20px 0px -5px rgba(44,62,80,0.17);
+
+
+}
+.name-row{
+  display: flex;
+  flex-direction: column;
+  gap:1.6rem;
+  padding:  1rem;
+
+}
+.add-row{
+  font-size: 12px;
+  // background-color: purple;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 0.4rem;
+
+}
+
+.input{
+  width: 50%;
+}
+input:focus {
+  all: unset;
+
+}
+
+.head-row{
+  text-align: center;
+  margin-bottom: 3rem;
+}
+.btn-row{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.prof-row{
+  font-size: 8px;
+  text-align: center;
+}
+.sub-btn{
+  font-size: 12px;
+  background-color: aqua;
+  padding: 0.4rem;
+  border-radius: 10px;
+  width: 40%;
+
+}
+.input{
+  background-color: transparent;
+  border: black 1rem ;
+}

@@ -4,12 +4,12 @@
     [isCollapsed]="!isSidebarOpen"
   ></app-dashboard-sidebar>
   <div class="dashboard-content" [class.sidebar-collapsed]="!isSidebarOpen">
-    <app-dashboard-header
+    <!-- <app-dashboard-header
       [userRole]="'Citizen'"
       [username]="'John Doe'"
       [isSidebarCollapsed]="!isSidebarOpen"
       (toggleSidebar)="toggleSidebar()"
-    ></app-dashboard-header>
+    ></app-dashboard-header> -->
     <main class="main-content">
       <div class="dashboard-grid">
         <!-- Documents Overview Card -->
@@ -78,8 +78,10 @@
               <small>1 day ago</small>
             </div>
           </div>
+
         </div>
       </div>
     </main>
   </div>
 </div>
+

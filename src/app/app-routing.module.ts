@@ -45,8 +45,8 @@ export const routes: Routes = [
   {
     path: 'citizen-dashboard',
     canActivate: [authGuard],
-    loadComponent: () => import('./features/citizen-dashboard/citizen.component')
-      .then(m => m.CitizenComponent)
+    loadChildren: () => import('./features/citizen-dashboard/citizen.routes')
+      .then(m => m.CITIZEN_ROUTES)
   },
   {
     path: 'officer-dashboard',
