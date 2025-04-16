@@ -1,0 +1,257 @@
+// src/app/features/officer-dashboard/components/requests/requests.component.scss
+
+.requests-container {
+  padding: 1rem;
+
+  h2 {
+    font-size: 1.25rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+    color: #333;
+  }
+}
+
+.table-container {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+
+    th {
+      font-weight: 500;
+      color: #333;
+      font-size: 0.9rem;
+      padding: 1rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+
+    // Center the Actions column header and cell
+    th.mat-column-actions, td.mat-column-actions {
+      text-align: center !important;
+      vertical-align: middle !important;
+    }
+
+    td {
+      padding: 1rem 1rem;
+      font-size: 0.9rem;
+      color: #333;
+      border-bottom: 1px solid #eee;
+
+      &:last-child {
+        text-align: center;
+      }
+    }
+
+    tr:hover {
+      background-color: #f9f9f9;
+    }
+  }
+}
+
+// Status Badge Styling
+.status-badge {
+  display: inline-block;
+  padding: 0.35rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-transform: capitalize;
+
+  &.pending {
+    background-color: #fff8e1;
+    color: #f57f17;
+  }
+
+  &.approved {
+    background-color: #e3f2fd;
+    color: #1565c0;
+  }
+
+  &.completed {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+  }
+
+  &.rejected {
+    background-color: #ffebee;
+    color: #c62828;
+  }
+}
+
+// Actions styling
+.actions-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+
+  button {
+    color: #1f1e1e;
+  }
+}
+
+// Dropdown menu styling
+::ng-deep .mat-menu-panel {
+  min-width: 160px !important;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important;
+
+  .mat-menu-content {
+    padding: 0 !important;
+  }
+
+  .mat-menu-item {
+    font-size: 0.9rem;
+    height: 40px;
+    line-height: 40px;
+
+    .mat-icon {
+      margin-right: 8px;
+      font-size: 18px;
+      height: 18px;
+      width: 18px;
+    }
+  }
+
+  .approve-btn {
+    color: #2e7d32;
+
+    &:hover {
+      background-color: rgba(46, 125, 50, 0.1);
+    }
+  }
+
+  .reject-btn {
+    color: #c62828;
+
+    &:hover {
+      background-color: rgba(198, 40, 40, 0.1);
+    }
+  }
+
+  .complete-btn {
+    color: #1565c0;
+
+    &:hover {
+      background-color: rgba(21, 101, 192, 0.1);
+    }
+  }
+}
+
+// Loading State
+.loading-shade {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+}
+
+// Pagination styling
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem 0.75rem 1rem; // Ensure left/right padding matches table
+  border-top: 1px solid #eee;
+  font-size: 0.85rem;
+  color: #666;
+
+  .items-per-page {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    select {
+      padding: 0.25rem 0.5rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background-color: #fff;
+      font-size: 0.85rem;
+    }
+  }
+
+  .pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+
+    button {
+      width: 32px;
+      height: 32px;
+      line-height: 32px;
+
+      .mat-icon {
+        font-size: 18px;
+        height: 18px;
+        width: 18px;
+        line-height: 18px;
+        color: #222 !important; // Make arrows darker
+      }
+
+      &:disabled {
+        color: #ccc !important;
+      }
+    }
+  }
+}
+
+// Responsive Styles
+@media (max-width: 1024px) {
+  .mat-elevation-z8 {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .table-container table {
+    min-width: 700px;
+
+    th, td {
+      padding: 0.75rem 0.5rem;
+      font-size: 0.95rem;
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  .mat-elevation-z8 {
+    padding: 0.75rem;
+    border-radius: 8px;
+  }
+
+  .table-container {
+    padding: 0.25rem 0 0.5rem;
+
+    table {
+      min-width: 500px;
+
+      th, td {
+        padding: 0.5rem 0.4rem;
+        font-size: 0.9rem;
+      }
+    }
+  }
+
+  .status-badge {
+    min-width: 70px;
+    padding: 0.2em 0.5em;
+    font-size: 0.85em;
+  }
+
+  .mat-paginator {
+    font-size: 0.9rem;
+  }
+}

@@ -4,9 +4,14 @@ import { CommonEngine } from '@angular/ssr/node';
 import express from 'express';
 import { existsSync } from 'fs';
 import { join } from 'path';
-import bootstrap from './main.server'; // Correct import
-import 'node-fetch'
+import bootstrap from './main.server';
+import 'node-fetch';
+import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+
 global.fetch = require('node-fetch');
+
+let platformRef: any = null;
+
 export function app(): express.Express {
   const server = express();
   const distFolder = join(process.cwd(), 'dist/Pfe-v0/browser');
@@ -19,15 +24,30 @@ export function app(): express.Express {
   server.set('view engine', 'html');
   server.set('views', distFolder);
 
+  // Cleanup function for platform
+  const cleanupPlatform = () => {
+    if (platformRef) {
+      platformRef.destroy();
+      platformRef = null;
+    }
+  };
+
+  // Cleanup on server shutdown
+  process.on('SIGINT', cleanupPlatform);
+  process.on('SIGTERM', cleanupPlatform);
+
   // Serve static files
   server.get('*.*', express.static(distFolder, {
     maxAge: '1y'
   }));
 
   // All regular routes
-  server.get('*', (req, res) => {
-    commonEngine
-      .render({
+  server.get('*', async (req, res) => {
+    try {
+      // Ensure platform is destroyed before rendering
+      cleanupPlatform();
+
+      const html = await commonEngine.render({
         bootstrap,
         documentFilePath: indexHtml,
         url: req.url,
@@ -35,25 +55,25 @@ export function app(): express.Express {
         providers: [
           { provide: APP_BASE_HREF, useValue: req.baseUrl }
         ]
-      })
-      .then((html: string) => res.send(html))
-      .catch((err: any) => {
-        console.error('SSR Error:', err);
-        res.status(500).send(err);
       });
+
+      res.send(html);
+    } catch (err: any) {
+      console.error('SSR Error:', err);
+      res.status(500).send(err);
+    }
   });
 
   return server;
 }
 
-// Add this to export a request handler
+// Request handler for serverless environments
 export const reqHandler = (req: any, res: any) => {
   const server = app();
   return server(req, res);
 };
 
-// Start the server
-// Check for production environment correctly
+// Start the server in production
 if (process.env['NODE_ENV'] === 'production') {
   const port = process.env['PORT'] || 4000;
   const server = app();

@@ -4,8 +4,18 @@ import { Observable } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
 import { Inject, PLATFORM_ID } from '@angular/core';
 import { environment } from '../../../environments/environment';
+import { map } from 'rxjs/operators';
 
 const API_URL = `${environment.apiUrl}/api/test/`;
+
+export interface User {
+  _id: string;
+  username: string;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  role: string;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -67,5 +77,14 @@ export class UserService {
 
   deleteAccount(): Observable<any> {
     return this.http.delete(`${environment.apiUrl}/api/profile`, { withCredentials: true });
+  }
+
+  checkIdentityNumber(identityNumber: string): Observable<boolean> {
+    return this.http.get<{isAvailable: boolean}>(`${environment.apiUrl}/api/users/check-identity/${identityNumber}`)
+      .pipe(map(response => response.isAvailable));
+  }
+
+  getUserById(userId: string): Observable<User> {
+    return this.http.get<User>(`${environment.apiUrl}/api/users/${userId}`, { withCredentials: true });
   }
 }

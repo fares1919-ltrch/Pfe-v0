@@ -9,8 +9,14 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
   const tokenService = inject(TokenStorageService);
   const authService = inject(AuthService);
 
-  // Skip token for auth endpoints
-  if (req.url.includes(`${environment.apiUrl}/auth`)) {
+  // Skip token only for specific auth endpoints (login, register, forgot password)
+  const skipAuthPaths = [
+    `${environment.apiUrl}/api/auth/signin`,
+    `${environment.apiUrl}/api/auth/signup`,
+    `${environment.apiUrl}/api/auth/password/forgot`
+  ];
+
+  if (skipAuthPaths.some(path => req.url.includes(path))) {
     return next(req);
   }
 
@@ -27,7 +33,6 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
   const tokenData = tokenService.getDecodedToken();
   if (tokenData && tokenData.exp && tokenData.exp * 1000 < Date.now()) {
     console.debug('[Auth Interceptor] Token expired, attempting refresh');
-    // Try to refresh the token if it's expired
     const refreshToken = tokenService.getRefreshToken();
     if (!refreshToken) {
       authService.logout().subscribe();

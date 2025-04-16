@@ -1,6 +1,8 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
+import { Router } from '@angular/router';
 
 type MenuItem = {
   icon: string;
@@ -25,10 +27,29 @@ export class DashboardSidebarComponent {
   @Input() userRole: string = '';
   @Input() isCollapsed: boolean = false;
 
+  constructor(private authService: AuthService, private router: Router) {}
+
+  logout() {
+    this.authService.logout().subscribe({
+      next: () => {
+        // Optionally show a notification here
+        this.router.navigate(['/']); // Redirect to user home
+      },
+      error: (err) => {
+        // Optionally show an error notification here
+        console.error('Logout failed:', err);
+        // Fallback: still clear tokens and redirect
+        this.authService['tokenStorageService'].signOut();
+        this.router.navigate(['/']);
+      }
+    });
+  }
+
   menuItems: MenuItems = {
     citizen: [
       { icon: 'home', label: 'Home', route: '/' },
       { icon: 'dashboard', label: 'Dashboard', route: '/citizen-dashboard/dashboard' },
+      { icon: 'description', label: 'Cpf Request', route: '/citizen-dashboard/cpf-request' },
       { icon: 'description', label: 'My Documents', route: '/citizen-dashboard/documents' },
       { icon: 'event', label: 'Appointments', route: '/citizen-dashboard/appointements' },
       { icon: 'notifications', label: 'Notifications', route: '/citizen-dashboard/notifications' },
@@ -36,7 +57,8 @@ export class DashboardSidebarComponent {
     ],
     officer: [
       { icon: 'home', label: 'Home', route: '/' },
-      { icon: 'dashboard', label: 'Dashboard', route: '/officer-dashboard' },
+      { icon: 'dashboard', label: 'Dashboard', route: '/officer-dashboard/dashboard' },
+      { icon: 'description', label: 'Requests', route: '/officer-dashboard/requests' },
       { icon: 'assignment', label: 'Tasks', route: '/officer-dashboard/tasks' },
       { icon: 'people', label: 'Citizens', route: '/officer-dashboard/citizens' },
       { icon: 'calendar_today', label: 'Schedule', route: '/officer-dashboard/schedule' },

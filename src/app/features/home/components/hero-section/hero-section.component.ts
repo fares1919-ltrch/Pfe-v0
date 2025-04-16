@@ -24,7 +24,7 @@ export class HeroSectionComponent implements AfterViewInit, OnInit, OnDestroy {
   ngOnInit() {
     // Add event listener for visibility change
     if (isPlatformBrowser(this.platformId)) {
-      document.addEventListener('visibilitychange', this.handleVisibilityChange.bind(this));
+      document.addEventListener('visibilitychange', this.handleVisibilityChange.bind(this), { passive: true });
     }
   }
 
@@ -98,7 +98,7 @@ export class HeroSectionComponent implements AfterViewInit, OnInit, OnDestroy {
         .catch(e => console.warn('Manual play failed:', e));
     };
 
-    document.addEventListener('click', tryPlayOnInteraction);
+    document.addEventListener('click', tryPlayOnInteraction, { passive: true });
   }
 
   private handleVisibilityChange = () => {

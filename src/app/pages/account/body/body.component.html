@@ -87,45 +87,61 @@
                 class="form-control"
               />
             </div>
-
             <div class="form-group">
-              <label for="address">Address</label>
+              <label for="birthDate">Birth Date</label>
               <input
-                type="text"
-                id="address"
-                formControlName="address"
+                type="date"
+                id="birthDate"
+                formControlName="birthDate"
                 class="form-control"
               />
+              <div
+                *ngIf="
+                  profileForm.get('birthDate')?.touched &&
+                  profileForm.get('birthDate')?.errors
+                "
+                class="error-message"
+              >
+                <span *ngIf="profileForm.get('birthDate')?.errors?.['required']"
+                  >Birth date is required</span
+                >
+                <span *ngIf="profileForm.get('birthDate')?.errors?.['underage']"
+                  >Must be at least 18 years old</span
+                >
+                <span *ngIf="profileForm.get('birthDate')?.errors?.['future']"
+                  >Birth date cannot be in the future</span
+                >
+              </div>
             </div>
-
             <div class="form-group">
-              <label for="city">City</label>
+              <label for="identityNumber">Identity Number</label>
               <input
                 type="text"
-                id="city"
-                formControlName="city"
+                id="identityNumber"
+                formControlName="identityNumber"
                 class="form-control"
+                pattern="\d{8,12}"
               />
-            </div>
-
-            <div class="form-group">
-              <label for="country">Country</label>
-              <input
-                type="text"
-                id="country"
-                formControlName="country"
-                class="form-control"
-              />
-            </div>
-
-            <div class="form-group">
-              <label for="postalCode">Postal Code</label>
-              <input
-                type="text"
-                id="postalCode"
-                formControlName="postalCode"
-                class="form-control"
-              />
+              <div
+                *ngIf="
+                  profileForm.get('identityNumber')?.touched &&
+                  profileForm.get('identityNumber')?.errors
+                "
+                class="error-message"
+              >
+                <span
+                  *ngIf="profileForm.get('identityNumber')?.errors?.['required']"
+                  >Identity number is required</span
+                >
+                <span
+                  *ngIf="profileForm.get('identityNumber')?.errors?.['invalidFormat']"
+                  >Must be 8-12 digits</span
+                >
+                <span
+                  *ngIf="profileForm.get('identityNumber')?.errors?.['notUnique']"
+                  >This identity number is already registered</span
+                >
+              </div>
             </div>
 
             <div class="form-group full-width">

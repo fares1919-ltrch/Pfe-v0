@@ -51,14 +51,14 @@ export const routes: Routes = [
   {
     path: 'officer-dashboard',
     canActivate: [authGuard],
-    loadComponent: () => import('./features/officer-dashboard/officer.component')
-      .then(m => m.OfficerComponent)
+    loadChildren: () => import('./features/officer-dashboard/officer.routes')
+      .then(m => m.OFFICER_ROUTES)
   },
   {
     path: 'manager-dashboard',
     canActivate: [authGuard],
-    loadComponent: () => import('./features/manager-dashboard/manager.component')
-      .then(m => m.ManagerComponent)
+    loadChildren: () => import('./features/manager-dashboard/manager.routes')
+      .then(m => m.MANAGER_ROUTES)
   },
 
   // Public home route - This should be the LAST route since it has the '' catch-all

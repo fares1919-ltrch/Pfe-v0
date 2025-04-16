@@ -111,10 +111,29 @@
 // Responsive styles
 @media (max-width: 1024px) {
   .dashboard-sidebar {
-    transform: translateX(-100%);
+    // Remove transform that was hiding the sidebar
+    transform: translateX(0);
+    // Make sidebar narrower on smaller screens but always visible
+    width: 70px;
 
-    &.open {
-      transform: translateX(0);
+    .sidebar-header h2,
+    .menu-label,
+    .logout-btn span:not(.material-icons) {
+      display: none;
+    }
+
+    .sidebar-header {
+      justify-content: center;
+      padding: 1rem 0;
+    }
+
+    .sidebar-nav a {
+      justify-content: center;
+      padding: 1rem 0;
+    }
+
+    .sidebar-footer {
+      justify-content: center;
     }
   }
 }

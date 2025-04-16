@@ -114,9 +114,17 @@ export class RegisterComponent implements OnInit {
       next: (res) => {
         // Attempt to log in immediately after registration
         this.authService.login(this.username, this.password).subscribe({
-          next: () => {
+          next: (loginRes) => {
             this.isLoading = false;
-            this.router.navigate([this.returnUrl]);
+            if (loginRes && loginRes.accessToken) {
+              // Save tokens and user details
+              this.tokenStorage.saveToken(loginRes.accessToken);
+              if (loginRes.refreshToken) {
+                this.tokenStorage.saveRefreshToken(loginRes.refreshToken);
+              }
+              this.tokenStorage.saveUser(loginRes);
+              this.router.navigate([this.returnUrl]);
+            }
           },
           error: (loginErr) => {
             this.isLoading = false;

@@ -1,13 +1,50 @@
 import { Component, OnInit, HostListener, ElementRef, QueryList, ViewChildren, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, AsyncValidatorFn, ValidationErrors } from '@angular/forms';
 import { TokenStorageService } from '../../../core/services/token-storage.service';
 import { UserService } from '../../../core/services/user.service';
 import { ProfileService } from '../../../core/services/profile.service';
 import { HttpEvent, HttpEventType, HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { environment } from '../../../../environments/environment';
-import { catchError, of, throwError } from 'rxjs';
+import { catchError, of, throwError, Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+
+interface AlertConfig {
+  message: string;
+  type: 'success' | 'error';
+}
+
+interface UserProfile {
+  username: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  birthDate: string;
+  identityNumber: string;
+  aboutMe: string;
+  work: string;
+  workplace: string;
+  photo: string;
+  address: string;
+  city: string;
+  country: string;
+  postalCode: string;
+  location?: {
+    lat: number;
+    lon: number;
+  };
+}
+
+interface Session {
+  token: string;
+  device?: string;
+  ipAddress?: string;
+  lastActive?: Date | string;
+  deviceType?: string;
+  location?: string;
+  current?: boolean;
+}
 
 @Component({
   selector: 'app-body',
@@ -17,22 +54,22 @@ import { catchError, of, throwError } from 'rxjs';
   styleUrls: ['./body.component.scss']
 })
 export class BodyComponent implements OnInit, AfterViewInit {
-  currentUser: any;
+  currentUser: UserProfile | null = null;
   profileForm!: FormGroup;
   passwordForm!: FormGroup;
   isSubmitting: boolean = false;
   isSubmittingPassword: boolean = false;
   showPasswordModal: boolean = false;
-  alertMessage: string = '';
-  alertType: 'success' | 'error' = 'success';
-  alertTimeout: any;
+  public alertMessage: string = '';
+  public alertType: string = '';
+  private alertTimeout: any;
 
   selectedFile: File | null = null;
   uploading: boolean = false;
   profileImageUrl: string = 'assets/images/default-profile.jpg';
 
   // Session management
-  activeSessions: any[] = [];
+  activeSessions: Session[] = [];
   isLoadingSessions: boolean = false;
   isAuthenticated: boolean = false;
   tokenExpired: boolean = false;
@@ -46,20 +83,19 @@ export class BodyComponent implements OnInit, AfterViewInit {
     private fb: FormBuilder,
     private router: Router,
     private elementRef: ElementRef
-  ) {}
+  ) {
+    this.initializeForms();
+  }
 
   ngOnInit() {
     this.currentUser = this.tokenStorage.getUser();
     this.isAuthenticated = !!this.tokenStorage.getToken();
 
     if (!this.isAuthenticated) {
-      console.warn('User is not authenticated, redirecting to login');
       this.router.navigate(['/auth/login']);
       return;
     }
 
-    console.log('User authenticated, initializing profile');
-    this.initForms();
     this.loadUserProfile();
     this.loadActiveSessions();
   }
@@ -94,53 +130,39 @@ export class BodyComponent implements OnInit, AfterViewInit {
     });
   }
 
-  initForms() {
+  private initializeForms(): void {
     this.profileForm = this.fb.group({
-      username: [{value: '', disabled: true}, Validators.required],
-      email: [{value: '', disabled: true}, [Validators.required, Validators.email]],
-      firstName: [''],
-      lastName: [''],
+      username: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      firstName: ['', Validators.required],
+      lastName: ['', Validators.required],
+      birthDate: ['', [Validators.required]],
+      identityNumber: ['', [Validators.required, Validators.pattern(/^\d{8,12}$/)]],
+      aboutMe: [''],
+      work: [''],
+      workplace: [''],
+      photo: [''],
       address: [''],
       city: [''],
       country: [''],
       postalCode: [''],
-      aboutMe: [''],
-      work: [''],
-      workplace: ['']
     });
 
-    // Initialize form with data from token storage if available
     if (this.currentUser) {
       this.profileForm.patchValue({
         username: this.currentUser.username || '',
         email: this.currentUser.email || '',
         firstName: this.currentUser.firstName || '',
-        lastName: this.currentUser.lastName || ''
+        lastName: this.currentUser.lastName || '',
+        birthDate: this.currentUser.birthDate ? this.currentUser.birthDate.substring(0, 10) : '',
+        identityNumber: this.currentUser.identityNumber || '',
+        address: this.currentUser.address || '',
+        city: this.currentUser.city || '',
+        country: this.currentUser.country || '',
+        postalCode: this.currentUser.postalCode || ''
       });
     }
 
-    // ====================================================
-    // PASSWORD FORM INITIALIZATION AND VALIDATION RULES
-    // ====================================================
-    //
-    // Password Requirements (same as signup):
-    // 1. Length: Minimum 8 characters
-    // 2. Must contain at least one uppercase letter (A-Z)
-    // 3. Must contain at least one lowercase letter (a-z)
-    // 4. Must contain at least one number (0-9)
-    // 5. Must contain at least one special character from: @$!%*?&
-    //
-    // Validation Pattern Explanation:
-    // ^                 - Start of string
-    // (?=.*[a-z])      - At least one lowercase letter
-    // (?=.*[A-Z])      - At least one uppercase letter
-    // (?=.*\d)         - At least one digit
-    // (?=.*[@$!%*?&])  - At least one special character
-    // [A-Za-z\d@$!%*?&]{8,} - Match any of these characters, minimum 8
-    // $                 - End of string
-    //
-    // Note: All requirements are validated in real-time as user types
-    //       and shown in the UI with checkmarks
     this.passwordForm = this.fb.group({
       currentPassword: ['', Validators.required],
       newPassword: ['', [
@@ -154,58 +176,68 @@ export class BodyComponent implements OnInit, AfterViewInit {
     });
   }
 
-  // ====================================================
-  // PASSWORD VALIDATION METHODS
-  // ====================================================
-  // These methods are used in the template to show checkmarks
-  // next to requirements as they are met
-  // Each method returns true if the requirement is satisfied
+  private passwordMatchValidator(formGroup: FormGroup): ValidationErrors | null {
+    const newPassword = formGroup.get('newPassword');
+    const confirmPassword = formGroup.get('confirmPassword');
 
-  // Check if password has minimum length of 8 characters
-  hasMinLength(): boolean {
-    return this.passwordForm.get('newPassword')?.value?.length >= 8;
+    if (!newPassword || !confirmPassword) {
+      return null;
+    }
+
+    return newPassword.value === confirmPassword.value ? null : { mismatch: true };
   }
 
-  // Check if password contains at least one uppercase letter
-  hasUpperCase(): boolean {
-    return /[A-Z]/.test(this.passwordForm.get('newPassword')?.value || '');
+  birthDateValidator() {
+    return (control: AbstractControl): { [key: string]: any } | null => {
+      if (!control.value) {
+        return { required: true };
+      }
+
+      const birthDate = new Date(control.value);
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+
+      if (age < 18) {
+        return { underage: true };
+      }
+
+      if (birthDate > today) {
+        return { future: true };
+      }
+      return null;
+    };
   }
 
-  // Check if password contains at least one lowercase letter
-  hasLowerCase(): boolean {
-    return /[a-z]/.test(this.passwordForm.get('newPassword')?.value || '');
+  identityNumberValidator(): AsyncValidatorFn {
+    return (control: AbstractControl): Observable<ValidationErrors | null> => {
+      if (!control.value) {
+        return of(null);
+      }
+      return this.userService.checkIdentityNumber(control.value).pipe(
+        map(isAvailable => isAvailable ? null : { notUnique: true }),
+        catchError(() => of(null))
+      );
+    };
   }
 
-  // Check if password contains at least one number
-  hasNumber(): boolean {
-    return /[0-9]/.test(this.passwordForm.get('newPassword')?.value || '');
-  }
-
-  // Check if password contains at least one special character
-  hasSpecialChar(): boolean {
-    return /[@$!%*?&]/.test(this.passwordForm.get('newPassword')?.value || '');
-  }
-
-  // ====================================================
-  // PASSWORD MATCH VALIDATOR
-  // ====================================================
-  // Custom validator to ensure new password and confirm password match
-  // Returns null if passwords match, { mismatch: true } if they don't
-  passwordMatchValidator(g: FormGroup) {
-    return g.get('newPassword')?.value === g.get('confirmPassword')?.value
-      ? null
-      : { mismatch: true };
+  identityNumberFormatValidator() {
+    return (control: AbstractControl): ValidationErrors | null => {
+      if (!control.value) {
+        return null;
+      }
+      const valid = /^\d{8,12}$/.test(control.value);
+      return valid ? null : { invalidFormat: true };
+    };
   }
 
   loadUserProfile() {
     this.isSubmitting = true;
-    console.log('Loading user profile...');
-    console.log('Authentication status:', this.isAuthenticated);
-    console.log('Current user from token storage:', this.currentUser);
-
-    // Check if token exists before making API call
     if (!this.tokenStorage.getToken()) {
-      console.error('No authentication token found');
       this.isSubmitting = false;
       this.showAlert('Authentication error. Please log in again.', 'error');
       setTimeout(() => this.router.navigate(['/auth/login']), 2000);
@@ -215,52 +247,36 @@ export class BodyComponent implements OnInit, AfterViewInit {
     this.profileService.getUserProfile()
       .pipe(
         catchError((error: HttpErrorResponse) => {
-          console.error('Profile loading error:', error);
-
+          this.isSubmitting = false;
           if (error.status === 403 || error.status === 401) {
             this.tokenExpired = true;
             this.showAlert('Your session has expired. Please log in again.', 'error');
             this.tokenStorage.signOut();
             setTimeout(() => this.router.navigate(['/auth/login']), 2000);
           } else {
-            this.showAlert('Failed to load profile data', 'error');
+            this.showAlert('Failed to load user profile', 'error');
           }
-
-          // Use cached user data as fallback
-          if (this.currentUser) {
-            this.profileForm.patchValue({
-              username: this.currentUser.username || '',
-              email: this.currentUser.email || '',
-              firstName: this.currentUser.firstName || '',
-              lastName: this.currentUser.lastName || ''
-            });
-          }
-
-          this.isSubmitting = false;
-          return of(null); // Return empty observable to continue the chain
+          return of(null);
         })
       )
-      .subscribe(data => {
+      .subscribe((data: UserProfile | null) => {
         this.isSubmitting = false;
-
-        if (!data) return; // Skip if we got an error
-
-        console.log('Profile data received:', data);
-
+        if (!data) return;
         this.profileForm.patchValue({
           username: data.username,
           email: data.email,
           firstName: data.firstName,
           lastName: data.lastName,
+          birthDate: data.birthDate ? data.birthDate.substring(0, 10) : '',
+          identityNumber: data.identityNumber,
+          aboutMe: data.aboutMe,
+          work: data.work,
+          workplace: data.workplace,
           address: data.address,
           city: data.city,
           country: data.country,
-          postalCode: data.postalCode,
-          aboutMe: data.aboutMe,
-          work: data.work,
-          workplace: data.workplace
+          postalCode: data.postalCode
         });
-
         if (data.photo) {
           this.profileImageUrl = data.photo.startsWith('http')
             ? data.photo
@@ -270,20 +286,44 @@ export class BodyComponent implements OnInit, AfterViewInit {
   }
 
   saveProfile() {
-    if (this.profileForm.invalid) return;
+    const changedFields: Partial<UserProfile> = {};
+    const formValue = this.profileForm.getRawValue();
+
+    // Check which fields have been modified
+    Object.keys(formValue).forEach(key => {
+      if (key !== 'username' && key !== 'email' && key in this.currentUser!) {
+        const currentValue = formValue[key as keyof UserProfile];
+        const existingValue = this.currentUser?.[key as keyof UserProfile];
+
+        // Only include fields that have been modified and are valid
+        const control = this.profileForm.get(key);
+        if (currentValue !== existingValue && (!control || !control.errors)) {
+          changedFields[key as keyof UserProfile] = currentValue;
+        }
+      }
+    });
+
+    // If no valid changes, show appropriate message
+    if (Object.keys(changedFields).length === 0) {
+      this.showAlert('No valid changes to save', 'error');
+      return;
+    }
 
     this.isSubmitting = true;
     const formData = new FormData();
 
-    // Add form values to formData
-    const formValue = this.profileForm.getRawValue();
-    Object.keys(formValue).forEach(key => {
-      if (key !== 'username' && key !== 'email') {
-        formData.append(key, formValue[key]);
+    // Only append changed fields
+    Object.keys(changedFields).forEach(key => {
+      const value = changedFields[key as keyof UserProfile];
+      if (value !== null && value !== undefined) {
+        if (typeof value === 'object' && value !== null) {
+          formData.append(key, JSON.stringify(value));
+        } else {
+          formData.append(key, String(value));
+        }
       }
     });
 
-    // Add file if selected
     if (this.selectedFile) {
       formData.append('photo', this.selectedFile);
     }
@@ -291,35 +331,30 @@ export class BodyComponent implements OnInit, AfterViewInit {
     this.profileService.updateProfile(formData)
       .pipe(
         catchError((error: HttpErrorResponse) => {
-          console.error('Profile update error:', error);
           this.isSubmitting = false;
-
-          if (error.status === 403 || error.status === 401) {
-            this.tokenExpired = true;
-            this.showAlert('Your session has expired. Please log in again.', 'error');
-            this.tokenStorage.signOut();
-            setTimeout(() => this.router.navigate(['/auth/login']), 2000);
-          } else {
-            this.showAlert('Failed to update profile', 'error');
-          }
-
+          const errorMessage = error.error?.message || 'Failed to update profile';
+          this.showAlert(errorMessage, 'error');
           return of(null);
         })
       )
-      .subscribe(response => {
+      .subscribe((response: any) => {
         this.isSubmitting = false;
-
-        if (!response) return; // Skip if we got an error
-
+        if (!response) return;
         this.showAlert('Profile updated successfully', 'success');
 
-        // Update current user in storage
-        const user = this.tokenStorage.getUser();
-        if (user) {
-          user.firstName = formValue.firstName;
-          user.lastName = formValue.lastName;
-          this.tokenStorage.saveUser(user);
-        }
+        // Update only the changed fields in the current user object
+        const updatedUser = { ...this.currentUser! };
+        Object.keys(changedFields).forEach(key => {
+          const value = changedFields[key as keyof UserProfile];
+          if (typeof value === 'object' && value !== null) {
+            (updatedUser as any)[key] = value;
+          } else {
+            (updatedUser as any)[key] = value;
+          }
+        });
+
+        this.tokenStorage.saveUser(updatedUser);
+        this.currentUser = updatedUser;
       });
   }
 
@@ -332,7 +367,6 @@ export class BodyComponent implements OnInit, AfterViewInit {
     this.profileService.changePassword(currentPassword, newPassword)
       .pipe(
         catchError((error: HttpErrorResponse) => {
-          console.error('Password change error:', error);
           this.isSubmittingPassword = false;
 
           if (error.status === 403 || error.status === 401) {
@@ -348,10 +382,10 @@ export class BodyComponent implements OnInit, AfterViewInit {
           return of(null);
         })
       )
-      .subscribe(response => {
+      .subscribe((response: any) => {
         this.isSubmittingPassword = false;
 
-        if (!response) return; // Skip if we got an error
+        if (!response) return;
 
         this.closePasswordModal();
         this.showAlert('Password changed successfully', 'success');
@@ -363,7 +397,6 @@ export class BodyComponent implements OnInit, AfterViewInit {
     if (input.files && input.files.length) {
       this.selectedFile = input.files[0];
 
-      // Preview the image
       const reader = new FileReader();
       reader.onload = () => {
         this.profileImageUrl = reader.result as string;
@@ -377,11 +410,32 @@ export class BodyComponent implements OnInit, AfterViewInit {
     this.showPasswordModal = true;
   }
 
-  closePasswordModal() {
+  closePasswordModal(): void {
     this.showPasswordModal = false;
   }
 
-  showAlert(message: string, type: 'success' | 'error') {
+  public hasMinLength(): boolean {
+    // Example: check password min length (replace with real logic)
+    return this.passwordForm?.get('newPassword')?.value?.length >= 8;
+  }
+
+  public hasUpperCase(): boolean {
+    return /[A-Z]/.test(this.passwordForm?.get('newPassword')?.value || '');
+  }
+
+  public hasLowerCase(): boolean {
+    return /[a-z]/.test(this.passwordForm?.get('newPassword')?.value || '');
+  }
+
+  public hasNumber(): boolean {
+    return /[0-9]/.test(this.passwordForm?.get('newPassword')?.value || '');
+  }
+
+  public hasSpecialChar(): boolean {
+    return /[!@#$%^&*(),.?":{}|<>]/.test(this.passwordForm?.get('newPassword')?.value || '');
+  }
+
+  public showAlert(message: string, type: 'success' | 'error'): void {
     this.alertMessage = message;
     this.alertType = type;
 
@@ -394,18 +448,15 @@ export class BodyComponent implements OnInit, AfterViewInit {
     }, 5000);
   }
 
-  closeAlert() {
+  public closeAlert(): void {
     this.alertMessage = '';
     if (this.alertTimeout) {
       clearTimeout(this.alertTimeout);
     }
   }
 
-  // Session management methods
   loadActiveSessions() {
-    // Only attempt to load sessions if authenticated
     if (!this.isAuthenticated) {
-      console.warn('Not loading sessions: user not authenticated');
       return;
     }
 
@@ -413,22 +464,16 @@ export class BodyComponent implements OnInit, AfterViewInit {
     this.profileService.getActiveSessions()
       .pipe(
         catchError((error: HttpErrorResponse) => {
-          console.error('Sessions loading error:', error);
           this.isLoadingSessions = false;
-
           if (error.status === 403 || error.status === 401) {
-            // Don't show alert here to avoid confusion with the profile error
-            // that will likely trigger at the same time
-            console.warn('Authentication error when loading sessions');
             this.tokenExpired = true;
           } else {
             this.showAlert('Failed to load active sessions', 'error');
           }
-
           return of([]);
         })
       )
-      .subscribe(sessions => {
+      .subscribe((sessions: Session[]) => {
         this.activeSessions = sessions || [];
         this.isLoadingSessions = false;
       });
@@ -438,8 +483,6 @@ export class BodyComponent implements OnInit, AfterViewInit {
     this.profileService.revokeSession(sessionToken)
       .pipe(
         catchError((error: HttpErrorResponse) => {
-          console.error('Session revocation error:', error);
-
           if (error.status === 403 || error.status === 401) {
             this.tokenExpired = true;
             this.showAlert('Your session has expired. Please log in again.', 'error');
@@ -448,13 +491,11 @@ export class BodyComponent implements OnInit, AfterViewInit {
           } else {
             this.showAlert('Failed to revoke session', 'error');
           }
-
           return of(null);
         })
       )
-      .subscribe(response => {
-        if (!response) return; // Skip if we got an error
-
+      .subscribe((response: any) => {
+        if (!response) return;
         this.showAlert('Session revoked successfully', 'success');
         this.loadActiveSessions();
       });
@@ -465,8 +506,6 @@ export class BodyComponent implements OnInit, AfterViewInit {
       this.profileService.deleteAccount()
         .pipe(
           catchError((error: HttpErrorResponse) => {
-            console.error('Account deletion error:', error);
-
             if (error.status === 403 || error.status === 401) {
               this.tokenExpired = true;
               this.showAlert('Your session has expired. Please log in again.', 'error');
@@ -475,13 +514,11 @@ export class BodyComponent implements OnInit, AfterViewInit {
             } else {
               this.showAlert('Failed to delete account', 'error');
             }
-
             return of(null);
           })
         )
-        .subscribe(response => {
-          if (!response) return; // Skip if we got an error
-
+        .subscribe((response: any) => {
+          if (!response) return;
           this.tokenStorage.signOut();
           this.router.navigate(['/auth/login']);
         });

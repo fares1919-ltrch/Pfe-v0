@@ -4,12 +4,14 @@ import { UserService } from "../../core/services/user.service";
 import { DashboardHeaderComponent } from "../../shared/components/dashboard-header/dashboard-header.component";
 import { DashboardSidebarComponent } from "../../shared/components/dashboard-sidebar/dashboard-sidebar.component";
 import { TokenStorageService } from "../../core/services/token-storage.service";
-import { Router } from "@angular/router";
+import { Router,RouterOutlet } from "@angular/router";
+import { RequestService } from "../../core/services/request.service";
+
 
 @Component({
   selector: 'app-officer-dashboard',
   standalone: true,
-  imports: [CommonModule, DashboardHeaderComponent, DashboardSidebarComponent],
+  imports: [CommonModule, DashboardHeaderComponent, DashboardSidebarComponent,RouterOutlet],
   templateUrl: './officer.component.html',
   styleUrls: ['./officer.component.scss']
 })
@@ -18,14 +20,15 @@ export class OfficerComponent implements OnInit {
   isSidebarOpen = true;
 
   constructor(
-    private userService: UserService,
-    private tokenStorage: TokenStorageService,
+    public userService: UserService,
+    public tokenStorage: TokenStorageService,
     private router: Router
   ) { }
 
   ngOnInit(): void {
     // Check if user is authenticated and has officer role
     const user = this.tokenStorage.getUser();
+    console.log('Officer user:', user);
     if (!user || !user.roles?.includes('ROLE_OFFICER')) {
       this.router.navigate(['/auth/login']);
       return;
@@ -49,3 +52,4 @@ export class OfficerComponent implements OnInit {
     this.isSidebarOpen = !this.isSidebarOpen;
   }
 }
+
