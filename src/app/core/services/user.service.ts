@@ -24,11 +24,9 @@ export class UserService {
   constructor(private http: HttpClient, @Inject(PLATFORM_ID) private platformId: Object) { }
 
   getPublicContent(): Observable<any> {
-    // Only make HTTP request in browser
     if (isPlatformBrowser(this.platformId)) {
-      return this.http.get(API_URL + 'all', { responseType: 'text', withCredentials: true });
+      return this.http.get(API_URL + 'all', { responseType: 'text' });
     }
-    // Return empty observable for server-side
     return new Observable();
   }
 
@@ -80,7 +78,7 @@ export class UserService {
   }
 
   checkIdentityNumber(identityNumber: string): Observable<boolean> {
-    return this.http.get<{isAvailable: boolean}>(`${environment.apiUrl}/api/users/check-identity/${identityNumber}`)
+    return this.http.get<{ isAvailable: boolean }>(`${environment.apiUrl}/api/users/check-identity/${identityNumber}`)
       .pipe(map(response => response.isAvailable));
   }
 

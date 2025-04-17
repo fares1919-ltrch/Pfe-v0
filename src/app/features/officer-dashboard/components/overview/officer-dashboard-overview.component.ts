@@ -8,4 +8,4 @@ import { CommonModule } from '@angular/common';
   templateUrl: './officer-dashboard-overview.component.html',
   styleUrls: ['./officer-dashboard-overview.component.scss']
 })
-export class OfficerDashboardOverviewComponent {}
+export class OfficerDashboardOverviewComponent { }

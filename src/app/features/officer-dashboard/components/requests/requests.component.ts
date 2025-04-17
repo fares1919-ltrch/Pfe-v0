@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ViewChild, Inject, PLATFORM_ID, signal, inject } from '@angular/core';
+import { AfterViewInit, Component, ViewChild, Inject, PLATFORM_ID, signal, OnInit } from '@angular/core';
 import { forkJoin, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
@@ -9,17 +9,22 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { Router, RouterModule } from '@angular/router';
-import { RequestService } from '../../../../core/services/request.service';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
+import { CpfRequestService, CpfRequest } from '../../../../core/services/cpf-request.service';
 import { isPlatformBrowser } from '@angular/common';
-import { CpfRequest, ApiResponse } from '../../../../core/services/request.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { UserService } from '../../../../core/services/user.service';
 import { FormsModule } from '@angular/forms';
 import { Appointment, AppointmentService } from '../../../../core/services/appointment.service';
-
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatSelectModule } from '@angular/material/select';
 interface CpfRequestWithAppointment extends CpfRequest {
   appointmentCompleted?: boolean;
+  appointmentData?: Appointment | null;
 }
 
 @Component({
@@ -36,32 +41,44 @@ interface CpfRequestWithAppointment extends CpfRequest {
     MatSnackBarModule,
     RouterModule,
     MatTooltipModule,
-    FormsModule
+    FormsModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    ReactiveFormsModule,
+    MatProgressBarModule,
+    MatSelectModule
   ],
   templateUrl: './requests.component.html',
   styleUrls: ['./requests.component.scss']
 })
-export class OfficerRequestsComponent implements AfterViewInit {
+export class OfficerRequestsComponent implements OnInit, AfterViewInit {
   // Add Math property to the component to use in template
   Math = Math;
+  statusFilter: string = 'all';
 
   constructor(
-    private requestService: RequestService,
+    private cpfRequestService: CpfRequestService,
     private appointmentService: AppointmentService,
     private userService: UserService,
     private snackBar: MatSnackBar,
     private router: Router,
+    private route: ActivatedRoute,
+    private dialog: MatDialog,
+    private fb: FormBuilder,
     @Inject(PLATFORM_ID) private platformId: any
-  ) {}
+  ) { }
 
   displayedColumns: string[] = [
-    'username',
+    'identityNumber',
+    'user',
     'address',
     'status',
     'createdAt',
     'actions'
   ];
-  dataSource = new MatTableDataSource<CpfRequest>();
+
+  dataSource = new MatTableDataSource<CpfRequestWithAppointment>();
   isLoading = signal(false);
   totalItems = 0;
   currentPage = 1;
@@ -69,160 +86,155 @@ export class OfficerRequestsComponent implements AfterViewInit {
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
+  ngOnInit() {
+    // Check query parameters for status filter
+    this.route.queryParams.subscribe(params => {
+      if (params['status']) {
+        this.statusFilter = params['status'];
+        // Will be applied when data is loaded
+      }
+    });
+  }
+
   ngAfterViewInit() {
     if (isPlatformBrowser(this.platformId)) {
-      this.dataSource.paginator = this.paginator;
       this.loadRequests();
     }
   }
+
   loadRequests(page: number = 1): void {
     this.isLoading.set(true);
-    this.requestService.getAllStatusRequests(page, this.pageSize).subscribe({
-      next: (res: ApiResponse) => {
-        const requests = res.requests;
+    this.currentPage = page;
 
-        // For each request, check if appointment is completed
-        const appointmentChecks = requests.map(request => {
-          return this.appointmentService.getAppointmentByRequestId(request._id).pipe(
-            map((appointment: Appointment | null) => {
-              (request as CpfRequestWithAppointment).appointmentCompleted = !!appointment && appointment.status === 'completed';
-              return request;
-            }),
-            catchError(() => {
-              (request as CpfRequestWithAppointment).appointmentCompleted = false;
-              return of(request);
-            })
-          );
-        });
+    this.cpfRequestService.getAllCpfRequests(page, this.pageSize).subscribe({
+      next: (response) => {
+        // Create initial requests with appointment status undefined
+        const requestsWithAppointments: CpfRequestWithAppointment[] = response.requests.map(request => ({
+          ...request,
+          appointmentCompleted: undefined,
+          appointmentData: null
+        }));
 
-        // Prepare all username fetch observables
-        function isPopulatedUser(user: any): user is { _id: string; username: string } {
-          return user && typeof user === 'object' && 'username' in user;
+        // Update the data source immediately to show requests
+        this.dataSource.data = requestsWithAppointments;
+        this.totalItems = response.totalItems;
+
+        // Apply status filter if set
+        if (this.statusFilter !== 'all') {
+          this.applyStatusFilter(this.statusFilter);
         }
-        const usernameFetches = requests.map(request => {
-          if (isPopulatedUser(request.userId)) {
-            request.username = request.userId.username;
-            return of(request);
-          } else if (request.userId && typeof request.userId === 'string') {
-            // If userId is a string, fetch user from backend
-            return this.userService.getUserById(request.userId).pipe(
-              map(user => {
-                request.username = user.username;
-                return request;
-              }),
-              catchError(() => {
-                request.username = 'Unknown';
-                return of(request);
-              })
-            );
-          } else {
-            request.username = 'Unknown';
-            return of(request);
+
+        // For each request, fetch its appointment data if it exists
+        requestsWithAppointments.forEach((request, index) => {
+          if (request._id) {
+            this.appointmentService.getAppointmentByRequestId(request._id).subscribe({
+              next: (appointment) => {
+                if (appointment) {
+                  // Update the specific request in the data source
+                  requestsWithAppointments[index].appointmentCompleted = appointment.status === 'completed';
+                  requestsWithAppointments[index].appointmentData = appointment;
+
+                  // Update the data source to reflect changes
+                  this.dataSource.data = [...requestsWithAppointments];
+
+                  // Re-apply filter if needed
+                  if (this.statusFilter !== 'all') {
+                    this.applyStatusFilter(this.statusFilter);
+                  }
+                }
+              },
+              error: (err) => {
+                // Only log error if it's not a 404, since 404 just means no appointment exists
+                if (err.status !== 404) {
+                  console.error(`Error fetching appointment for request ${request._id}:`, err);
+                }
+              }
+            });
           }
         });
 
-        // Wait for both appointment and username fetches
-        forkJoin([...appointmentChecks, ...usernameFetches]).subscribe(() => {
-          this.dataSource.data = requests;
-          this.totalItems = res.totalItems || requests.length;
-          this.currentPage = res.currentPage || page;
-          this.isLoading.set(false);
-        });
-      },
-      error: (error: any) => {
-        console.error('Error loading requests:', error);
-        if (isPlatformBrowser(this.platformId)) {
-          this.snackBar.open('Error loading requests', 'Close', { duration: 3000 });
-        }
         this.isLoading.set(false);
+      },
+      error: (err) => {
+        console.error('Error loading requests:', err);
+        this.isLoading.set(false);
+
+        // Check for specific error types
+        if (err.status === 401 || err.status === 403) {
+          this.snackBar.open('You are not authorized to view these requests', 'Close', { duration: 3000 });
+          this.router.navigate(['/auth/login']);
+        } else {
+          this.snackBar.open('Failed to load CPF requests', 'Close', { duration: 3000 });
+        }
       }
     });
   }
-
 
   formatDate(date: string | Date): string {
     if (!date) return 'N/A';
-    const dateObj = typeof date === 'string' ? new Date(date) : date;
-    return dateObj.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
+    const d = new Date(date);
+    return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
 
   getAddressTooltip(request: CpfRequest): string {
-    if (!request.address) return 'No address information';
-    const address = request.address;
-    return `Street: ${address.street || 'N/A'}
-            Postal Code: ${address.postalCode || 'N/A'}
-  Country: ${address.country || 'N/A'}`;
+    if (!request.address) return 'No address provided';
+    return `${request.address.street}, ${request.address.city}, ${request.address.state} ${request.address.postalCode}`;
   }
+
   handleAction(request: CpfRequest, action: string): void {
-    let status: string;
-    let message: string;
-
-    switch (action) {
-      case 'approve':
-        status = 'approved';
-        message = 'Request approved';
-        break;
-      case 'reject':
-        status = 'rejected';
-        message = 'Request rejected';
-        break;
-      case 'complete':
-        // Only allow completing if appointment is completed
-        const reqWithAppt = request as CpfRequestWithAppointment;
-        if (!reqWithAppt.appointmentCompleted || reqWithAppt.status !== 'approved') {
-          this.snackBar.open('Cannot complete request until appointment is completed and request is approved.', 'Close', { duration: 3000 });
-          this.isLoading.set(false);
-          return;
-        }
-        status = 'completed';
-        message = 'Request completed';
-        break;
-      case 'schedule':
-        this.router.navigate(['/officer-dashboard/appointments/new'], {
-          queryParams: { requestId: request._id }
-        });
-        return;
-      default:
-        return;
+    if (action === 'approve') {
+      this.updateRequestStatus(request, 'approved');
+    } else if (action === 'reject') {
+      this.updateRequestStatus(request, 'rejected');
     }
+  }
 
+  updateRequestStatus(request: CpfRequest, status: 'approved' | 'rejected'): void {
     this.isLoading.set(true);
-    this.requestService.updateRequestStatus(request._id, status).subscribe({
+    this.cpfRequestService.updateRequestStatus(request._id, status).subscribe({
       next: () => {
-        this.snackBar.open(message, 'Close', { duration: 3000 });
+        this.isLoading.set(false);
+        this.snackBar.open(`Request ${status} successfully`, 'Close', { duration: 3000 });
         this.loadRequests(this.currentPage);
       },
-      error: (error: any) => {
-        console.error('Error updating request status:', error);
-        this.snackBar.open('Error updating request status', 'Close', { duration: 3000 });
+      error: (err) => {
         this.isLoading.set(false);
-      }
-    });
-  }
+        console.error(`Error ${status}ing request:`, err);
 
-
-  viewDetails(request: CpfRequest): void {
-    this.router.navigate(['/officer-dashboard/requests/', request._id]);
-  }
-/**
-  viewAppointment(request: CpfRequest): void {
-    this.AppointmentService.getAppointmentByRequestId(request._id).subscribe({
-      next: (appointment: Appointment | null) => {
-        if (appointment) {
-          this.router.navigate(['/officer-dashboard/appointments/', appointment._id]);
+        if (err.status === 401 || err.status === 403) {
+          this.snackBar.open('You are not authorized to perform this action', 'Close', { duration: 3000 });
         } else {
-          this.snackBar.open('No appointment found for this request', 'Close', { duration: 3000 });
+          this.snackBar.open(`Failed to ${status} request: ${err.error?.message || 'Unknown error'}`, 'Close', { duration: 3000 });
         }
-      },
-      error: (error: any) => {
-        console.error('Error fetching appointment:', error);
-        this.snackBar.open('Error fetching appointment details', 'Close', { duration: 3000 });
       }
     });
   }
-   */
+
+  onPageChange(event: any): void {
+    this.loadRequests(event.pageIndex + 1);
+  }
+
+  applyStatusFilter(status: string): void {
+    this.statusFilter = status;
+
+    if (status === 'all') {
+      this.dataSource.filterPredicate = () => true;
+      this.dataSource.filter = '';
+    } else {
+      this.dataSource.filterPredicate = (data: CpfRequestWithAppointment) => data.status === status;
+      this.dataSource.filter = status;
+    }
+
+    // Update URL with the status filter without navigating
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { status: status === 'all' ? null : status },
+      queryParamsHandling: 'merge',
+      replaceUrl: true
+    });
+  }
+
+  refreshRequests(): void {
+    this.loadRequests(this.currentPage);
+  }
 }

@@ -9,14 +9,22 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
   const tokenService = inject(TokenStorageService);
   const authService = inject(AuthService);
 
-  // Skip token only for specific auth endpoints (login, register, forgot password)
+  // Check if we should skip authentication for this request
   const skipAuthPaths = [
     `${environment.apiUrl}/api/auth/signin`,
     `${environment.apiUrl}/api/auth/signup`,
-    `${environment.apiUrl}/api/auth/password/forgot`
+    `${environment.apiUrl}/api/auth/refreshtoken`,
+    `${environment.apiUrl}/api/auth/password/forgot`,
+    `${environment.apiUrl}/api/auth/password/reset`,
+    `${environment.apiUrl}/api/auth/google`,
+    `${environment.apiUrl}/api/auth/github`,
+    `${environment.apiUrl}/api/auth/session`,
+    `${environment.apiUrl}/api/test/all`
   ];
 
+  // Check if the request URL matches any of the skip paths
   if (skipAuthPaths.some(path => req.url.includes(path))) {
+    console.debug('[Auth Interceptor] Skipping auth for:', req.url);
     return next(req);
   }
 
@@ -31,44 +39,53 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
 
   // Check if token is expired
   const tokenData = tokenService.getDecodedToken();
-  if (tokenData && tokenData.exp && tokenData.exp * 1000 < Date.now()) {
-    console.debug('[Auth Interceptor] Token expired, attempting refresh');
-    const refreshToken = tokenService.getRefreshToken();
-    if (!refreshToken) {
-      authService.logout().subscribe();
-      return throwError(() => new Error('No refresh token available'));
-    }
+  if (tokenData && tokenData.exp) {
+    const expirationTime = tokenData.exp * 1000; // Convert to milliseconds
+    const isTokenExpired = Date.now() >= expirationTime;
 
-    return authService.refreshToken(refreshToken).pipe(
-      switchMap((newToken) => {
-        console.debug('[Auth Interceptor] Token refreshed successfully');
-        const clonedReq = addTokenToRequest(req, newToken.accessToken);
-        return next(clonedReq);
-      }),
-      catchError((error) => {
-        console.error('[Auth Interceptor] Token refresh failed:', error);
+    if (isTokenExpired) {
+      console.warn('[Auth Interceptor] Token expired, attempting refresh');
+      const refreshToken = tokenService.getRefreshToken();
+
+      if (!refreshToken) {
+        console.warn('[Auth Interceptor] No refresh token available');
         tokenService.signOut();
-        return throwError(() => error);
-      })
-    );
+        return next(req);
+      }
+
+      // Attempt to refresh the token
+      return authService.refreshToken(refreshToken).pipe(
+        switchMap(response => {
+          if (response.accessToken) {
+            tokenService.saveToken(response.accessToken);
+            tokenService.saveRefreshToken(response.refreshToken);
+
+            // Clone the request and add the new token
+            const authReq = req.clone({
+              headers: req.headers.set('Authorization', `Bearer ${response.accessToken}`)
+            });
+
+            console.debug('[Auth Interceptor] Request headers after token refresh:', authReq.headers.keys());
+            return next(authReq);
+          } else {
+            tokenService.signOut();
+            return next(req);
+          }
+        }),
+        catchError(error => {
+          console.error('[Auth Interceptor] Token refresh failed:', error);
+          tokenService.signOut();
+          return next(req);
+        })
+      );
+    }
   }
 
-  const clonedReq = addTokenToRequest(req, token);
-  console.debug('[Auth Interceptor] Request headers after token:', clonedReq.headers.keys());
-
-  return next(clonedReq).pipe(
-    catchError((error: HttpErrorResponse) => {
-      if (error.status === 401) {
-        console.debug('[Auth Interceptor] 401 error, signing out');
-        tokenService.signOut();
-      }
-      return throwError(() => error);
-    })
-  );
-};
-
-function addTokenToRequest(req: HttpRequest<unknown>, token: string): HttpRequest<unknown> {
-  return req.clone({
+  // Add the token to the request
+  const authReq = req.clone({
     headers: req.headers.set('Authorization', `Bearer ${token}`)
   });
-}
+
+  console.debug('[Auth Interceptor] Request headers after token:', authReq.headers.keys());
+  return next(authReq);
+};

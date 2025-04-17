@@ -38,23 +38,22 @@ export class RegisterComponent implements OnInit {
     private tokenStorage: TokenStorageService,
     private router: Router,
     private route: ActivatedRoute
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     // Check if user is already logged in
-    const token = this.tokenStorage.getToken();
+    const existingToken = this.tokenStorage.getToken();
     const user = this.tokenStorage.getUser();
-    if (token && user) {
+    if (existingToken && user) {
       console.log('Token found, redirecting to profile');
       this.router.navigate(['/profile']);
       return;
     }
 
-    // Check for OAuth callback
-    const code = this.route.snapshot.queryParams['code'];
-    const provider = this.route.snapshot.queryParams['provider'];
-    if (code && provider) {
-      this.handleOAuthCallback(code, provider);
+    // Check for OAuth callback with token parameter
+    const oauthToken = this.route.snapshot.queryParams['token'];
+    if (oauthToken) {
+      this.handleOAuthRedirect(oauthToken);
     }
   }
 
@@ -140,25 +139,20 @@ export class RegisterComponent implements OnInit {
     });
   }
 
-  handleOAuthCallback(code: string, provider: string) {
-    this.isLoading = true;
-    this.errorMessage = '';
+  handleOAuthRedirect(token: string): void {
+    this.tokenStorage.saveToken(token);
 
-    this.authService.handleOAuthCallback(code, provider).subscribe({
-      next: (res) => {
-        this.isLoading = false;
-        if (res && res.accessToken) {
-          this.tokenStorage.saveToken(res.accessToken);
-          if (res.refreshToken) {
-            this.tokenStorage.saveRefreshToken(res.refreshToken);
-          }
-          this.tokenStorage.saveUser(res);
-          this.router.navigate([this.returnUrl]);
+    // Check if there's a stored user or get user info from session
+    this.authService.checkSession().subscribe({
+      next: (response) => {
+        if (response.user) {
+          this.tokenStorage.saveUser(response.user);
         }
+        this.router.navigate([this.returnUrl]);
       },
       error: (error) => {
-        this.isLoading = false;
-        this.errorMessage = error.error?.message || 'OAuth authentication failed. Please try again.';
+        console.error('Error checking session after OAuth login:', error);
+        this.errorMessage = 'Failed to retrieve user details after authentication.';
       }
     });
   }

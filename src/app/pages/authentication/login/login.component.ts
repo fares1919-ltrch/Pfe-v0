@@ -27,7 +27,7 @@ export class LoginComponent implements OnInit {
     private tokenStorage: TokenStorageService,
     private router: Router,
     private route: ActivatedRoute
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     // Get return url from route parameters or default to '/profile'
@@ -39,11 +39,10 @@ export class LoginComponent implements OnInit {
       this.router.navigate([this.returnUrl]);
     }
 
-    // Check for OAuth callback
-    const code = this.route.snapshot.queryParams['code'];
-    const provider = this.route.snapshot.queryParams['provider'];
-    if (code && provider) {
-      this.handleOAuthCallback(code, provider);
+    // Check for OAuth callback with token parameter
+    const token = this.route.snapshot.queryParams['token'];
+    if (token) {
+      this.handleOAuthRedirect(token);
     }
   }
 
@@ -92,21 +91,20 @@ export class LoginComponent implements OnInit {
     });
   }
 
-  handleOAuthCallback(code: string, provider: string) {
-    this.isLoading = true;
-    this.errorMessage = '';
+  handleOAuthRedirect(token: string): void {
+    this.tokenStorage.saveToken(token);
 
-    this.authService.handleOAuthCallback(code, provider).subscribe({
-      next: (res) => {
-        this.isLoading = false;
-        if (res && res.accessToken) {
-          // Token storage is handled in the service
-          this.router.navigate([this.returnUrl]);
+    // Check if there's a stored user or get user info from session
+    this.authService.checkSession().subscribe({
+      next: (response) => {
+        if (response.user) {
+          this.tokenStorage.saveUser(response.user);
         }
+        this.router.navigate([this.returnUrl]);
       },
       error: (error) => {
-        this.isLoading = false;
-        this.errorMessage = error.error?.message || 'OAuth authentication failed. Please try again.';
+        console.error('Error checking session after OAuth login:', error);
+        this.errorMessage = 'Failed to retrieve user details after authentication.';
       }
     });
   }

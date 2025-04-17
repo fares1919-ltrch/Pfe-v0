@@ -8,6 +8,7 @@ type MenuItem = {
   icon: string;
   label: string;
   route: string;
+  queryParams?: { [key: string]: string };
 };
 
 type UserRole = 'citizen' | 'officer' | 'manager';
@@ -27,7 +28,7 @@ export class DashboardSidebarComponent {
   @Input() userRole: string = '';
   @Input() isCollapsed: boolean = false;
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private authService: AuthService, private router: Router) { }
 
   logout() {
     this.authService.logout().subscribe({
@@ -51,15 +52,21 @@ export class DashboardSidebarComponent {
       { icon: 'dashboard', label: 'Dashboard', route: '/citizen-dashboard/dashboard' },
       { icon: 'description', label: 'Cpf Request', route: '/citizen-dashboard/cpf-request' },
       { icon: 'description', label: 'My Documents', route: '/citizen-dashboard/documents' },
-      { icon: 'event', label: 'Appointments', route: '/citizen-dashboard/appointements' },
+      { icon: 'event', label: 'Appointments', route: '/citizen-dashboard/appointments' },
       { icon: 'notifications', label: 'Notifications', route: '/citizen-dashboard/notifications' },
       { icon: 'history', label: 'History', route: '/citizen-dashboard/history' }
     ],
     officer: [
       { icon: 'home', label: 'Home', route: '/' },
       { icon: 'dashboard', label: 'Dashboard', route: '/officer-dashboard/dashboard' },
-      { icon: 'description', label: 'Requests', route: '/officer-dashboard/requests' },
-      { icon: 'assignment', label: 'Tasks', route: '/officer-dashboard/tasks' },
+      { icon: 'description', label: 'CPF Requests', route: '/officer-dashboard/requests' },
+      {
+        icon: 'assignment_turned_in',
+        label: 'Pending Approvals',
+        route: '/officer-dashboard/requests',
+        queryParams: { status: 'pending' }
+      },
+      { icon: 'event_available', label: 'Appointments', route: '/officer-dashboard/appointments' },
       { icon: 'people', label: 'Citizens', route: '/officer-dashboard/citizens' },
       { icon: 'calendar_today', label: 'Schedule', route: '/officer-dashboard/schedule' },
       { icon: 'assessment', label: 'Reports', route: '/officer-dashboard/reports' }

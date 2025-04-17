@@ -2,9 +2,12 @@
 import { CanActivateFn, Router } from '@angular/router';
 import { inject } from '@angular/core';
 import { TokenStorageService } from '../services/token-storage.service';
+import { AuthService } from '../services/auth.service';
+import { firstValueFrom } from 'rxjs';
 
-export const authGuard: CanActivateFn = (route, state) => {
+export const authGuard: CanActivateFn = async (route, state) => {
   const tokenStorage = inject(TokenStorageService);
+  const authService = inject(AuthService);
   const router = inject(Router);
 
   const token = tokenStorage.getToken();
@@ -21,12 +24,60 @@ export const authGuard: CanActivateFn = (route, state) => {
 
   // Check token expiration
   try {
-    const tokenPayload = JSON.parse(atob(token.split('.')[1]));
+    const tokenPayload = tokenStorage.getDecodedToken();
+    if (!tokenPayload || !tokenPayload.exp) {
+      throw new Error('Invalid token payload');
+    }
+
     const expirationTime = tokenPayload.exp * 1000; // Convert to milliseconds
     const isTokenExpired = Date.now() >= expirationTime;
 
     if (isTokenExpired) {
-      console.warn('Auth Guard: Token expired, redirecting to login');
+      console.warn('Auth Guard: Token expired, attempting refresh');
+      const refreshToken = tokenStorage.getRefreshToken();
+
+      if (!refreshToken) {
+        console.warn('Auth Guard: No refresh token available, redirecting to login');
+        tokenStorage.signOut();
+        router.navigate(['/auth/login']);
+        return false;
+      }
+
+      try {
+        // Attempt to refresh the token
+        const response = await firstValueFrom(authService.refreshToken(refreshToken));
+        if (response.accessToken) {
+          tokenStorage.saveToken(response.accessToken);
+          tokenStorage.saveRefreshToken(response.refreshToken);
+          return true;
+        }
+      } catch (error) {
+        console.error('Auth Guard: Token refresh failed', error);
+        tokenStorage.signOut();
+        router.navigate(['/auth/login']);
+        return false;
+      }
+    }
+
+    // Check session status with backend
+    try {
+      await firstValueFrom(authService.checkSession());
+    } catch (error) {
+      console.error('Auth Guard: Session check failed', error);
+      // If session check fails, try to refresh token
+      const refreshToken = tokenStorage.getRefreshToken();
+      if (refreshToken) {
+        try {
+          const response = await firstValueFrom(authService.refreshToken(refreshToken));
+          if (response.accessToken) {
+            tokenStorage.saveToken(response.accessToken);
+            tokenStorage.saveRefreshToken(response.refreshToken);
+            return true;
+          }
+        } catch (refreshError) {
+          console.error('Auth Guard: Token refresh failed after session check', refreshError);
+        }
+      }
       tokenStorage.signOut();
       router.navigate(['/auth/login']);
       return false;

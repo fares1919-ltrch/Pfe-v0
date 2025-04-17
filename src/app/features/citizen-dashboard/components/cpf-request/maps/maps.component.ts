@@ -1,6 +1,6 @@
 import { Component, AfterViewInit, Inject, PLATFORM_ID, Output, EventEmitter } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { CenterService } from '../../../../../core/services/center.service';
+import { Center, CenterService } from '../../../../../core/services/center.service';
 
 interface Address {
   street: string;
@@ -49,7 +49,7 @@ export class MapsComponent implements AfterViewInit {
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
     private centerService: CenterService
-  ) {}
+  ) { }
 
   async ngAfterViewInit(): Promise<void> {
     if (isPlatformBrowser(this.platformId)) {
@@ -83,17 +83,17 @@ export class MapsComponent implements AfterViewInit {
     });
 
     // Get centers from API
-    this.centerService.getAllActiveCenters().subscribe({
-      next: (response) => {
-        console.log("Centers retrieved:", response.centers);
+    this.centerService.getCenters().subscribe({
+      next: (response: Center[]) => {
+        console.log("Centers retrieved:", response);
 
         // Transform centers data to the format we need
-        this.centersArray = response.centers
-          .map(center => ({
+        this.centersArray = response
+          .map((center: Center) => ({
             id: center.id,
             name: center.name,
-            coords: [center.lat, center.lon] as [number, number],
-            address: center.address
+            coords: [center.address.lat, center.address.lon] as [number, number],
+            address: `${center.address.street}, ${center.address.city}, ${center.address.state}`
           }));
 
         if (this.centersArray.length === 0) {

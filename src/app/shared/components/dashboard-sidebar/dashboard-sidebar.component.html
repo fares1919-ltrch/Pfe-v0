@@ -7,7 +7,7 @@
   <nav class="sidebar-nav">
     <ul>
       <li *ngFor="let item of currentMenuItems">
-        <a [routerLink]="item.route" routerLinkActive="active">
+        <a [routerLink]="item.route" [queryParams]="item.queryParams" routerLinkActive="active">
           <span class="material-icons">{{ item.icon }}</span>
           <span class="menu-label">{{ item.label }}</span>
         </a>

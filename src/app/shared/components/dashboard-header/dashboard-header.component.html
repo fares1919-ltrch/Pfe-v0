@@ -1,6 +1,6 @@
 <header class="dashboard-header" [class.collapsed]="isSidebarCollapsed">
   <div class="header-left">
-    <button class="menu-toggle" (click)="onMenuClick()">
+    <button class="menu-toggle" (click)="onMenuClick()" *ngIf="!alwaysShowSidebar">
       <span class="material-icons">menu</span>
     </button>
     <div class="header-title">
@@ -21,13 +21,13 @@
       </button>
 
       <div class="user-profile" style="position: relative;" (click)="toggleDropdown()">
-  <img [src]="userPhotoUrl" alt="User avatar" />
-  <span class="username">{{ username }}</span>
-  <span class="material-icons">arrow_drop_down</span>
-  <div *ngIf="dropdownOpen" class="profile-dropdown" style="position:absolute;top:100%;right:0;z-index:1000;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.15);border-radius:4px;min-width:140px;">
-    <button class="dropdown-item" (click)="goToProfile()" style="width:100%;text-align:left;padding:10px 16px;background:none;border:none;cursor:pointer;">Profile</button>
-  </div>
-</div>
+        <img [src]="userPhotoUrl" alt="User avatar" />
+        <span class="username">{{ username }}</span>
+        <span class="material-icons">arrow_drop_down</span>
+        <div *ngIf="dropdownOpen" class="profile-dropdown" style="position:absolute;top:100%;right:0;z-index:1000;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.15);border-radius:4px;min-width:140px;">
+          <button class="dropdown-item" (click)="goToProfile()" style="width:100%;text-align:left;padding:10px 16px;background:none;border:none;cursor:pointer;">Profile</button>
+        </div>
+      </div>
     </div>
   </div>
 </header>

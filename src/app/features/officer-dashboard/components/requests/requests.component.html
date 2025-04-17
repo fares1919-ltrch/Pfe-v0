@@ -1,96 +1,121 @@
-<div class="requests-container">
-  <h2>requests</h2>
+<div class="container">
+  <div class="header">
+    <h1>CPF Requests</h1>
+    <div class="actions">
+      <mat-form-field appearance="fill" class="status-filter">
+        <mat-label>Status</mat-label>
+        <mat-select [(ngModel)]="statusFilter" (selectionChange)="applyStatusFilter($event.value)">
+          <mat-option value="all">All</mat-option>
+          <mat-option value="pending">Pending</mat-option>
+          <mat-option value="approved">Approved</mat-option>
+          <mat-option value="rejected">Rejected</mat-option>
+          <mat-option value="completed">Completed</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <button mat-icon-button color="primary" (click)="refreshRequests()" matTooltip="Refresh">
+        <mat-icon>refresh</mat-icon>
+      </button>
+    </div>
+  </div>
 
-  <div class="table-container mat-elevation-z2">
-    <table mat-table [dataSource]="dataSource">
-      <!-- Username Column -->
-      <ng-container matColumnDef="username">
-        <th mat-header-cell *matHeaderCellDef>Username</th>
-        <td mat-cell *matCellDef="let element">{{element.username || 'loading...'}}</td>
+  <mat-progress-bar *ngIf="isLoading()" mode="indeterminate"></mat-progress-bar>
+
+  <div class="table-container">
+    <table mat-table [dataSource]="dataSource" class="mat-elevation-z2" style="background: none !important; box-shadow: none !important;">
+      <!-- Identity Number Column -->
+      <ng-container matColumnDef="identityNumber">
+        <th mat-header-cell *matHeaderCellDef> Identity Number </th>
+        <td mat-cell *matCellDef="let request"> {{request.identityNumber}} </td>
+      </ng-container>
+
+      <!-- User Column -->
+      <ng-container matColumnDef="user">
+        <th mat-header-cell *matHeaderCellDef> User </th>
+        <td mat-cell *matCellDef="let request">
+          <span *ngIf="request.userId && typeof request.userId !== 'string'">
+            {{request.userId.firstName}} {{request.userId.lastName}}
+          </span>
+          <span *ngIf="!request.userId || typeof request.userId === 'string'">
+            Unknown User
+          </span>
+        </td>
       </ng-container>
 
       <!-- Address Column -->
       <ng-container matColumnDef="address">
-        <th mat-header-cell *matHeaderCellDef>Address</th>
-        <td mat-cell *matCellDef="let element"
-            [matTooltip]="getAddressTooltip(element)"
-            matTooltipPosition="above">
-          {{element.address?.state || 'Unknown'}}
+        <th mat-header-cell *matHeaderCellDef> Address </th>
+        <td mat-cell *matCellDef="let request" [matTooltip]="getAddressTooltip(request)">
+          <span *ngIf="request.address">
+            {{request.address.city}}, {{request.address.state}}
+          </span>
+          <span *ngIf="!request.address">N/A</span>
         </td>
       </ng-container>
 
       <!-- Status Column -->
       <ng-container matColumnDef="status">
-        <th mat-header-cell *matHeaderCellDef>Status</th>
-        <td mat-cell *matCellDef="let element">
-          <span class="status-badge" [ngClass]="element.status.toLowerCase()">
-            {{element.status}}
+        <th mat-header-cell *matHeaderCellDef> Status </th>
+        <td mat-cell *matCellDef="let request">
+          <span class="status-badge" [ngClass]="request.status">
+            {{request.status | titlecase}}
           </span>
         </td>
       </ng-container>
 
       <!-- Created At Column -->
       <ng-container matColumnDef="createdAt">
-        <th mat-header-cell *matHeaderCellDef>Created At</th>
-        <td mat-cell *matCellDef="let element">{{formatDate(element.createdAt)}}</td>
+        <th mat-header-cell *matHeaderCellDef> Created At </th>
+        <td mat-cell *matCellDef="let request"> {{formatDate(request.createdAt)}} </td>
       </ng-container>
 
       <!-- Actions Column -->
       <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef>Actions</th>
-        <td mat-cell *matCellDef="let element">
-          <div class="actions-container">
-            <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Actions">
-              <mat-icon>more_vert</mat-icon>
+        <th mat-header-cell *matHeaderCellDef> Actions </th>
+        <td mat-cell *matCellDef="let request">
+          <button mat-icon-button [matMenuTriggerFor]="menu">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #menu="matMenu">
+            <button mat-menu-item (click)="handleAction(request, 'view')">
+              <mat-icon>visibility</mat-icon>
+              <span>View Details</span>
             </button>
-            <mat-menu #menu="matMenu">
-              <button mat-menu-item (click)="handleAction(element, 'approve')"
-                      [disabled]="element.status !== 'pending'" class="approve-btn">
-                <mat-icon>check_circle</mat-icon>
-                <span>Approve</span>
-              </button>
-              <button mat-menu-item (click)="handleAction(element, 'reject')"
-                      [disabled]="element.status !== 'pending'" class="reject-btn">
-                <mat-icon>cancel</mat-icon>
-                <span>Reject</span>
-              </button>
 
-            </mat-menu>
-          </div>
+            <button mat-menu-item *ngIf="request.status === 'pending'"
+                    (click)="handleAction(request, 'approve')">
+              <mat-icon color="primary">check_circle</mat-icon>
+              <span>Approve</span>
+            </button>
+
+            <button mat-menu-item *ngIf="request.status === 'pending'"
+                    (click)="handleAction(request, 'reject')">
+              <mat-icon color="warn">cancel</mat-icon>
+              <span>Reject</span>
+            </button>
+          </mat-menu>
         </td>
       </ng-container>
 
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+      <!-- Row shown when there is no matching data. -->
+      <tr class="mat-row" *matNoDataRow>
+        <td class="mat-cell no-data" [attr.colspan]="displayedColumns.length">
+          <div class="no-data-container">
+            <mat-icon>search_off</mat-icon>
+            <p>No CPF requests found</p>
+          </div>
+        </td>
+      </tr>
     </table>
-
-    <!-- <div class="loading-shade" *ngIf="isLoading">
-      <mat-spinner></mat-spinner>
-    </div> -->
-
-    <div class="pagination-container">
-      <div class="items-per-page">
-        Items per page:
-        <select (change)="loadRequests()" [(ngModel)]="pageSize">
-          <option [value]="5">5</option>
-          <option [value]="10">10</option>
-          <option [value]="25">25</option>
-          <option [value]="50">50</option>
-        </select>
-      </div>
-
-      <div class="pagination-info">
-        {{ (currentPage - 1) * pageSize + 1 }} - {{ Math.min(currentPage * pageSize, totalItems) }} of {{ totalItems }}
-      </div>
-
-      <div class="pagination-controls">
-        <button mat-icon-button [disabled]="currentPage === 1" (click)="loadRequests(currentPage - 1)">
-          <mat-icon>navigate_before</mat-icon>
-        </button>
-        <button mat-icon-button [disabled]="currentPage * pageSize >= totalItems" (click)="loadRequests(currentPage + 1)">
-          <mat-icon>navigate_next</mat-icon>
-        </button>
-      </div>
-    </div>
   </div>
+
+  <mat-paginator
+    [length]="totalItems"
+    [pageSize]="pageSize"
+    [pageSizeOptions]="[5, 10, 25, 100]"
+    (page)="onPageChange($event)"
+    aria-label="Select page">
+  </mat-paginator>
 </div>
