@@ -9,6 +9,7 @@ import { FeaturesShowcaseComponent } from './components/features-showcase/featur
 import { UserService } from '../../core/services/user.service';
 import { HeaderComponent } from './components/header/header.component';
 import { FooterComponent } from './components/footer/footer.component';
+import { GuidesComponent } from './components/guides/guides.component';
 @Component({
   selector: 'app-home',
   standalone: true,
@@ -22,6 +23,7 @@ import { FooterComponent } from './components/footer/footer.component';
     FaqSectionComponent,
     FeaturesShowcaseComponent,
     FindUsComponent,
+    GuidesComponent,
   ],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],

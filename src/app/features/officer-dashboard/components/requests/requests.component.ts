@@ -22,6 +22,8 @@ import { MatInputModule } from '@angular/material/input';
 import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSortModule, MatSort } from '@angular/material/sort';
+
 interface CpfRequestWithAppointment extends CpfRequest {
   appointmentCompleted?: boolean;
   appointmentData?: Appointment | null;
@@ -47,7 +49,8 @@ interface CpfRequestWithAppointment extends CpfRequest {
     MatInputModule,
     ReactiveFormsModule,
     MatProgressBarModule,
-    MatSelectModule
+    MatSelectModule,
+    MatSortModule
   ],
   templateUrl: './requests.component.html',
   styleUrls: ['./requests.component.scss']
@@ -85,6 +88,7 @@ export class OfficerRequestsComponent implements OnInit, AfterViewInit {
   pageSize = 10;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
 
   ngOnInit() {
     // Check query parameters for status filter
@@ -97,6 +101,8 @@ export class OfficerRequestsComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
     if (isPlatformBrowser(this.platformId)) {
       this.loadRequests();
     }
@@ -236,5 +242,35 @@ export class OfficerRequestsComponent implements OnInit, AfterViewInit {
 
   refreshRequests(): void {
     this.loadRequests(this.currentPage);
+  }
+
+  sortData(event: any) {
+    const data = this.dataSource.data.slice();
+    if (!event.active || event.direction === '') {
+      this.dataSource.data = data;
+      return;
+    }
+
+    this.dataSource.data = data.sort((a, b) => {
+      const isAsc = event.direction === 'asc';
+      switch (event.active) {
+        case 'identityNumber':
+          return this.compare(a.identityNumber, b.identityNumber, isAsc);
+        case 'user':
+          const aName = typeof a.userId === 'string' ? '' : a.userId?.firstName || '';
+          const bName = typeof b.userId === 'string' ? '' : b.userId?.firstName || '';
+          return this.compare(aName, bName, isAsc);
+        case 'status':
+          return this.compare(a.status, b.status, isAsc);
+        case 'createdAt':
+          return this.compare(a.createdAt, b.createdAt, isAsc);
+        default:
+          return 0;
+      }
+    });
+  }
+
+  private compare(a: any, b: any, isAsc: boolean) {
+    return (a < b ? -1 : 1) * (isAsc ? 1 : -1);
   }
 }

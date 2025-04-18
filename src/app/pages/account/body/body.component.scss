@@ -115,11 +115,11 @@ button,
 a.btn,
 label.upload-btn {
   display: inline-flex;
-  align-items: center;
+  -webkit-align-items: center;
   justify-content: center;
   text-align: center;
   -webkit-box-align: center;
-  -webkit-align-items: center;
+  align-items: center;
   box-sizing: border-box;
 
   span {

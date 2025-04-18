@@ -1,17 +1,30 @@
 <!-- Header -->
 <header
-  class="sticky top-0 bg-[rgba(20,20,30,0.9)] backdrop-blur-md shadow-sm z-50"
+  class="fixed top-0 w-full z-50 transition-all duration-300"
+  [ngClass]="{
+    'py-3 bg-[rgba(20,20,30,0.9)] backdrop-blur-md': !isScrolled,
+    'py-2 bg-[rgba(20,20,30,0.95)] shadow-md backdrop-blur-md': isScrolled
+  }"
 >
   <div class="container mx-auto px-2 md:px-3">
-    <div class="flex items-center justify-between py-3">
+    <div
+      class="flex items-center justify-between"
+      [ngClass]="{ 'py-1': isScrolled, 'py-2': !isScrolled }"
+    >
       <!-- Logo -->
       <a href="#" class="flex items-center shrink-0">
         <img
           src="assets/images/logo.png"
           alt="Identity Secure Logo"
-          class="h-8 sm:h-10 mr-2"
+          class="transition-all duration-300 mr-2"
+          [ngClass]="{ 'h-8 sm:h-10': !isScrolled, 'h-6 sm:h-8': isScrolled }"
         />
-        <span class="font-bold text-white text-sm sm:text-base"
+        <span
+          class="font-bold text-white transition-all duration-300"
+          [ngClass]="{
+            'text-sm sm:text-base': !isScrolled,
+            'text-xs sm:text-sm': isScrolled
+          }"
           >Identity Secure</span
         >
       </a>
@@ -44,7 +57,7 @@
         class="hidden lg:flex lg:items-center lg:justify-center flex-1 mx-4"
         [ngClass]="{
           hidden: !isMobileMenuOpen,
-          'block fixed top-16 left-0 right-0 bg-[rgba(20,20,30,0.9)] backdrop-blur-md p-4 shadow-lg z-40':
+          'block fixed top-16 left-0 right-0 bg-[rgba(20,20,30,0.95)] backdrop-blur-md p-4 shadow-lg z-40':
             isMobileMenuOpen
         }"
         data-dropdown="mobile-menu"
@@ -54,50 +67,85 @@
         >
           <li class="lg:mx-2 xl:mx-3">
             <a
-              href="#"
-              class="block py-2 text-white hover:text-[#6b21a8] relative nav-link"
+              href="#hero"
+              class="block py-2 relative nav-link inline-flex items-center"
+              [ngClass]="{
+                'text-white hover:text-[#6b21a8]': !isActive('home'),
+                'text-[#6b21a8]': isActive('home'),
+                active: isActive('home')
+              }"
               >Home</a
             >
           </li>
           <li class="lg:mx-2 xl:mx-3">
             <a
               href="#about"
-              class="block py-2 text-gray-300 hover:text-white relative nav-link"
+              class="block py-2 relative nav-link inline-flex items-center"
+              [ngClass]="{
+                'text-gray-300 hover:text-white': !isActive('about'),
+                'text-[#6b21a8]': isActive('about'),
+                active: isActive('about')
+              }"
               >About</a
             >
           </li>
           <li class="lg:mx-2 xl:mx-3">
             <a
               href="#features"
-              class="block py-2 text-gray-300 hover:text-white relative nav-link"
+              class="block py-2 relative nav-link inline-flex items-center"
+              [ngClass]="{
+                'text-gray-300 hover:text-white': !isActive('features'),
+                'text-[#6b21a8]': isActive('features'),
+                active: isActive('features')
+              }"
               >Features</a
             >
           </li>
           <li class="lg:mx-2 xl:mx-3">
             <a
               href="#guides"
-              class="block py-2 text-gray-300 hover:text-white relative nav-link"
+              class="block py-2 relative nav-link inline-flex items-center"
+              [ngClass]="{
+                'text-gray-300 hover:text-white': !isActive('guides'),
+                'text-[#6b21a8]': isActive('guides'),
+                active: isActive('guides')
+              }"
               >Guides</a
             >
           </li>
           <li class="lg:mx-2 xl:mx-3">
             <a
               href="#faq"
-              class="block py-2 text-gray-300 hover:text-white relative nav-link"
+              class="block py-2 relative nav-link inline-flex items-center"
+              [ngClass]="{
+                'text-gray-300 hover:text-white': !isActive('faq'),
+                'text-[#6b21a8]': isActive('faq'),
+                active: isActive('faq')
+              }"
               >FAQ</a
             >
           </li>
           <li class="lg:mx-2 xl:mx-3">
             <a
-              href="#explore"
-              class="block py-2 text-gray-300 hover:text-white relative nav-link"
-              >Explore</a
+              href="#find-us"
+              class="block py-2 relative nav-link inline-flex items-center"
+              [ngClass]="{
+                'text-gray-300 hover:text-white': !isActive('find-us'),
+                'text-[#6b21a8]': isActive('find-us'),
+                active: isActive('find-us')
+              }"
+              >Find Us</a
             >
           </li>
           <li class="lg:mx-2 xl:mx-3">
             <a
               href="#contact"
-              class="block py-2 text-gray-300 hover:text-white relative nav-link"
+              class="block py-2 relative nav-link inline-flex items-center"
+              [ngClass]="{
+                'text-gray-300 hover:text-white': !isActive('contact'),
+                'text-[#6b21a8]': isActive('contact'),
+                active: isActive('contact')
+              }"
               >Contact</a
             >
           </li>

@@ -8,6 +8,16 @@
   z-index: 50;
 }
 
+// Add smooth transition effects for header
+header {
+  transition: all 0.3s ease;
+  box-shadow: none; // Remove default shadow
+
+  &.scrolled {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+}
+
 // Add transition for mobile menu
 @media (max-width: 1023px) {
   .navbar-menu-transition {
@@ -69,11 +79,25 @@
   }
 }
 
+// Enhance the active link appearance
+.nav-link.active {
+  &::before {
+    width: 80%;
+  }
+
+  @media (max-width: 1023px) {
+    &::before {
+      width: 100%;
+    }
+  }
+}
+
 // Ensure proper centering of nav items
 @media (min-width: 1024px) {
   ul {
     display: flex;
     justify-content: center;
+    align-items: center; // Ensure vertical alignment
     width: 100%;
   }
 }

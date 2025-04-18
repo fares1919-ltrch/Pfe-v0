@@ -64,10 +64,14 @@
           <div>
             <p class="text-sm text-gray-600">Your Address:</p>
             <p class="text-blue-700">
-              {{ selectedLocation.address.street }}<span *ngIf="selectedLocation.address.street">, </span>
-              {{ selectedLocation.address.city }}<span *ngIf="selectedLocation.address.city">, </span>
-              {{ selectedLocation.address.state }}<span *ngIf="selectedLocation.address.state">, </span>
-              {{ selectedLocation.address.postalCode }}<span *ngIf="selectedLocation.address.postalCode">, </span>
+              {{ selectedLocation.address.street
+              }}<span *ngIf="selectedLocation.address.street">, </span>
+              {{ selectedLocation.address.city
+              }}<span *ngIf="selectedLocation.address.city">, </span>
+              {{ selectedLocation.address.state
+              }}<span *ngIf="selectedLocation.address.state">, </span>
+              {{ selectedLocation.address.postalCode
+              }}<span *ngIf="selectedLocation.address.postalCode">, </span>
               {{ selectedLocation.address.country }}
             </p>
           </div>
@@ -82,11 +86,7 @@
       </div>
 
       <!-- Request Form -->
-      <form
-        (ngSubmit)="onSubmit(requestForm)"
-        #requestForm="ngForm"
-        class="space-y-6"
-      >
+      <form (ngSubmit)="onSubmit()" #requestForm="ngForm" class="space-y-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <!-- Identity Number -->
           <div>
@@ -95,8 +95,14 @@
               class="block text-sm font-medium text-gray-700"
               >Identity Number</label
             >
+            <div *ngIf="!userProfile" class="mt-1 flex items-center">
+              <div
+                class="h-10 w-full bg-gray-200 animate-pulse rounded-md"
+              ></div>
+            </div>
             <input
-              type="number"
+              *ngIf="userProfile"
+              type="text"
               id="identityNumber"
               name="identityNumber"
               [(ngModel)]="identityNumber"
@@ -116,7 +122,13 @@
               class="block text-sm font-medium text-gray-700"
               >Birth Date</label
             >
+            <div *ngIf="!userProfile" class="mt-1 flex items-center">
+              <div
+                class="h-10 w-full bg-gray-200 animate-pulse rounded-md"
+              ></div>
+            </div>
             <input
+              *ngIf="userProfile"
               type="date"
               id="birthDate"
               name="birthDate"

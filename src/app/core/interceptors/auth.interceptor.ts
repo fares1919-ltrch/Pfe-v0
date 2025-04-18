@@ -9,6 +9,48 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
   const tokenService = inject(TokenStorageService);
   const authService = inject(AuthService);
 
+  // Define auth endpoints that should bypass logout checks
+  const authEndpoints = [
+    `${environment.apiUrl}/api/auth/signin`,
+    `${environment.apiUrl}/api/auth/signup`,
+    `${environment.apiUrl}/api/auth/google`,
+    `${environment.apiUrl}/api/auth/github`,
+    `${environment.apiUrl}/api/auth/userinfo`
+  ];
+
+  // Also check for login page or OAuth callback in the browser URL
+  const isLoginPage = typeof window !== 'undefined' &&
+    (window.location.href.includes('/auth/login') ||
+     window.location.href.includes('/auth/oauth-callback'));
+
+  // Check URL for logout parameter which indicates explicit logout intention
+  const hasLogoutParam = typeof window !== 'undefined' &&
+    new URL(window.location.href).searchParams.get('logout') === 'true';
+
+  // For login/signup requests, clear the logout flag to ensure login works
+  if (authEndpoints.some(endpoint => req.url.includes(endpoint)) || isLoginPage) {
+    tokenService.clearLogoutFlag();
+  }
+
+  // Check if user recently logged out or if the URL contains a logout parameter
+  // Also check if the user is a Google provider user with logout flag
+  const isLoggedOut = tokenService.getLogoutFlag();
+  const isGoogleUser = tokenService.getProvider() === 'google';
+
+  if ((isLoggedOut || hasLogoutParam) &&
+      !authEndpoints.some(endpoint => req.url.includes(endpoint)) &&
+      !isLoginPage) {
+    console.log('[Auth Interceptor] User logged out or has logout parameter, skipping token handling');
+
+    // If this is a Google user with a logout flag, force clear all tokens
+    if (isGoogleUser && (isLoggedOut || hasLogoutParam)) {
+      console.log('[Auth Interceptor] Google user logout detected, clearing tokens');
+      tokenService.signOut();
+    }
+
+    return next(req);
+  }
+
   // Check if we should skip authentication for this request
   const skipAuthPaths = [
     `${environment.apiUrl}/api/auth/signin`,
@@ -19,6 +61,7 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
     `${environment.apiUrl}/api/auth/google`,
     `${environment.apiUrl}/api/auth/github`,
     `${environment.apiUrl}/api/auth/session`,
+    `${environment.apiUrl}/api/auth/validate-token`,
     `${environment.apiUrl}/api/test/all`
   ];
 
@@ -37,7 +80,20 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
     return next(req);
   }
 
-  // Check if token is expired
+  // Check token state from last validation
+  const lastValidation = tokenService.getLastTokenValidation();
+  const now = Date.now();
+
+  // If token was validated less than 1 minute ago, use it without revalidating
+  if (lastValidation && (now - lastValidation.timestamp < 60000) && lastValidation.valid) {
+    // Token was recently validated and is valid, use it
+    const authReq = req.clone({
+      headers: req.headers.set('Authorization', `Bearer ${token}`)
+    });
+    return next(authReq);
+  }
+
+  // Check if token is expired by decoding
   const tokenData = tokenService.getDecodedToken();
   if (tokenData && tokenData.exp) {
     const expirationTime = tokenData.exp * 1000; // Convert to milliseconds
@@ -59,6 +115,12 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
           if (response.accessToken) {
             tokenService.saveToken(response.accessToken);
             tokenService.saveRefreshToken(response.refreshToken);
+
+            // Save validation state
+            tokenService.setLastTokenValidation({
+              valid: true,
+              timestamp: Date.now()
+            });
 
             // Clone the request and add the new token
             const authReq = req.clone({
@@ -87,5 +149,16 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
   });
 
   console.debug('[Auth Interceptor] Request headers after token:', authReq.headers.keys());
-  return next(authReq);
+
+  // Return the request with the token and handle errors
+  return next(authReq).pipe(
+    catchError((error) => {
+      if (error instanceof HttpErrorResponse && error.status === 401) {
+        // If we get a 401 error, the token might be invalid - clear everything
+        console.warn('[Auth Interceptor] Received 401 error, clearing token storage');
+        tokenService.signOut();
+      }
+      return throwError(() => error);
+    })
+  );
 };

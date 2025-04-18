@@ -19,11 +19,45 @@
 }
 
 /* Custom Marker Styles */
+:host ::ng-deep {
+  .leaflet-div-icon {
+    background: transparent;
+    border: none;
+  }
+
+  .leaflet-marker-icon {
+    transition: transform 0.2s;
+  }
+
+  /* Fix for marker icons */
+  .leaflet-marker-shadow,
+  .leaflet-marker-icon {
+    &.leaflet-interactive {
+      cursor: pointer;
+    }
+  }
+
+  /* Improve popup styling */
+  .leaflet-popup-content-wrapper {
+    border-radius: 0.5rem;
+    padding: 0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+
+    .leaflet-popup-content {
+      margin: 0.75rem;
+      line-height: 1.4;
+    }
+  }
+
+  /* Make attribution smaller */
+  .leaflet-control-attribution {
+    font-size: 10px;
+  }
+}
+
+/* Center and User Markers */
 .center-marker,
 .user-marker {
-  background: transparent;
-  border: none;
-
   div {
     transition: all 0.3s ease;
 
@@ -40,15 +74,17 @@
 
 @keyframes pulse {
   0% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5);
   }
+
   70% {
-    transform: scale(1.1);
+    transform: scale(1);
     box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
   }
+
   100% {
-    transform: scale(1);
+    transform: scale(0.95);
     box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
   }
 }
@@ -96,22 +132,6 @@
   }
 }
 
-/* Leaflet Controls Customization */
-.leaflet-control-zoom {
-  border: none !important;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
-
-  a {
-    background-color: white !important;
-    color: #4B5563 !important;
-    border: 1px solid #E5E7EB !important;
-
-    &:hover {
-      background-color: #F3F4F6 !important;
-    }
-  }
-}
-
 /* Distance Line Style */
 .distance-line {
   stroke-dasharray: 5, 10;
@@ -122,4 +142,168 @@
   to {
     stroke-dashoffset: -1000;
   }
+}
+
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.map-container {
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+  position: relative;
+}
+
+#map {
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  z-index: 1;
+}
+
+:host ::ng-deep {
+  // Style for the user marker (pulsating effect)
+  .user-marker {
+    .pulse {
+      animation: pulse 1.5s infinite;
+    }
+  }
+
+  // Style for the center markers
+  .center-marker {
+    z-index: 10;
+  }
+
+  .leaflet-control-zoom {
+    border: none !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+
+    a {
+      background-color: white !important;
+      color: #4B5563 !important;
+      border: 1px solid #E5E7EB !important;
+
+      &:hover {
+        background-color: #F3F4F6 !important;
+      }
+    }
+  }
+}
+
+.user-marker div {
+  animation: pulse 2s infinite;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
+}
+
+.user-marker div:hover {
+  transform: scale(1.2);
+  transition: transform 0.2s ease-out;
+}
+
+.center-marker {
+  z-index: 10;
+}
+
+.center-marker div {
+  transition: all 0.3s ease;
+}
+
+.center-marker div:hover {
+  transform: scale(1.2);
+  transition: transform 0.2s ease-out;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.5);
+}
+
+/* Permission overlay styles */
+.permission-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.permission-dialog {
+  background-color: white;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  max-width: 24rem;
+  text-align: center;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  animation: slideIn 0.3s ease-out;
+}
+
+.location-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  background-color: #3b82f6;
+  color: white;
+}
+
+.location-button:hover {
+  background-color: #2563eb;
+}
+
+.location-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+}
+
+.location-button svg {
+  margin-right: 0.5rem;
+  height: 1.25rem;
+  width: 1.25rem;
+}
+
+.location-icon {
+  color: #3b82f6;
+  height: 3rem;
+  width: 3rem;
+  margin: 0 auto 1rem;
+}
+
+.error-icon {
+  color: #ef4444;
+  height: 3rem;
+  width: 3rem;
+  margin: 0 auto 1rem;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Success notification */
+.location-success-message {
+  z-index: 1000;
+  max-width: 300px;
+  animation: fadeInOut 5s ease-in-out;
+  margin: 0 0 10px 10px;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translateY(10px); }
+  10% { opacity: 1; transform: translateY(0); }
+  90% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-10px); }
 }

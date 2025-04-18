@@ -1,9 +1,10 @@
 // reset-password.component.ts
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth.service';
-import { Router, RouterModule } from '@angular/router';  // Add RouterModule here
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';  // Add ActivatedRoute
+
 @Component({
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
@@ -12,20 +13,38 @@ import { Router, RouterModule } from '@angular/router';  // Add RouterModule her
   templateUrl: './reset-password.component.html',
   styleUrls: ['./reset-password.component.scss']
 })
-export class ResetPasswordComponent {
+export class ResetPasswordComponent implements OnInit {
   token = '';
   email = '';
   isResending = false;
   resendDisabled = false;
   countdown = 30;
+  tokenFromUrl = false;
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {
+    // Extract data from navigation state (from forgot-password)
     const navigation = this.router.getCurrentNavigation();
     this.email = navigation?.extras?.state?.['email'] || '';
   }
+
+  ngOnInit() {
+    // Check if token is in URL params (direct link from email)
+    this.route.params.subscribe(params => {
+      if (params['token']) {
+        this.token = params['token'];
+        this.tokenFromUrl = true;
+        // If token is in URL, go directly to new password
+        this.router.navigate(['/auth/new-password'], {
+          state: { token: this.token }
+        });
+      }
+    });
+  }
+
   // Add resendCode method
   async resendCode() {
     if (!this.email || this.resendDisabled) return;
@@ -54,8 +73,8 @@ export class ResetPasswordComponent {
   }
 
   verifyToken() {
-      this.router.navigate(['/auth/new-password'], {
-        state: { token: this.token }
-      })
+    this.router.navigate(['/auth/new-password'], {
+      state: { token: this.token }
+    });
   }
 }

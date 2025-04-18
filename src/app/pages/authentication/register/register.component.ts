@@ -161,9 +161,11 @@ export class RegisterComponent implements OnInit {
     this.authService.initiateGoogleAuth();
   }
 
+  /* Commenting out GitHub authentication as requested
   initiateGithubAuth() {
     this.authService.initiateGithubAuth();
   }
+  */
 
   private isPasswordStrong(password: string): boolean {
     return this.hasMinLength;

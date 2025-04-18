@@ -366,6 +366,29 @@
               }
             }
           }
+
+          // Error and success messages
+          .error-message {
+            background-color: rgba(220, 53, 69, 0.2);
+            color: #ff6b6b;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            text-align: center;
+            animation: fadeIn 0.3s ease;
+          }
+
+          .success-message {
+            background-color: rgba(40, 167, 69, 0.2);
+            color: #6bff6b;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            text-align: center;
+            animation: fadeIn 0.3s ease;
+          }
         }
       }
     }

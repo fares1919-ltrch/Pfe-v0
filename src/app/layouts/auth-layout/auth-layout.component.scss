@@ -2,18 +2,34 @@
 .auth-container {
   min-height: 100vh;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   background-color: #121212;
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 3rem 0; /* Use padding instead of margin for centering */
+  box-sizing: border-box; /* Ensure padding is included in height calculations */
+}
+
+.auth-content {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 1rem;
+  z-index: 10;
+  position: relative;
+  margin-top: 0; /* Remove negative margin */
+  flex-grow: 1; /* Take available space */
 }
 
 .back-home {
   position: absolute;
-  top: 2rem;
-  left: 2rem;
+  top: 1rem;
+  left: 1rem;
+  z-index: 1000;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -26,18 +42,51 @@
   background-color: #2a2a2a;
   border: 1px solid #444;
   animation: fadeIn 0.5s 0.2s ease-out both;
+  font-size: 14px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 
   &:hover {
     background-color: #333;
     color: #fff;
     transform: translateY(-2px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
   }
 
   .icon {
     width: 1.25rem;
     height: 1.25rem;
     stroke: #a0a0a0;
+  }
+
+  .btn-text {
+    white-space: nowrap;
+  }
+
+  @media (max-width: 768px) {
+    padding: 0.5rem 1rem;
+    font-size: 13px;
+  }
+
+  @media (max-width: 480px) {
+    top: 0.75rem;
+    left: 0.75rem;
+    padding: 0.5rem 0.75rem;
+
+    .btn-text {
+      display: inline;
+    }
+  }
+
+  @media (max-width: 359px) {
+    padding: 0.5rem;
+
+    .btn-text {
+      display: none;
+    }
+
+    .icon {
+      margin-right: 0;
+    }
   }
 }
 
@@ -48,12 +97,37 @@
   padding: 3rem;
   width: 100%;
   max-width: 450px;
-  margin: 2rem;
+  margin: 0; /* Remove default margin */
   animation: cardEntrance 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+  position: relative;
+  z-index: 10;
+  overflow-y: auto; /* Allow scrolling for tall forms */
+  max-height: calc(100vh - 7rem); /* Limit height and allow scrolling */
 
   @media (max-width: 480px) {
     padding: 2rem;
-    margin: 1rem;
+    margin-top: 3.5rem;
+    max-height: calc(100vh - 5rem);
+  }
+}
+
+/* Add styles for taller forms like registration */
+:host ::ng-deep app-register form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Add styles for specific screen sizes to adjust vertical positioning */
+@media (min-height: 800px) {
+  .auth-container {
+    padding: 5rem 0;
+  }
+}
+
+@media (min-height: 900px) {
+  .auth-container {
+    padding: 6rem 0;
   }
 }
 
@@ -72,3 +146,4 @@
   0% { opacity: 0; transform: translateY(20px); }
   100% { opacity: 1; transform: translateY(0); }
 }
+

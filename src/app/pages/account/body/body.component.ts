@@ -1,5 +1,5 @@
-import { Component, OnInit, HostListener, ElementRef, QueryList, ViewChildren, AfterViewInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, HostListener, ElementRef, QueryList, ViewChildren, AfterViewInit, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, AsyncValidatorFn, ValidationErrors } from '@angular/forms';
 import { TokenStorageService } from '../../../core/services/token-storage.service';
 import { UserService } from '../../../core/services/user.service';
@@ -68,11 +68,18 @@ export class BodyComponent implements OnInit, AfterViewInit {
   uploading: boolean = false;
   profileImageUrl: string = 'assets/images/default-profile.jpg';
 
+  // Field edit state properties
+  isBirthDateReadOnly: boolean = false;
+  isIdentityNumberReadOnly: boolean = false;
+
   // Session management
   activeSessions: Session[] = [];
   isLoadingSessions: boolean = false;
   isAuthenticated: boolean = false;
   tokenExpired: boolean = false;
+
+  // Browser check
+  isBrowser: boolean;
 
   @ViewChildren('profileSection') profileSections!: QueryList<ElementRef>;
 
@@ -82,12 +89,17 @@ export class BodyComponent implements OnInit, AfterViewInit {
     private profileService: ProfileService,
     private fb: FormBuilder,
     private router: Router,
-    private elementRef: ElementRef
+    private elementRef: ElementRef,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {
+    this.isBrowser = isPlatformBrowser(this.platformId);
     this.initializeForms();
   }
 
   ngOnInit() {
+    // Only perform browser-specific operations if in browser environment
+    if (!this.isBrowser) return;
+
     this.currentUser = this.tokenStorage.getUser();
     this.isAuthenticated = !!this.tokenStorage.getToken();
 
@@ -101,6 +113,9 @@ export class BodyComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
+    // Only perform browser-specific operations if in browser environment
+    if (!this.isBrowser) return;
+
     // Initial check for elements in viewport
     setTimeout(() => {
       this.checkSectionsInViewport();
@@ -109,10 +124,13 @@ export class BodyComponent implements OnInit, AfterViewInit {
 
   @HostListener('window:scroll', ['$event'])
   onWindowScroll() {
+    if (!this.isBrowser) return;
     this.checkSectionsInViewport();
   }
 
   checkSectionsInViewport() {
+    if (!this.isBrowser || !this.elementRef?.nativeElement) return;
+
     const sections = this.elementRef.nativeElement.querySelectorAll('.profile-section');
 
     sections.forEach((section: HTMLElement) => {
@@ -136,8 +154,8 @@ export class BodyComponent implements OnInit, AfterViewInit {
       email: ['', [Validators.required, Validators.email]],
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
-      birthDate: ['', [Validators.required]],
-      identityNumber: ['', [Validators.required, Validators.pattern(/^\d{8,12}$/)]],
+      birthDate: [''],
+      identityNumber: ['', Validators.pattern(/^\d{8,12}$/)],
       aboutMe: [''],
       work: [''],
       workplace: [''],
@@ -235,6 +253,33 @@ export class BodyComponent implements OnInit, AfterViewInit {
     };
   }
 
+  // For CPF requests we still validate birth date properly
+  birthDateValidatorForCpf() {
+    return (control: AbstractControl): { [key: string]: any } | null => {
+      if (!control.value) {
+        return { required: true };
+      }
+
+      const birthDate = new Date(control.value);
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+
+      if (age < 18) {
+        return { underage: true };
+      }
+
+      if (birthDate > today) {
+        return { future: true };
+      }
+      return null;
+    };
+  }
+
   loadUserProfile() {
     this.isSubmitting = true;
     if (!this.tokenStorage.getToken()) {
@@ -259,24 +304,80 @@ export class BodyComponent implements OnInit, AfterViewInit {
           return of(null);
         })
       )
-      .subscribe((data: UserProfile | null) => {
+      .subscribe((data: any) => {
         this.isSubmitting = false;
         if (!data) return;
+
+        console.log('Loaded user profile (raw):', data);
+
+        // Set read-only flags based on user data
+        this.isBirthDateReadOnly = !!data.birthDate && (typeof data.birthDate === 'string' ? data.birthDate.trim() !== '' : true);
+        this.isIdentityNumberReadOnly = !!data.identityNumber && (data.identityNumber.toString().trim() !== '');
+
+        // Format birthDate properly for the date input field (yyyy-MM-dd)
+        let formattedBirthDate = '';
+        if (data.birthDate) {
+          try {
+            // Create a Date object from the input
+            const dateObj = new Date(data.birthDate);
+
+            // Format as yyyy-MM-dd
+            const year = dateObj.getFullYear();
+            // Month is 0-indexed, so add 1 and ensure 2 digits with padStart
+            const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+            // Ensure 2 digits for day with padStart
+            const day = String(dateObj.getDate()).padStart(2, '0');
+
+            formattedBirthDate = `${year}-${month}-${day}`;
+            console.log('Formatted birth date for input:', formattedBirthDate);
+          } catch (e) {
+            console.error('Error formatting birth date:', e);
+            // Fallback to empty string if there's an error
+            formattedBirthDate = '';
+          }
+        }
+
+        // Create a normalized user object
+        const normalizedUser: UserProfile = {
+          username: data.username || '',
+          email: data.email || '',
+          firstName: data.firstName || '',
+          lastName: data.lastName || '',
+          birthDate: formattedBirthDate,
+          identityNumber: data.identityNumber ? data.identityNumber.toString() : '',
+          aboutMe: data.aboutMe || '',
+          work: data.work || '',
+          workplace: data.workplace || '',
+          photo: data.photo || '',
+          address: data.address || '',
+          city: data.city || '',
+          country: data.country || '',
+          postalCode: data.postalCode || '',
+          location: data.location || undefined
+        };
+
+        console.log('Normalized user profile:', normalizedUser);
+
+        // Store the normalized user data
+        this.currentUser = normalizedUser;
+
+        // Update form values with normalized data
         this.profileForm.patchValue({
-          username: data.username,
-          email: data.email,
-          firstName: data.firstName,
-          lastName: data.lastName,
-          birthDate: data.birthDate ? data.birthDate.substring(0, 10) : '',
-          identityNumber: data.identityNumber,
-          aboutMe: data.aboutMe,
-          work: data.work,
-          workplace: data.workplace,
-          address: data.address,
-          city: data.city,
-          country: data.country,
-          postalCode: data.postalCode
+          username: normalizedUser.username,
+          email: normalizedUser.email,
+          firstName: normalizedUser.firstName,
+          lastName: normalizedUser.lastName,
+          birthDate: normalizedUser.birthDate,
+          identityNumber: normalizedUser.identityNumber,
+          aboutMe: normalizedUser.aboutMe,
+          work: normalizedUser.work,
+          workplace: normalizedUser.workplace,
+          address: normalizedUser.address,
+          city: normalizedUser.city,
+          country: normalizedUser.country,
+          postalCode: normalizedUser.postalCode
         });
+
         if (data.photo) {
           this.profileImageUrl = data.photo.startsWith('http')
             ? data.photo
@@ -286,18 +387,62 @@ export class BodyComponent implements OnInit, AfterViewInit {
   }
 
   saveProfile() {
+    if (!this.isBrowser) return;
+
     const changedFields: Partial<UserProfile> = {};
     const formValue = this.profileForm.getRawValue();
 
+    // Define field categories
+    const freeChangeFields = ['firstName', 'lastName', 'aboutMe', 'work', 'workplace', 'address', 'city', 'country', 'postalCode'];
+    const sensitiveFields = ['birthDate', 'identityNumber'];
+
     // Check which fields have been modified
     Object.keys(formValue).forEach(key => {
-      if (key !== 'username' && key !== 'email' && key in this.currentUser!) {
-        const currentValue = formValue[key as keyof UserProfile];
+      if (key !== 'username' && key !== 'email') {
+        let currentValue = formValue[key as keyof UserProfile];
         const existingValue = this.currentUser?.[key as keyof UserProfile];
+        const control = this.profileForm.get(key);
+
+        // Special handling for birthDate to ensure it's in the correct format
+        if (key === 'birthDate' && currentValue) {
+          try {
+            // Ensure birthDate is in ISO format for backend
+            const dateObj = new Date(currentValue);
+            if (!isNaN(dateObj.getTime())) {
+              currentValue = dateObj.toISOString().split('T')[0]; // Convert to YYYY-MM-DD format
+            }
+          } catch (e) {
+            console.error('Error formatting birth date:', e);
+          }
+        }
+
+        // Convert values to strings for consistent comparison
+        const currentValueStr = currentValue !== null && currentValue !== undefined ? String(currentValue).trim() : '';
+        const existingValueStr = existingValue !== null && existingValue !== undefined ? String(existingValue).trim() : '';
+
+        // For debugging
+        console.log(`Field: ${key}, Current: "${currentValueStr}", Existing: "${existingValueStr}", Changed: ${currentValueStr !== existingValueStr}`);
 
         // Only include fields that have been modified and are valid
-        const control = this.profileForm.get(key);
-        if (currentValue !== existingValue && (!control || !control.errors)) {
+        if (currentValueStr !== existingValueStr && (!control || !control.errors)) {
+          // Special handling for sensitive fields
+          if (sensitiveFields.includes(key)) {
+            // Check if the field already has a value in the database
+            if (existingValueStr !== '') {
+              this.showAlert(`${key === 'birthDate' ? 'Birth date' : 'Identity number'} can only be set once`, 'error');
+              // Reset the form value to the original value
+              if (control) {
+                const patch: any = {};
+                patch[key] = existingValue;
+                this.profileForm.patchValue(patch);
+              }
+
+              // Important: Skip adding this field to changedFields but continue with others
+              return; // This return only exits the current iteration of forEach
+            }
+          }
+
+          // Add the original (non-string) value to changedFields
           changedFields[key as keyof UserProfile] = currentValue;
         }
       }
@@ -309,6 +454,52 @@ export class BodyComponent implements OnInit, AfterViewInit {
       return;
     }
 
+    console.log('Changed fields:', changedFields);
+
+    // Check for identity number uniqueness if it's being changed
+    if (changedFields.identityNumber) {
+      this.isSubmitting = true;
+      this.profileService.checkIdentityNumberUnique(changedFields.identityNumber.toString())
+        .pipe(
+          catchError(() => {
+            this.isSubmitting = false;
+            return of(true); // Assume it's unique on error to allow the user to try
+          })
+        )
+        .subscribe(isUnique => {
+          if (!isUnique) {
+            this.isSubmitting = false;
+            this.showAlert('Identity number is already in use', 'error');
+            // Reset the form value
+            if (this.currentUser && this.currentUser.identityNumber) {
+              this.profileForm.patchValue({
+                identityNumber: this.currentUser.identityNumber
+              });
+            } else {
+              this.profileForm.patchValue({
+                identityNumber: ''
+              });
+            }
+
+            // Remove the identity number from changed fields
+            delete changedFields.identityNumber;
+
+            // If we still have other changes, proceed with saving those
+            if (Object.keys(changedFields).length > 0) {
+              this.proceedWithProfileSave(changedFields);
+            }
+          } else {
+            // Continue with saving the profile
+            this.proceedWithProfileSave(changedFields);
+          }
+        });
+    } else {
+      // No identity number change, proceed normally
+      this.proceedWithProfileSave(changedFields);
+    }
+  }
+
+  private proceedWithProfileSave(changedFields: Partial<UserProfile>) {
     this.isSubmitting = true;
     const formData = new FormData();
 
@@ -316,6 +507,7 @@ export class BodyComponent implements OnInit, AfterViewInit {
     Object.keys(changedFields).forEach(key => {
       const value = changedFields[key as keyof UserProfile];
       if (value !== null && value !== undefined) {
+        console.log(`Appending to form data: ${key} = ${value}`);
         if (typeof value === 'object' && value !== null) {
           formData.append(key, JSON.stringify(value));
         } else {
@@ -323,10 +515,6 @@ export class BodyComponent implements OnInit, AfterViewInit {
         }
       }
     });
-
-    if (this.selectedFile) {
-      formData.append('photo', this.selectedFile);
-    }
 
     this.profileService.updateProfile(formData)
       .pipe(
@@ -340,21 +528,64 @@ export class BodyComponent implements OnInit, AfterViewInit {
       .subscribe((response: any) => {
         this.isSubmitting = false;
         if (!response) return;
-        this.showAlert('Profile updated successfully', 'success');
 
-        // Update only the changed fields in the current user object
-        const updatedUser = { ...this.currentUser! };
-        Object.keys(changedFields).forEach(key => {
-          const value = changedFields[key as keyof UserProfile];
-          if (typeof value === 'object' && value !== null) {
-            (updatedUser as any)[key] = value;
-          } else {
-            (updatedUser as any)[key] = value;
+        console.log('Profile update response:', response);
+
+        // Determine which fields were updated for the message
+        const updatedFieldNames = Object.keys(changedFields)
+          .map(key => {
+            switch(key) {
+              case 'firstName': return 'first name';
+              case 'lastName': return 'last name';
+              case 'birthDate': return 'birth date';
+              case 'identityNumber': return 'identity number';
+              case 'aboutMe': return 'about me';
+              case 'work': return 'job title';
+              case 'workplace': return 'workplace';
+              default: return key;
+            }
+          });
+
+        this.showAlert(`Profile updated successfully: ${updatedFieldNames.join(', ')}`, 'success');
+
+        // Update read-only flags if sensitive fields were updated
+        if (changedFields.birthDate) {
+          this.isBirthDateReadOnly = true;
+        }
+        if (changedFields.identityNumber) {
+          this.isIdentityNumberReadOnly = true;
+        }
+
+        // Update the current user object with the changed fields
+        if (this.currentUser) {
+          Object.keys(changedFields).forEach(key => {
+            const value = changedFields[key as keyof UserProfile];
+            if (value !== null && value !== undefined) {
+              (this.currentUser as any)[key] = value;
+            }
+          });
+
+          // Make a deep copy of the user object before saving to avoid reference issues
+          const userToSave = JSON.parse(JSON.stringify(this.currentUser));
+
+          // Get original user data with provider information
+          const originalUser = this.tokenStorage.getUser();
+
+          // Preserve important authentication fields that aren't part of the profile
+          if (originalUser) {
+            ['roles', 'provider', 'googleId', 'githubId', 'id', '_id'].forEach(field => {
+              if (originalUser[field]) {
+                userToSave[field] = originalUser[field];
+              }
+            });
           }
-        });
 
-        this.tokenStorage.saveUser(updatedUser);
-        this.currentUser = updatedUser;
+          console.log('Saving updated user:', userToSave);
+          this.tokenStorage.saveUser(userToSave);
+        }
+
+        // Reload user profile to ensure we have the latest data from the server
+        this.loadUserProfile();
       });
   }
 
@@ -393,6 +624,8 @@ export class BodyComponent implements OnInit, AfterViewInit {
   }
 
   onFileSelected(event: Event) {
+    if (!this.isBrowser) return;
+
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length) {
       this.selectedFile = input.files[0];
@@ -402,7 +635,50 @@ export class BodyComponent implements OnInit, AfterViewInit {
         this.profileImageUrl = reader.result as string;
       };
       reader.readAsDataURL(this.selectedFile);
+
+      // Automatically upload the photo when selected
+      this.uploadPhotoOnly();
     }
+  }
+
+  uploadPhotoOnly() {
+    if (!this.isBrowser || !this.selectedFile) {
+      this.showAlert('No photo selected', 'error');
+      return;
+    }
+
+    this.uploading = true;
+    const formData = new FormData();
+    formData.append('photo', this.selectedFile);
+
+    this.profileService.updateProfile(formData)
+      .pipe(
+        catchError((error: HttpErrorResponse) => {
+          this.uploading = false;
+          const errorMessage = error.error?.message || 'Failed to upload photo';
+          this.showAlert(errorMessage, 'error');
+          return of(null);
+        })
+      )
+      .subscribe((response: any) => {
+        this.uploading = false;
+        if (!response) return;
+
+        this.showAlert('Profile photo updated successfully', 'success');
+        this.selectedFile = null;
+
+        if (response.photo) {
+          this.profileImageUrl = response.photo.startsWith('http')
+            ? response.photo
+            : `${environment.apiUrl}${response.photo}`;
+        }
+
+        // Update the user object with the new photo
+        if (this.currentUser) {
+          this.currentUser.photo = response.photo;
+          this.tokenStorage.saveUser(this.currentUser);
+        }
+      });
   }
 
   openChangePasswordModal() {

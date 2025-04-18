@@ -99,4 +99,10 @@ export class CpfRequestService {
   deleteCpfRequest(requestId: string): Observable<any> {
     return this.http.delete(`${this.API_URL}/cpf-requests/${requestId}`, { withCredentials: true });
   }
+
+  // Submit CPF request with location data
+  submitCpfRequest(requestData: any): Observable<CpfRequest> {
+    console.log('Service: Submitting CPF request with data:', requestData);
+    return this.http.post<CpfRequest>(`${this.API_URL}/cpf-requests`, requestData, { withCredentials: true });
+  }
 }

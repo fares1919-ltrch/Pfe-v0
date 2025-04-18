@@ -24,9 +24,14 @@
         <span class="btn-icon">📊</span>
         <span>DASHBOARD</span>
       </a>
-      <button (click)="logout()" class="nav-link logout-btn">
+      <button
+        (click)="logout()"
+        [disabled]="isLoggingOut"
+        class="nav-link logout-btn"
+      >
         <span class="btn-icon">🚪</span>
-        <span>LOGOUT</span>
+        <span *ngIf="!isLoggingOut">LOGOUT</span>
+        <span *ngIf="isLoggingOut">LOGGING OUT...</span>
       </button>
     </nav>
 
@@ -60,9 +65,14 @@
         <span class="btn-icon">📊</span>
         <span>DASHBOARD</span>
       </a>
-      <button (click)="logout()" class="nav-link logout-btn">
+      <button
+        (click)="logout()"
+        [disabled]="isLoggingOut"
+        class="nav-link logout-btn"
+      >
         <span class="btn-icon">🚪</span>
-        <span>LOGOUT</span>
+        <span *ngIf="!isLoggingOut">LOGOUT</span>
+        <span *ngIf="isLoggingOut">LOGGING OUT...</span>
       </button>
     </div>
   </nav>

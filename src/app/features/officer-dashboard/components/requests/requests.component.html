@@ -4,7 +4,10 @@
     <div class="actions">
       <mat-form-field appearance="fill" class="status-filter">
         <mat-label>Status</mat-label>
-        <mat-select [(ngModel)]="statusFilter" (selectionChange)="applyStatusFilter($event.value)">
+        <mat-select
+          [(ngModel)]="statusFilter"
+          (selectionChange)="applyStatusFilter($event.value)"
+        >
           <mat-option value="all">All</mat-option>
           <mat-option value="pending">Pending</mat-option>
           <mat-option value="approved">Approved</mat-option>
@@ -12,7 +15,12 @@
           <mat-option value="completed">Completed</mat-option>
         </mat-select>
       </mat-form-field>
-      <button mat-icon-button color="primary" (click)="refreshRequests()" matTooltip="Refresh">
+      <button
+        mat-icon-button
+        color="primary"
+        (click)="refreshRequests()"
+        matTooltip="Refresh"
+      >
         <mat-icon>refresh</mat-icon>
       </button>
     </div>
@@ -21,19 +29,28 @@
   <mat-progress-bar *ngIf="isLoading()" mode="indeterminate"></mat-progress-bar>
 
   <div class="table-container">
-    <table mat-table [dataSource]="dataSource" class="mat-elevation-z2" style="background: none !important; box-shadow: none !important;">
+    <table
+      mat-table
+      [dataSource]="dataSource"
+      class="mat-elevation-z2"
+      style="background: none !important; box-shadow: none !important"
+      matSort
+      (matSortChange)="sortData($event)"
+    >
       <!-- Identity Number Column -->
       <ng-container matColumnDef="identityNumber">
-        <th mat-header-cell *matHeaderCellDef> Identity Number </th>
-        <td mat-cell *matCellDef="let request"> {{request.identityNumber}} </td>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>
+          Identity Number
+        </th>
+        <td mat-cell *matCellDef="let request">{{ request.identityNumber }}</td>
       </ng-container>
 
       <!-- User Column -->
       <ng-container matColumnDef="user">
-        <th mat-header-cell *matHeaderCellDef> User </th>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>User</th>
         <td mat-cell *matCellDef="let request">
           <span *ngIf="request.userId && typeof request.userId !== 'string'">
-            {{request.userId.firstName}} {{request.userId.lastName}}
+            {{ request.userId.firstName }} {{ request.userId.lastName }}
           </span>
           <span *ngIf="!request.userId || typeof request.userId === 'string'">
             Unknown User
@@ -43,10 +60,14 @@
 
       <!-- Address Column -->
       <ng-container matColumnDef="address">
-        <th mat-header-cell *matHeaderCellDef> Address </th>
-        <td mat-cell *matCellDef="let request" [matTooltip]="getAddressTooltip(request)">
+        <th mat-header-cell *matHeaderCellDef>Address</th>
+        <td
+          mat-cell
+          *matCellDef="let request"
+          [matTooltip]="getAddressTooltip(request)"
+        >
           <span *ngIf="request.address">
-            {{request.address.city}}, {{request.address.state}}
+            {{ request.address.city }}, {{ request.address.state }}
           </span>
           <span *ngIf="!request.address">N/A</span>
         </td>
@@ -54,23 +75,25 @@
 
       <!-- Status Column -->
       <ng-container matColumnDef="status">
-        <th mat-header-cell *matHeaderCellDef> Status </th>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
         <td mat-cell *matCellDef="let request">
           <span class="status-badge" [ngClass]="request.status">
-            {{request.status | titlecase}}
+            {{ request.status | titlecase }}
           </span>
         </td>
       </ng-container>
 
       <!-- Created At Column -->
       <ng-container matColumnDef="createdAt">
-        <th mat-header-cell *matHeaderCellDef> Created At </th>
-        <td mat-cell *matCellDef="let request"> {{formatDate(request.createdAt)}} </td>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Created At</th>
+        <td mat-cell *matCellDef="let request">
+          {{ formatDate(request.createdAt) }}
+        </td>
       </ng-container>
 
       <!-- Actions Column -->
       <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef> Actions </th>
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
         <td mat-cell *matCellDef="let request">
           <button mat-icon-button [matMenuTriggerFor]="menu">
             <mat-icon>more_vert</mat-icon>
@@ -81,14 +104,20 @@
               <span>View Details</span>
             </button>
 
-            <button mat-menu-item *ngIf="request.status === 'pending'"
-                    (click)="handleAction(request, 'approve')">
+            <button
+              mat-menu-item
+              *ngIf="request.status === 'pending'"
+              (click)="handleAction(request, 'approve')"
+            >
               <mat-icon color="primary">check_circle</mat-icon>
               <span>Approve</span>
             </button>
 
-            <button mat-menu-item *ngIf="request.status === 'pending'"
-                    (click)="handleAction(request, 'reject')">
+            <button
+              mat-menu-item
+              *ngIf="request.status === 'pending'"
+              (click)="handleAction(request, 'reject')"
+            >
               <mat-icon color="warn">cancel</mat-icon>
               <span>Reject</span>
             </button>
@@ -97,7 +126,7 @@
       </ng-container>
 
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
 
       <!-- Row shown when there is no matching data. -->
       <tr class="mat-row" *matNoDataRow>
@@ -116,6 +145,7 @@
     [pageSize]="pageSize"
     [pageSizeOptions]="[5, 10, 25, 100]"
     (page)="onPageChange($event)"
-    aria-label="Select page">
+    aria-label="Select page"
+  >
   </mat-paginator>
 </div>

@@ -20,6 +20,7 @@ export class LoginComponent implements OnInit {
   rememberMe: boolean = true;
   isLoading: boolean = false;
   errorMessage: string = '';
+  successMessage: string = '';
   returnUrl: string = '/profile';
 
   constructor(
@@ -30,6 +31,9 @@ export class LoginComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    // Always clear the logout flag when on login page
+    this.tokenStorage.clearLogoutFlag();
+
     // Get return url from route parameters or default to '/profile'
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/profile';
 
@@ -44,10 +48,25 @@ export class LoginComponent implements OnInit {
     if (token) {
       this.handleOAuthRedirect(token);
     }
+
+    // Check for registration success message from OAuth providers
+    const registration = this.route.snapshot.queryParams['registration'];
+    const provider = this.route.snapshot.queryParams['provider'];
+    if (registration === 'success' && provider) {
+      this.successMessage = `Registration with ${provider} successful! Please sign in to continue.`;
+    }
+
+    // Check for OAuth error
+    const error = this.route.snapshot.queryParams['error'];
+    if (error === 'oauth_error') {
+      const errorProvider = this.route.snapshot.queryParams['provider'] || 'OAuth';
+      this.errorMessage = `Authentication with ${errorProvider} failed. Please try again or use another method.`;
+    }
   }
 
   onSubmit() {
     this.errorMessage = '';
+    this.successMessage = '';
     this.isLoading = true;
 
     // Trim whitespace from username and password
@@ -92,28 +111,38 @@ export class LoginComponent implements OnInit {
   }
 
   handleOAuthRedirect(token: string): void {
+    // Clear logout flag to ensure proper login
+    this.tokenStorage.clearLogoutFlag();
+
     this.tokenStorage.saveToken(token);
 
-    // Check if there's a stored user or get user info from session
-    this.authService.checkSession().subscribe({
-      next: (response) => {
-        if (response.user) {
-          this.tokenStorage.saveUser(response.user);
+    // Get user info with token
+    this.authService.getUserInfo(token).subscribe({
+      next: (user) => {
+        if (user && user.id) {
+          this.tokenStorage.saveUser(user);
         }
         this.router.navigate([this.returnUrl]);
       },
       error: (error) => {
-        console.error('Error checking session after OAuth login:', error);
-        this.errorMessage = 'Failed to retrieve user details after authentication.';
+        console.error('Error getting user info after OAuth login:', error);
+        // Even with an error, we still have the token, so redirect anyway
+        this.router.navigate([this.returnUrl]);
       }
     });
   }
 
   initiateGoogleAuth() {
+    // Clear logout flag before Google auth
+    this.tokenStorage.clearLogoutFlag();
     this.authService.initiateGoogleAuth();
   }
 
+  /* Commenting out GitHub authentication as requested
   initiateGithubAuth() {
+    // Clear logout flag before GitHub auth
+    this.tokenStorage.clearLogoutFlag();
     this.authService.initiateGithubAuth();
   }
+  */
 }

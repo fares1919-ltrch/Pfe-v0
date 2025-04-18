@@ -1,6 +1,6 @@
 import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { catchError, throwError } from 'rxjs';
+import { catchError, switchMap, throwError, of } from 'rxjs';
 import { Router } from '@angular/router';
 import { TokenStorageService } from '../services/token-storage.service';
 import { AuthService } from '../services/auth.service';
@@ -19,31 +19,45 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         console.warn('Authentication error detected, attempting token refresh');
 
         // Check if it's a token expiration error
-        if (error.error?.error?.message?.includes('token has expired')) {
+        if (error.error?.error?.message?.includes('token has expired') ||
+            error.error?.message?.includes('expired') ||
+            error.error?.message?.includes('invalid token')) {
+
           const refreshToken = tokenStorage.getRefreshToken();
           if (refreshToken) {
-            // Attempt to refresh the token
-            authService.refreshToken(refreshToken).subscribe({
-              next: (response) => {
+            // Attempt to refresh the token and retry the original request
+            return authService.refreshToken(refreshToken).pipe(
+              switchMap(response => {
                 if (response.accessToken) {
                   tokenStorage.saveToken(response.accessToken);
                   tokenStorage.saveRefreshToken(response.refreshToken);
-                  // Retry the original request
+
+                  // Clone the request and add the new token
                   const clonedReq = req.clone({
                     headers: req.headers.set('Authorization', `Bearer ${response.accessToken}`),
                     withCredentials: true
                   });
+
+                  // Retry the original request with the new token
                   return next(clonedReq);
                 }
-              },
-              error: (refreshError) => {
+
+                // If we didn't get a token but no error, still logout
+                tokenStorage.signOut();
+                router.navigate(['/auth/login'], {
+                  queryParams: { returnUrl: router.url }
+                });
+                return throwError(() => new Error('Failed to refresh token'));
+              }),
+              catchError(refreshError => {
                 console.error('Token refresh failed:', refreshError);
                 tokenStorage.signOut();
                 router.navigate(['/auth/login'], {
                   queryParams: { returnUrl: router.url }
                 });
-              }
-            });
+                return throwError(() => new Error('Failed to refresh token'));
+              })
+            );
           } else {
             tokenStorage.signOut();
             router.navigate(['/auth/login'], {

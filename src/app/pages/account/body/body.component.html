@@ -94,6 +94,10 @@
                 id="birthDate"
                 formControlName="birthDate"
                 class="form-control"
+                [attr.readonly]="isBirthDateReadOnly ? true : null"
+                [attr.title]="
+                  isBirthDateReadOnly ? 'Birth date can only be set once' : null
+                "
               />
               <div
                 *ngIf="
@@ -120,7 +124,12 @@
                 id="identityNumber"
                 formControlName="identityNumber"
                 class="form-control"
-                pattern="\d{8,12}"
+                [attr.readonly]="isIdentityNumberReadOnly ? true : null"
+                [attr.title]="
+                  isIdentityNumberReadOnly
+                    ? 'Identity number can only be set once'
+                    : null
+                "
               />
               <div
                 *ngIf="
@@ -185,11 +194,7 @@
 
         <!-- Form Actions -->
         <div class="form-actions mb-8">
-          <button
-            type="submit"
-            [disabled]="profileForm.invalid || isSubmitting"
-            class="primary-btn"
-          >
+          <button type="submit" [disabled]="isSubmitting" class="primary-btn">
             <span class="btn-content">
               <span *ngIf="isSubmitting" class="spinner-sm"></span>
               <span *ngIf="isSubmitting">Saving...</span>
