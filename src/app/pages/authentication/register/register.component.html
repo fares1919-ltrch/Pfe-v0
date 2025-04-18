@@ -13,9 +13,21 @@
             <p>Join us today and get started</p>
           </div>
 
-          <!-- Error Message -->
-          <div class="error-message" *ngIf="errorMessage">
-            {{ errorMessage }}
+          <!-- Error Messages Container -->
+          <div class="error-messages-container" >
+            <!-- General Error Message -->
+           
+            <!-- Terms of Service Error -->
+            <div class="error-message" *ngIf="!termsAccepted">
+              You must agree to the Terms of Service and Privacy Policy to continue
+            </div>
+
+            <!-- Password Match Error -->
+            <div class="error-message" *ngIf="password && confirmPassword && password !== confirmPassword">
+              Passwords do not match
+            </div>
+
+           
           </div>
 
           <div class="social-login">
@@ -93,16 +105,29 @@
                 autocomplete="new-password"
                 [disabled]="isLoading"
                 (ngModelChange)="onPasswordChange($event)"
+                #passwordInput="ngModel"
               />
-              <div class="password-requirements" *ngIf="password">
-                <p>Password must contain:</p>
-                <ul>
-                  <li [class.valid]="hasMinLength">At least 8 characters</li>
-                  <li [class.valid]="hasUpperCase">One uppercase letter</li>
-                  <li [class.valid]="hasLowerCase">One lowercase letter</li>
-                  <li [class.valid]="hasNumber">One number</li>
-                  <li [class.valid]="hasSpecialChar">One special character</li>
-                </ul>
+              <div class="password-requirements">
+                <div class="requirement" [class.valid]="hasMinLength">
+                  <span class="checkmark">✓</span>
+                  <span>At least 8 characters</span>
+                </div>
+                <div class="requirement" [class.valid]="hasUpperCase">
+                  <span class="checkmark">✓</span>
+                  <span>One uppercase letter</span>
+                </div>
+                <div class="requirement" [class.valid]="hasLowerCase">
+                  <span class="checkmark">✓</span>
+                  <span>One lowercase letter</span>
+                </div>
+                <div class="requirement" [class.valid]="hasNumber">
+                  <span class="checkmark">✓</span>
+                  <span>One number</span>
+                </div>
+                <div class="requirement" [class.valid]="hasSpecialChar">
+                  <span class="checkmark">✓</span>
+                  <span>One special character (&#64;$!%*?&)</span>
+                </div>
               </div>
             </div>
 
@@ -117,6 +142,7 @@
                 required
                 autocomplete="new-password"
                 [disabled]="isLoading"
+                #confirmPasswordInput="ngModel"
               />
             </div>
 
@@ -129,6 +155,7 @@
                   [(ngModel)]="termsAccepted"
                   required
                   [disabled]="isLoading"
+                  #termsCheck="ngModel"
                 />
                 <label for="termsCheck">
                   I agree to the <a href="javascript:">Terms of Service</a> and
@@ -141,7 +168,8 @@
               <button
                 type="submit"
                 class="sign-up-btn"
-                [disabled]="!registerForm.form.valid || isLoading"
+                [disabled]="isLoading"
+                (click)="onSubmit(registerForm)"
               >
                 <span *ngIf="!isLoading">Create Account</span>
                 <span *ngIf="isLoading" class="loading-spinner"></span>

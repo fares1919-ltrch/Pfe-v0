@@ -57,10 +57,12 @@ export class ProfileService {
     return this.http.get<boolean>(`${API_URL}/check-identity/${identityNumber}`, { withCredentials: true });
   }
 
-  changePassword(currentPassword: string, newPassword: string): Observable<any> {
+  changePassword(currentPassword: string, newPassword: string , username: string): Observable<any> {
+    console.log('Sending password change request:', { currentPassword, newPassword , username});
     return this.http.post(`${environment.apiUrl}/api/password/change`, {
       currentPassword,
-      newPassword
+      newPassword,
+      username
     }, { withCredentials: true });
   }
 

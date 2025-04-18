@@ -94,6 +94,10 @@
                 id="birthDate"
                 formControlName="birthDate"
                 class="form-control"
+                [attr.readonly]="isBirthDateReadOnly ? true : null"
+                [attr.title]="
+                  isBirthDateReadOnly ? 'Birth date can only be set once' : null
+                "
               />
               <div
                 *ngIf="
@@ -114,14 +118,18 @@
               </div>
             </div>
             <div class="form-group">
-              <label for="identityNumber">Identity Number <span class="permanent-field">(Permanent)</span></label>
+              <label for="identityNumber">Identity Number</label>
               <input
                 type="text"
                 id="identityNumber"
                 formControlName="identityNumber"
                 class="form-control"
-                [readonly]="profileForm.get('identityNumber')?.value"
-                pattern="\d{8,12}"
+                [attr.readonly]="isIdentityNumberReadOnly ? true : null"
+                [attr.title]="
+                  isIdentityNumberReadOnly
+                    ? 'Identity number can only be set once'
+                    : null
+                "
               />
               <div
                 *ngIf="
@@ -186,11 +194,7 @@
 
         <!-- Form Actions -->
         <div class="form-actions mb-8">
-          <button
-            type="submit"
-            [disabled]="!profileForm.get('birthDate')?.valid || !profileForm.get('identityNumber')?.valid || isSubmitting"
-            class="primary-btn"
-          >
+          <button type="submit" [disabled]="isSubmitting" class="primary-btn">
             <span class="btn-content">
               <span *ngIf="isSubmitting" class="spinner-sm"></span>
               <span *ngIf="isSubmitting">Saving...</span>
@@ -214,104 +218,6 @@
             <span>Change Password</span>
           </button>
         </div>
-        <div>
-          <!-- Change Password Modal -->
-              <div *ngIf="showPasswordModal" class="modal-overlay">
-                <div class="modal-content">
-                  <div class="modal-header" style="position: absolute; top: -3rem; right: 0;">
-                    <button (click)="closePasswordModal()" class="close-btn">
-                      <span class="btn-icon">✕</span>
-                    </button>
-                  </div>
-                  <form
-                    [formGroup]="passwordForm"
-                    (ngSubmit)="changePassword()"
-                    class="password-form"
-                    autocomplete="off"
-                  >
-                    <!-- Hidden username field for accessibility -->
-                    <input
-                      type="text"
-                      name="username"
-                      autocomplete="username"
-                      style="display: none ; background-color: transparent;"
-                    />
-
-                    <div class="form-group">
-                      <label for="currentPassword" style="color: #705BAB; margin-top: 15px;">Current Password</label>
-                      <input
-                        type="password"
-                        id="currentPassword"
-                        formControlName="currentPassword"
-                        placeholder="Enter your current password"
-                        autocomplete="current-password"
-                        style="background-color: transparent; "
-                      />
-                    </div>
-
-                    <div class="form-group" >
-                      <label for="newPassword" style="color: #705BAB;">New Password</label>
-                      <input
-                        type="password"
-                        id="newPassword"
-                        formControlName="newPassword"
-                        placeholder="Enter your new password"
-                        autocomplete="new-password"
-                        class="bg-transparent focus:bg-transparent selection:bg-transparent"
-
-                        style="background-color: transparent;"
-
-                      />
-                      <div class="password-requirements" style="background-color: transparent;">
-                        <p>Password must contain:</p>
-                        <ul>
-                          <li [class.valid]="hasMinLength()">At least 8 characters</li>
-                          <li [class.valid]="hasUpperCase()">One uppercase letter</li>
-                          <li [class.valid]="hasLowerCase()">One lowercase letter</li>
-                          <li [class.valid]="hasNumber()">One number</li>
-                          <li [class.valid]="hasSpecialChar()">One special character</li>
-                        </ul>
-                      </div>
-                    </div>
-
-                    <div class="form-group">
-                      <label for="confirmPassword" style="color: #705BAB;">Confirm New Password</label>
-                      <input
-                        type="password"
-                        id="confirmPassword"
-                        formControlName="confirmPassword"
-                        placeholder="Confirm your new password"
-                        autocomplete="new-password"
-                        style="background-color: transparent; "
-
-                      />
-                    </div>
-
-                    <div class="form-actions">
-                      <button
-                        type="button"
-                        (click)="closePasswordModal()"
-                        class="secondary-btn"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                type="submit"
-                class="primary-btn"
-                (click)="submitPasswordChange()"
-              >
-                <span class="btn-content">
-                  <span *ngIf="isSubmittingPassword" class="spinner-sm"></span>
-                  <span *ngIf="isSubmittingPassword">Changing...</span>
-                  <span *ngIf="!isSubmittingPassword">Change Password</span>
-                </span>
-              </button>
-
-      </div>
-    </form>
-  </div>
-</div>
-</div>
       </section>
 
       <!-- Active Sessions Section -->
@@ -471,16 +377,16 @@
           Cancel
         </button>
         <button
-        type="submit"
-        class="primary-btn"
-        (click)="submitPasswordChange()"
-      >
-        <span class="btn-content">
-          <span *ngIf="isSubmittingPassword" class="spinner-sm"></span>
-          <span *ngIf="isSubmittingPassword">Changing...</span>
-          <span *ngIf="!isSubmittingPassword">Change Password</span>
-        </span>
-      </button>
+          type="submit"
+          [disabled]="passwordForm.invalid || isSubmittingPassword"
+          class="primary-btn"
+        >
+          <span class="btn-content">
+            <span *ngIf="isSubmittingPassword" class="spinner-sm"></span>
+            <span *ngIf="isSubmittingPassword">Changing...</span>
+            <span *ngIf="!isSubmittingPassword">Change Password</span>
+          </span>
+        </button>
       </div>
     </form>
   </div>

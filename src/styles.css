@@ -3,3 +3,38 @@
 @tailwind utilities;
 
 /* Your custom styles below */
+
+/* Alert Animation Keyframes */
+@keyframes slideInDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Alert Styles */
+.alert {
+  animation: slideInDown 0.5s ease-out forwards;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 4px;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  color: #721c24;
+  position: relative;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.alert:hover {
+  transform: scale(1.02);
+}
+
+/* Alert Entrance Animation Class */
+.alert-enter {
+  animation: slideInDown 0.5s ease-out forwards;
+}

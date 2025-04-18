@@ -59,17 +59,10 @@ export class RegisterComponent implements OnInit {
 
   onPasswordChange(password: string) {
     this.hasMinLength = password.length >= 8;
-    // Commenting out complex rules for development
-    // this.hasUpperCase = /[A-Z]/.test(password);
-    // this.hasLowerCase = /[a-z]/.test(password);
-    // this.hasNumber = /\d/.test(password);
-    // this.hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-
-    // Simplified rules for development
-    this.hasUpperCase = true;
-    this.hasLowerCase = true;
-    this.hasNumber = true;
-    this.hasSpecialChar = true;
+    this.hasUpperCase = /[A-Z]/.test(password);
+    this.hasLowerCase = /[a-z]/.test(password);
+    this.hasNumber = /[0-9]/.test(password);
+    this.hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
   }
 
   onSubmit(form: NgForm) {
@@ -168,12 +161,10 @@ export class RegisterComponent implements OnInit {
   */
 
   private isPasswordStrong(password: string): boolean {
-    return this.hasMinLength;
-    // Commenting out complex rules for development
-    // return this.hasMinLength &&
-    //        this.hasUpperCase &&
-    //        this.hasLowerCase &&
-    //        this.hasNumber &&
-    //        this.hasSpecialChar;
+    return this.hasMinLength &&
+           this.hasUpperCase &&
+           this.hasLowerCase &&
+           this.hasNumber &&
+           this.hasSpecialChar;
   }
 }

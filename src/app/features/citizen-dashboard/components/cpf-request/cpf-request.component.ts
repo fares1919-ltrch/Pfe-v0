@@ -177,8 +177,8 @@ export class CpfRequestComponent {
 
     this.missingFields = [];
 
-    if (!this.userProfile.firstName) this.missingFields.push('First Name');
-    if (!this.userProfile.lastName) this.missingFields.push('Last Name');
+    // if (!this.userProfile.firstName) this.missingFields.push('First Name');
+    // if (!this.userProfile.lastName) this.missingFields.push('Last Name');
 
     // Use component birthDate field which should be populated by loadUserProfile
     if (!this.birthDate) {
@@ -213,7 +213,11 @@ export class CpfRequestComponent {
           this.missingFields.splice(index, 1);
         }
       }
+
+
     }
+    console.log("missing fieldsss", this.missingFields)
+  
 
     if (this.missingFields.length > 0) {
       this.profileComplete = false;
@@ -311,29 +315,28 @@ export class CpfRequestComponent {
       next: (response) => {
         console.log('CPF request submitted successfully', response);
         this.status = 'submitted';
-        this.showAlert = true;
-        this.alertMessage = 'Your CPF request has been submitted successfully!';
+        this.showAlert = false;
 
-        // Show success message in snackbar
+        // Show success message in snackbar with green color
         this.snackBar.open('CPF request submitted successfully!', 'Close', {
           duration: 5000,
-          panelClass: ['success-snackbar']
+          panelClass: ['success-snackbar'],
+          horizontalPosition: 'center',
+          verticalPosition: 'bottom'
         });
 
         // Navigate to dashboard or confirmation page
         this.router.navigate(['/citizen-dashboard/cpf-request']);
       },
       error: (error: HttpErrorResponse) => {
+        this.loading = false;
         console.error('Error submitting CPF request', error);
         this.showAlert = true;
 
-        // Provide more specific error messages
-        if (error.status === 400) {
-          if (error.error?.message) {
-            this.alertMessage = error.error.message;
-          } else {
-            this.alertMessage = 'Please check your request details and try again.';
-          }
+        if (error.status === 400 && error.error?.message?.includes('already have an active CPF request')) {
+          this.alertMessage = 'You already have an active CPF request or credential.';
+        } else if (error.status === 400) {
+          this.alertMessage = error.error?.message || 'Please check your request details and try again.';
         } else if (error.status === 401) {
           this.alertMessage = 'Your session has expired. Please log in again.';
           this.router.navigate(['/auth/login']);
@@ -343,11 +346,8 @@ export class CpfRequestComponent {
           this.alertMessage = 'There was an error submitting your request. Please try again later.';
         }
 
-        // Show error in snackbar
-        this.snackBar.open(this.alertMessage, 'Close', {
-          duration: 5000,
-          panelClass: ['error-snackbar']
-        });
+        // Scroll to top when showing the alert
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     });
   }

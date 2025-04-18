@@ -13,10 +13,39 @@
   100% { transform: scale(1); }
 }
 
+@keyframes pulseAlert {
+  0% {
+    background-color: rgba(255, 86, 48, 0.1);
+  }
+  50% {
+    background-color: rgba(255, 86, 48, 0.3);
+  }
+  100% {
+    background-color: rgba(255, 86, 48, 0.1);
+  }
+}
+
 @keyframes slideIn {
   0% { transform: translateX(-20px); opacity: 0; }
   100% { transform: translateX(0); opacity: 1; }
 }
+
+
+.error-message {
+  margin: 1rem 0;
+  padding: 1rem;
+  border-radius: 0.375rem;
+  background-color: rgba(255, 86, 48, 0.1);
+  border-left: 4px solid #FF5630;
+  color: #DE350B;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  animation: pulseAlert 1s infinite;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 
 // Base auth styles - to be used for both login and register
 .auth-main {

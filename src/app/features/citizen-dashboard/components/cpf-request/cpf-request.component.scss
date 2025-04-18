@@ -92,4 +92,25 @@ input:focus {
   color: #DE350B;
   font-size: 0.875rem;
   line-height: 1.25rem;
+animation: pulseAlert 1s infinite;
+}
+
+@keyframes pulseAlert {
+  0% {
+    background-color: rgba(255, 86, 48, 0.1);
+  }
+  50% {
+    background-color: rgba(255, 86, 48, 0.3);
+  }
+  100% {
+    background-color: rgba(255, 86, 48, 0.1);
+  }
+}
+
+::ng-deep .success-snackbar {
+  background-color: #4CAF50 !important;
+  color: white !important;
+  .mat-simple-snackbar-action {
+    color: white !important;
+  }
 }
