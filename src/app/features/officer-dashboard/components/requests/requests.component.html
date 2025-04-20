@@ -2,150 +2,224 @@
   <div class="header">
     <h1>CPF Requests</h1>
     <div class="actions">
-      <mat-form-field appearance="fill" class="status-filter">
-        <mat-label>Status</mat-label>
-        <mat-select
+      <!-- Custom select dropdown instead of mat-form-field -->
+      <div class="custom-select status-filter">
+        <label for="statusFilter">Status</label>
+        <select
+          id="statusFilter"
           [(ngModel)]="statusFilter"
-          (selectionChange)="applyStatusFilter($event.value)"
+          (change)="applyStatusFilter(statusFilter)"
         >
-          <mat-option value="all">All</mat-option>
-          <mat-option value="pending">Pending</mat-option>
-          <mat-option value="approved">Approved</mat-option>
-          <mat-option value="rejected">Rejected</mat-option>
-          <mat-option value="completed">Completed</mat-option>
-        </mat-select>
-      </mat-form-field>
-      <button
-        mat-icon-button
-        color="primary"
-        (click)="refreshRequests()"
-        matTooltip="Refresh"
-      >
-        <mat-icon>refresh</mat-icon>
+          <option value="all">All</option>
+          <option value="pending">Pending</option>
+          <option value="approved">Approved</option>
+          <option value="rejected">Rejected</option>
+          <option value="completed">Completed</option>
+        </select>
+      </div>
+      <button class="icon-button" (click)="refreshRequests()" title="Refresh">
+        <span class="material-icon">refresh</span>
       </button>
     </div>
   </div>
 
-  <mat-progress-bar *ngIf="isLoading()" mode="indeterminate"></mat-progress-bar>
+  <!-- Custom progress bar -->
+  <div *ngIf="isLoading()" class="progress-bar">
+    <div class="progress-bar-inner"></div>
+  </div>
 
   <div class="table-container">
-    <table
-      mat-table
-      [dataSource]="dataSource"
-      class="mat-elevation-z2"
-      style="background: none !important; box-shadow: none !important"
-      matSort
-      (matSortChange)="sortData($event)"
-    >
-      <!-- Identity Number Column -->
-      <ng-container matColumnDef="identityNumber">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>
-          Identity Number
-        </th>
-        <td mat-cell *matCellDef="let request">{{ request.identityNumber }}</td>
-      </ng-container>
+    <table class="custom-table">
+      <!-- Table Header -->
+      <thead>
+        <tr>
+          <!-- Identity Number Column -->
+          <th
+            (click)="
+              sortData({
+                active: 'identityNumber',
+                direction: sort?.direction === 'asc' ? 'desc' : 'asc'
+              })
+            "
+          >
+            Identity Number
+            <span class="sort-icon" *ngIf="sort?.active === 'identityNumber'">
+              {{ sort?.direction === "asc" ? "↑" : "↓" }}
+            </span>
+          </th>
 
-      <!-- User Column -->
-      <ng-container matColumnDef="user">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>User</th>
-        <td mat-cell *matCellDef="let request">
-          <span *ngIf="request.userId && typeof request.userId !== 'string'">
-            {{ request.userId.firstName }} {{ request.userId.lastName }}
-          </span>
-          <span *ngIf="!request.userId || typeof request.userId === 'string'">
-            Unknown User
-          </span>
-        </td>
-      </ng-container>
+          <!-- User Column -->
+          <th
+            (click)="
+              sortData({
+                active: 'user',
+                direction: sort?.direction === 'asc' ? 'desc' : 'asc'
+              })
+            "
+          >
+            User
+            <span class="sort-icon" *ngIf="sort?.active === 'user'">
+              {{ sort?.direction === "asc" ? "↑" : "↓" }}
+            </span>
+          </th>
 
-      <!-- Address Column -->
-      <ng-container matColumnDef="address">
-        <th mat-header-cell *matHeaderCellDef>Address</th>
-        <td
-          mat-cell
-          *matCellDef="let request"
-          [matTooltip]="getAddressTooltip(request)"
-        >
-          <span *ngIf="request.address">
-            {{ request.address.city }}, {{ request.address.state }}
-          </span>
-          <span *ngIf="!request.address">N/A</span>
-        </td>
-      </ng-container>
+          <!-- Address Column -->
+          <th>Address</th>
 
-      <!-- Status Column -->
-      <ng-container matColumnDef="status">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
-        <td mat-cell *matCellDef="let request">
-          <span class="status-badge" [ngClass]="request.status">
-            {{ request.status | titlecase }}
-          </span>
-        </td>
-      </ng-container>
+          <!-- Status Column -->
+          <th
+            (click)="
+              sortData({
+                active: 'status',
+                direction: sort?.direction === 'asc' ? 'desc' : 'asc'
+              })
+            "
+          >
+            Status
+            <span class="sort-icon" *ngIf="sort?.active === 'status'">
+              {{ sort?.direction === "asc" ? "↑" : "↓" }}
+            </span>
+          </th>
 
-      <!-- Created At Column -->
-      <ng-container matColumnDef="createdAt">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Created At</th>
-        <td mat-cell *matCellDef="let request">
-          {{ formatDate(request.createdAt) }}
-        </td>
-      </ng-container>
+          <!-- Created At Column -->
+          <th
+            (click)="
+              sortData({
+                active: 'createdAt',
+                direction: sort?.direction === 'asc' ? 'desc' : 'asc'
+              })
+            "
+          >
+            Created At
+            <span class="sort-icon" *ngIf="sort?.active === 'createdAt'">
+              {{ sort?.direction === "asc" ? "↑" : "↓" }}
+            </span>
+          </th>
 
-      <!-- Actions Column -->
-      <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef>Actions</th>
-        <td mat-cell *matCellDef="let request">
-          <button mat-icon-button [matMenuTriggerFor]="menu">
-            <mat-icon>more_vert</mat-icon>
-          </button>
-          <mat-menu #menu="matMenu">
-            <button mat-menu-item (click)="handleAction(request, 'view')">
-              <mat-icon>visibility</mat-icon>
-              <span>View Details</span>
-            </button>
+          <!-- Actions Column -->
+          <th>Actions</th>
+        </tr>
+      </thead>
 
-            <button
-              mat-menu-item
-              *ngIf="request.status === 'pending'"
-              (click)="handleAction(request, 'approve')"
-            >
-              <mat-icon color="primary">check_circle</mat-icon>
-              <span>Approve</span>
-            </button>
+      <!-- Table Body -->
+      <tbody>
+        <tr *ngFor="let request of dataSource.filteredData">
+          <!-- Identity Number Cell -->
+          <td>{{ request.identityNumber }}</td>
 
-            <button
-              mat-menu-item
-              *ngIf="request.status === 'pending'"
-              (click)="handleAction(request, 'reject')"
-            >
-              <mat-icon color="warn">cancel</mat-icon>
-              <span>Reject</span>
-            </button>
-          </mat-menu>
-        </td>
-      </ng-container>
+          <!-- User Cell -->
+          <td>
+            <span *ngIf="request.userId && typeof request.userId !== 'string'">
+              {{ request.userId.firstName }} {{ request.userId.lastName }}
+            </span>
+            <span *ngIf="!request.userId || typeof request.userId === 'string'">
+              Unknown User
+            </span>
+          </td>
 
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+          <!-- Address Cell -->
+          <td title="{{ getAddressTooltip(request) }}">
+            <span *ngIf="request.address">
+              {{ request.address.city }}, {{ request.address.state }}
+            </span>
+            <span *ngIf="!request.address">N/A</span>
+          </td>
 
-      <!-- Row shown when there is no matching data. -->
-      <tr class="mat-row" *matNoDataRow>
-        <td class="mat-cell no-data" [attr.colspan]="displayedColumns.length">
-          <div class="no-data-container">
-            <mat-icon>search_off</mat-icon>
-            <p>No CPF requests found</p>
-          </div>
-        </td>
-      </tr>
+          <!-- Status Cell -->
+          <td>
+            <span class="status-badge" [ngClass]="request.status">
+              {{ request.status | titlecase }}
+            </span>
+          </td>
+
+          <!-- Created At Cell -->
+          <td>{{ formatDate(request.createdAt) }}</td>
+
+          <!-- Actions Cell -->
+          <td>
+            <div class="dropdown">
+              <button class="icon-button dropdown-toggle">
+                <span class="material-icon">more_vert</span>
+              </button>
+              <div class="dropdown-menu">
+                <button
+                  class="dropdown-item"
+                  (click)="handleAction(request, 'view')"
+                >
+                  <span class="material-icon">visibility</span>
+                  <span>View Details</span>
+                </button>
+
+                <button
+                  class="dropdown-item"
+                  *ngIf="request.status === 'pending'"
+                  (click)="handleAction(request, 'approve')"
+                >
+                  <span class="material-icon approve">check_circle</span>
+                  <span>Approve</span>
+                </button>
+
+                <button
+                  class="dropdown-item"
+                  *ngIf="request.status === 'pending'"
+                  (click)="handleAction(request, 'reject')"
+                >
+                  <span class="material-icon reject">cancel</span>
+                  <span>Reject</span>
+                </button>
+              </div>
+            </div>
+          </td>
+        </tr>
+
+        <!-- No data message -->
+        <tr *ngIf="dataSource.filteredData.length === 0">
+          <td class="no-data" [attr.colspan]="displayedColumns.length">
+            <div class="no-data-container">
+              <span class="material-icon">search_off</span>
+              <p>No CPF requests found</p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
     </table>
   </div>
 
-  <mat-paginator
-    [length]="totalItems"
-    [pageSize]="pageSize"
-    [pageSizeOptions]="[5, 10, 25, 100]"
-    (page)="onPageChange($event)"
-    aria-label="Select page"
-  >
-  </mat-paginator>
+  <!-- Custom paginator -->
+  <div class="custom-paginator">
+    <div class="paginator-range-label">
+      {{ (currentPage - 1) * pageSize + 1 }}-{{
+        Math.min(currentPage * pageSize, totalItems)
+      }}
+      of {{ totalItems }}
+    </div>
+
+    <div class="paginator-controls">
+      <button
+        class="icon-button"
+        [disabled]="currentPage === 1"
+        (click)="onPageChange({ pageIndex: currentPage - 2 })"
+      >
+        <span class="material-icon">chevron_left</span>
+      </button>
+
+      <button
+        class="icon-button"
+        [disabled]="currentPage * pageSize >= totalItems"
+        (click)="onPageChange({ pageIndex: currentPage })"
+      >
+        <span class="material-icon">chevron_right</span>
+      </button>
+    </div>
+
+    <div class="paginator-page-size">
+      <label for="pageSize">Items per page:</label>
+      <select id="pageSize" [(ngModel)]="pageSize" (change)="loadRequests(1)">
+        <option [value]="5">5</option>
+        <option [value]="10">10</option>
+        <option [value]="25">25</option>
+        <option [value]="100">100</option>
+      </select>
+    </div>
+  </div>
 </div>

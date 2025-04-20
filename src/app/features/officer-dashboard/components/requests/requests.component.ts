@@ -2,27 +2,13 @@ import { AfterViewInit, Component, ViewChild, Inject, PLATFORM_ID, signal, OnIni
 import { forkJoin, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { CpfRequestService, CpfRequest } from '../../../../core/services/cpf-request.service';
 import { isPlatformBrowser } from '@angular/common';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { UserService } from '../../../../core/services/user.service';
 import { FormsModule } from '@angular/forms';
 import { Appointment, AppointmentService } from '../../../../core/services/appointment.service';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatSelectModule } from '@angular/material/select';
-import { MatSortModule, MatSort } from '@angular/material/sort';
 
 interface CpfRequestWithAppointment extends CpfRequest {
   appointmentCompleted?: boolean;
@@ -34,23 +20,9 @@ interface CpfRequestWithAppointment extends CpfRequest {
   standalone: true,
   imports: [
     CommonModule,
-    MatTableModule,
-    MatPaginatorModule,
-    MatButtonModule,
-    MatIconModule,
-    MatMenuModule,
-    MatProgressSpinnerModule,
-    MatSnackBarModule,
     RouterModule,
-    MatTooltipModule,
     FormsModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
     ReactiveFormsModule,
-    MatProgressBarModule,
-    MatSelectModule,
-    MatSortModule
   ],
   templateUrl: './requests.component.html',
   styleUrls: ['./requests.component.scss']
@@ -64,10 +36,8 @@ export class OfficerRequestsComponent implements OnInit, AfterViewInit {
     private cpfRequestService: CpfRequestService,
     private appointmentService: AppointmentService,
     private userService: UserService,
-    private snackBar: MatSnackBar,
     private router: Router,
     private route: ActivatedRoute,
-    private dialog: MatDialog,
     private fb: FormBuilder,
     @Inject(PLATFORM_ID) private platformId: any
   ) { }
@@ -81,14 +51,30 @@ export class OfficerRequestsComponent implements OnInit, AfterViewInit {
     'actions'
   ];
 
-  dataSource = new MatTableDataSource<CpfRequestWithAppointment>();
+  // Custom implementation to replace MatTableDataSource
+  dataSource: {
+    data: CpfRequestWithAppointment[];
+    filteredData: CpfRequestWithAppointment[];
+    filter: string;
+    filterPredicate: (data: CpfRequestWithAppointment, filter: string) => boolean;
+    paginator: any;
+    sort: any;
+  } = {
+    data: [],
+    filteredData: [],
+    filter: '',
+    filterPredicate: () => true,
+    paginator: null,
+    sort: null
+  };
+
   isLoading = signal(false);
   totalItems = 0;
   currentPage = 1;
   pageSize = 10;
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
+  @ViewChild('paginator') paginator: any;
+  @ViewChild('sort') sort: any;
 
   ngOnInit() {
     // Check query parameters for status filter
@@ -123,6 +109,7 @@ export class OfficerRequestsComponent implements OnInit, AfterViewInit {
 
         // Update the data source immediately to show requests
         this.dataSource.data = requestsWithAppointments;
+        this.dataSource.filteredData = [...requestsWithAppointments]; // Set initial filtered data
         this.totalItems = response.totalItems;
 
         // Apply status filter if set
@@ -142,6 +129,9 @@ export class OfficerRequestsComponent implements OnInit, AfterViewInit {
 
                   // Update the data source to reflect changes
                   this.dataSource.data = [...requestsWithAppointments];
+
+                  // Apply filter to update filtered data
+                  this.updateFilteredData();
 
                   // Re-apply filter if needed
                   if (this.statusFilter !== 'all') {
@@ -167,13 +157,24 @@ export class OfficerRequestsComponent implements OnInit, AfterViewInit {
 
         // Check for specific error types
         if (err.status === 401 || err.status === 403) {
-          this.snackBar.open('You are not authorized to view these requests', 'Close', { duration: 3000 });
+          alert('You are not authorized to view these requests');
           this.router.navigate(['/auth/login']);
         } else {
-          this.snackBar.open('Failed to load CPF requests', 'Close', { duration: 3000 });
+          alert('Failed to load CPF requests');
         }
       }
     });
+  }
+
+  // Helper method to update filtered data based on current filter
+  updateFilteredData(): void {
+    if (!this.dataSource.filter) {
+      this.dataSource.filteredData = [...this.dataSource.data];
+    } else {
+      this.dataSource.filteredData = this.dataSource.data.filter(item =>
+        this.dataSource.filterPredicate(item, this.dataSource.filter)
+      );
+    }
   }
 
   formatDate(date: string | Date): string {
@@ -200,7 +201,7 @@ export class OfficerRequestsComponent implements OnInit, AfterViewInit {
     this.cpfRequestService.updateRequestStatus(request._id, status).subscribe({
       next: () => {
         this.isLoading.set(false);
-        this.snackBar.open(`Request ${status} successfully`, 'Close', { duration: 3000 });
+        alert(`Request ${status} successfully`);
         this.loadRequests(this.currentPage);
       },
       error: (err) => {
@@ -208,9 +209,9 @@ export class OfficerRequestsComponent implements OnInit, AfterViewInit {
         console.error(`Error ${status}ing request:`, err);
 
         if (err.status === 401 || err.status === 403) {
-          this.snackBar.open('You are not authorized to perform this action', 'Close', { duration: 3000 });
+          alert('You are not authorized to perform this action');
         } else {
-          this.snackBar.open(`Failed to ${status} request: ${err.error?.message || 'Unknown error'}`, 'Close', { duration: 3000 });
+          alert(`Failed to ${status} request: ${err.error?.message || 'Unknown error'}`);
         }
       }
     });
@@ -231,6 +232,9 @@ export class OfficerRequestsComponent implements OnInit, AfterViewInit {
       this.dataSource.filter = status;
     }
 
+    // Update filtered data based on new filter
+    this.updateFilteredData();
+
     // Update URL with the status filter without navigating
     this.router.navigate([], {
       relativeTo: this.route,
@@ -245,13 +249,14 @@ export class OfficerRequestsComponent implements OnInit, AfterViewInit {
   }
 
   sortData(event: any) {
-    const data = this.dataSource.data.slice();
+    const data = [...this.dataSource.data];
     if (!event.active || event.direction === '') {
       this.dataSource.data = data;
+      this.updateFilteredData();
       return;
     }
 
-    this.dataSource.data = data.sort((a, b) => {
+    const sortedData = data.sort((a, b) => {
       const isAsc = event.direction === 'asc';
       switch (event.active) {
         case 'identityNumber':
@@ -268,6 +273,9 @@ export class OfficerRequestsComponent implements OnInit, AfterViewInit {
           return 0;
       }
     });
+
+    this.dataSource.data = sortedData;
+    this.updateFilteredData();
   }
 
   private compare(a: any, b: any, isAsc: boolean) {

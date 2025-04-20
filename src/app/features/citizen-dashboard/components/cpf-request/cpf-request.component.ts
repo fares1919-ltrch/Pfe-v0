@@ -9,8 +9,6 @@ import { ProfileService } from '../../../../core/services/profile.service';
 import { environment } from '../../../../../environments/environment';
 import { CpfRequestService, CpfRequest } from '../../../../core/services/cpf-request.service';
 import { CenterService } from '../../../../core/services/center.service';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { finalize } from 'rxjs/operators';
 
 interface Address {
@@ -46,8 +44,6 @@ interface LocationInfo {
     FormsModule,
     RouterModule,
     MapsComponent,
-    MatSnackBarModule,
-    MatProgressSpinnerModule
   ],
   templateUrl: './cpf-request.component.html',
   styleUrls: ['./cpf-request.component.scss']
@@ -68,6 +64,7 @@ export class CpfRequestComponent {
   nearestCenter: string = '';
   centerDistance: number = 0;
   userProfile: any = null;
+  snackBar: any;
 
   constructor(
     private http: HttpClient,
@@ -75,7 +72,6 @@ export class CpfRequestComponent {
     private profileService: ProfileService,
     private cpfRequestService: CpfRequestService,
     private centerService: CenterService,
-    private snackBar: MatSnackBar,
     private router: Router
   ) {
     this.loadUserProfile();

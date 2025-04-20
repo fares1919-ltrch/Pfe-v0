@@ -62,8 +62,8 @@
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.8);
   box-shadow: 0 4px 16px rgba(31, 38, 135, 0.07);
-  backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
   border: 1px solid rgba(255, 255, 255, 0.18);
   padding: 0.5rem;
 
@@ -205,8 +205,8 @@
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12) !important;
-  backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
 
   .mat-menu-content {
@@ -319,8 +319,8 @@
     gap: 1.2rem;
     font-size: 1rem;
     border: 1px solid rgba(224, 227, 234, 0.3) !important;
-    backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
   }
 
   .mat-mdc-paginator-range-label {
@@ -460,8 +460,8 @@
   gap: 1.2rem;
   font-size: 1rem;
   border: none !important;
-  backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
   }
 
   ::ng-deep .status-filter .mat-mdc-form-field-infix {

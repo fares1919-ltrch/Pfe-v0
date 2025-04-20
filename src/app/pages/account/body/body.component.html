@@ -61,6 +61,105 @@
         </div>
       </section>
 
+      <!-- Password Change Section -->
+      <section class="profile-section mb-8" #profileSection>
+        <div class="section-glow"></div>
+        <h2 class="section-title">Security Settings</h2>
+        <div class="password-change-section">
+          <div class="header-row">
+            <h3>Password Management</h3>
+            <button
+              type="button"
+              (click)="openChangePasswordModal()"
+              class="change-password-btn"
+            >
+              <span class="btn-icon">🔒</span>
+              <span>Change Password</span>
+            </button>
+          </div>
+
+          <form
+            *ngIf="showPasswordModal"
+            [formGroup]="passwordForm"
+            (ngSubmit)="changePassword()"
+            class="password-form"
+          >
+            <div class="form-group">
+              <label for="currentPassword">Current Password</label>
+              <input
+                type="password"
+                id="currentPassword"
+                formControlName="currentPassword"
+                placeholder="Enter your current password"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="newPassword">New Password</label>
+              <input
+                type="password"
+                id="newPassword"
+                formControlName="newPassword"
+                placeholder="Enter your new password"
+              />
+              <div class="password-requirements">
+                <div class="requirement" [class.valid]="hasMinLength()">
+                  <span class="checkmark">✓</span>
+                  <span>At least 8 characters</span>
+                </div>
+                <div class="requirement" [class.valid]="hasUpperCase()">
+                  <span class="checkmark">✓</span>
+                  <span>One uppercase letter</span>
+                </div>
+                <div class="requirement" [class.valid]="hasLowerCase()">
+                  <span class="checkmark">✓</span>
+                  <span>One lowercase letter</span>
+                </div>
+                <div class="requirement" [class.valid]="hasNumber()">
+                  <span class="checkmark">✓</span>
+                  <span>One number</span>
+                </div>
+                <div class="requirement" [class.valid]="hasSpecialChar()">
+                  <span class="checkmark">✓</span>
+                  <span>One special character</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="confirmPassword">Confirm New Password</label>
+              <input
+                type="password"
+                id="confirmPassword"
+                formControlName="confirmPassword"
+                placeholder="Confirm your new password"
+              />
+            </div>
+
+            <div class="form-actions">
+              <button
+                type="button"
+                (click)="closePasswordModal()"
+                class="secondary-btn"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                [disabled]="passwordForm.invalid || isSubmittingPassword"
+                class="primary-btn"
+              >
+                <span class="btn-content">
+                  <span *ngIf="isSubmittingPassword" class="spinner-sm"></span>
+                  <span *ngIf="isSubmittingPassword">Changing...</span>
+                  <span *ngIf="!isSubmittingPassword">Change Password</span>
+                </span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+
       <!-- Form Container -->
       <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
         <!-- Personal Information Section -->
@@ -207,16 +306,9 @@
       <!-- Account Settings Section -->
       <section class="profile-section mb-8" #profileSection>
         <div class="section-glow"></div>
-        <h2 class="section-title">Account Settings</h2>
+        <h2 class="section-title">Additional Settings</h2>
         <div class="account-settings">
-          <button
-            type="button"
-            (click)="openChangePasswordModal()"
-            class="secondary-btn"
-          >
-            <span class="btn-icon">🔒</span>
-            <span>Change Password</span>
-          </button>
+          <!-- Other account settings can go here -->
         </div>
       </section>
 
@@ -284,111 +376,6 @@
         </div>
       </section>
     </div>
-  </div>
-</div>
-
-<!-- Change Password Modal -->
-<div *ngIf="showPasswordModal" class="modal-overlay">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3>Change Password</h3>
-      <button (click)="closePasswordModal()" class="close-btn">
-        <span class="btn-icon">✕</span>
-      </button>
-    </div>
-    <form
-      [formGroup]="passwordForm"
-      (ngSubmit)="changePassword()"
-      class="password-form"
-      autocomplete="off"
-    >
-      <!-- Hidden username field for accessibility -->
-      <input
-        type="text"
-        name="username"
-        autocomplete="username"
-        style="display: none"
-      />
-
-      <div class="form-group">
-        <label for="currentPassword">Current Password</label>
-        <input
-          type="password"
-          id="currentPassword"
-          formControlName="currentPassword"
-          placeholder="Enter your current password"
-          class="form-control"
-          autocomplete="current-password"
-        />
-      </div>
-
-      <div class="form-group">
-        <label for="newPassword">New Password</label>
-        <input
-          type="password"
-          id="newPassword"
-          formControlName="newPassword"
-          placeholder="Enter your new password"
-          class="form-control"
-          autocomplete="new-password"
-        />
-        <div class="password-requirements">
-          <div class="requirement" [class.valid]="hasMinLength()">
-            <span class="checkmark">✓</span>
-            <span>At least 8 characters</span>
-          </div>
-          <div class="requirement" [class.valid]="hasUpperCase()">
-            <span class="checkmark">✓</span>
-            <span>One uppercase letter</span>
-          </div>
-          <div class="requirement" [class.valid]="hasLowerCase()">
-            <span class="checkmark">✓</span>
-            <span>One lowercase letter</span>
-          </div>
-          <div class="requirement" [class.valid]="hasNumber()">
-            <span class="checkmark">✓</span>
-            <span>One number</span>
-          </div>
-          <div class="requirement" [class.valid]="hasSpecialChar()">
-            <span class="checkmark">✓</span>
-            <span>One special character (&#64;$!%*?&)</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="confirmPassword">Confirm New Password</label>
-        <input
-          type="password"
-          id="confirmPassword"
-          formControlName="confirmPassword"
-          placeholder="Confirm your new password"
-          class="form-control"
-          autocomplete="new-password"
-        />
-      </div>
-
-      <div class="form-actions">
-        <button
-          type="button"
-          (click)="closePasswordModal()"
-          class="secondary-btn"
-        >
-          Cancel
-        </button>
-        <button
-          type="submit"
-          [disabled]="passwordForm.invalid || isSubmittingPassword"
-          class="primary-btn"
-        >
-          <span class="btn-content">
-            <span *ngIf="isSubmittingPassword" class="spinner-sm"></span>
-            <span *ngIf="isSubmittingPassword">Changing...</span>
-            <span *ngIf="!isSubmittingPassword">Change Password</span>
-          </span>
-        </button>
-      </div>
-    </form>
   </div>
 </div>
 

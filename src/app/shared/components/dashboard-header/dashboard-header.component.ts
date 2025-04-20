@@ -19,7 +19,7 @@ export class DashboardHeaderComponent implements OnInit {
 
   userPhotoUrl: string = 'assets/images/avatar-placeholder.png';
   dropdownOpen = false;
-  alwaysShowSidebar = true; // New property to control sidebar visibility
+  alwaysShowSidebar = false; // Changed to false to show the menu toggle button
 
   constructor(private profileService: ProfileService, private router: Router) {}
 

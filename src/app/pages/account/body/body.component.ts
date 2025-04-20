@@ -683,11 +683,12 @@ export class BodyComponent implements OnInit, AfterViewInit {
 
   openChangePasswordModal() {
     this.passwordForm.reset();
-    this.showPasswordModal = true;
+    this.showPasswordModal = !this.showPasswordModal; // Toggle the form visibility
   }
 
-  closePasswordModal(): void {
+  closePasswordModal() {
     this.showPasswordModal = false;
+    this.passwordForm.reset();
   }
 
   public hasMinLength(): boolean {
