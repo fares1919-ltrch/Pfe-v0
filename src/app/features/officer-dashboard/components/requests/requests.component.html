@@ -96,8 +96,8 @@
             </span>
           </th>
 
-          <!-- Actions Column -->
-          <th>Actions</th>
+          <!-- Delete Column -->
+          <th>Delete</th>
         </tr>
       </thead>
 
@@ -109,12 +109,7 @@
 
           <!-- User Cell -->
           <td>
-            <span *ngIf="request.userId && typeof request.userId !== 'string'">
-              {{ request.userId.firstName }} {{ request.userId.lastName }}
-            </span>
-            <span *ngIf="!request.userId || typeof request.userId === 'string'">
-              Unknown User
-            </span>
+            {{ getUserFullName(request.userId) }}
           </td>
 
           <!-- Address Cell -->
@@ -135,40 +130,11 @@
           <!-- Created At Cell -->
           <td>{{ formatDate(request.createdAt) }}</td>
 
-          <!-- Actions Cell -->
-          <td>
-            <div class="dropdown">
-              <button class="icon-button dropdown-toggle">
-                <span class="material-icon">more_vert</span>
-              </button>
-              <div class="dropdown-menu">
-                <button
-                  class="dropdown-item"
-                  (click)="handleAction(request, 'view')"
-                >
-                  <span class="material-icon">visibility</span>
-                  <span>View Details</span>
-                </button>
-
-                <button
-                  class="dropdown-item"
-                  *ngIf="request.status === 'pending'"
-                  (click)="handleAction(request, 'approve')"
-                >
-                  <span class="material-icon approve">check_circle</span>
-                  <span>Approve</span>
-                </button>
-
-                <button
-                  class="dropdown-item"
-                  *ngIf="request.status === 'pending'"
-                  (click)="handleAction(request, 'reject')"
-                >
-                  <span class="material-icon reject">cancel</span>
-                  <span>Reject</span>
-                </button>
-              </div>
-            </div>
+          <!-- Delete Cell -->
+          <td class="delete-cell">
+            <button class="icon-button delete-button" (click)="deleteRequest(request._id)" title="Delete Request">
+              <span class="material-icon">delete</span>
+            </button>
           </td>
         </tr>
 
@@ -188,7 +154,7 @@
   <!-- Custom paginator -->
   <div class="custom-paginator">
     <div class="paginator-range-label">
-      {{ (currentPage - 1) * pageSize + 1 }}-{{
+      {{ Math.min(totalItems, 1) === 0 ? 0 : (currentPage - 1) * pageSize + 1 }}-{{
         Math.min(currentPage * pageSize, totalItems)
       }}
       of {{ totalItems }}
@@ -202,6 +168,8 @@
       >
         <span class="material-icon">chevron_left</span>
       </button>
+
+      <span class="page-number">{{ currentPage }}</span>
 
       <button
         class="icon-button"

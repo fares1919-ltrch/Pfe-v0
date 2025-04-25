@@ -97,7 +97,7 @@ export class CpfRequestService {
 
   // Delete CPF request (user can only delete their own pending requests)
   deleteCpfRequest(requestId: string): Observable<any> {
-    return this.http.delete(`${this.API_URL}/cpf-requests/${requestId}`, { withCredentials: true });
+    return this.http.delete(`${this.API_URL}/cpf-requests/${requestId}/delete`, { withCredentials: true });
   }
 
   // Submit CPF request with location data

@@ -29,7 +29,7 @@
       left: 0;
       width: 40px;
       height: 3px;
-      background: linear-gradient(to right, #1976d2, #64b5f6);
+      background: linear-gradient(to right, #2c3e50, #64b5f6);
       border-radius: 3px;
     }
   }
@@ -60,42 +60,37 @@
   overflow: auto;
   margin-bottom: 1.5rem;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.8);
+  background: #fff;
   box-shadow: 0 4px 16px rgba(31, 38, 135, 0.07);
-  -webkit-backdrop-filter: blur(4px);
-  backdrop-filter: blur(4px);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  padding: 0.5rem;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  padding: 0;
 
-  table.mat-elevation-z2 {
+  .custom-table {
     width: 100%;
-    background: transparent !important;
-    border-radius: 10px;
-    box-shadow: none !important;
-    border-collapse: separate;
-    border-spacing: 0;
-    overflow: hidden;
-  }
-
-  .mat-cell, .mat-header-cell {
-    padding: 1rem 1.25rem;
-    font-size: 1rem;
-    color: #1f2937;
-  }
-
-  .mat-header-cell {
-    font-weight: 600;
-    background: rgba(237, 242, 247, 0.8);
-    border-bottom: 2px solid #e3e8ee;
-    color: #1976d2;
-    letter-spacing: 0.02em;
-  }
-
-  .mat-row {
-    transition: background-color 0.2s;
-
-    &:hover {
-      background-color: rgba(237, 242, 247, 0.5);
+    background: transparent;
+    border-collapse: collapse;
+    
+    th, td {
+      padding: 1rem 1.25rem;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+    
+    th {
+      font-weight: 600;
+      background: #f5f5f5;
+      color: #424242;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    
+    tr:last-child td {
+      border-bottom: none;
+    }
+    
+    tr:hover td {
+      background-color: #f9f9f9;
     }
   }
 }
@@ -293,12 +288,12 @@
 
   // Enhanced select appearance
   .mat-mdc-select-value {
-    color: #1976d2;
+    color: #2c3e50;
     font-weight: 500;
   }
 
   .mat-mdc-select-arrow {
-    color: #1976d2;
+    color: #2c3e50;
   }
 }
 
@@ -324,7 +319,7 @@
   }
 
   .mat-mdc-paginator-range-label {
-    color: #1976d2;
+    color: #2c3e50;
     font-weight: 500;
     margin: 0 12px;
   }
@@ -346,9 +341,9 @@
   }
 
   .mat-mdc-paginator-icon {
-    color: #1976d2;
+    color: #2c3e50;
     font-size: 1.2rem;
-    fill: #1976d2;
+    fill: #2c3e50;
   }
 
   .mat-mdc-paginator-navigation-disabled .mat-mdc-paginator-icon {
@@ -366,7 +361,7 @@
   }
 
   .mat-mdc-select-value-text {
-    color: #1976d2;
+    color: #2c3e50;
     font-weight: 500;
   }
 
@@ -498,7 +493,7 @@ mat-progress-bar {
     bottom: 0;
     height: 1px;
     width: 0;
-    background: linear-gradient(to right, #1976d2, transparent);
+    background: linear-gradient(to right, #2c3e50, transparent);
     transition: width 0.3s ease;
   }
 
@@ -540,5 +535,134 @@ mat-progress-bar {
   }
   100% {
     box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+  }
+}
+
+// Delete Button and Cell Styling
+.delete-cell {
+  text-align: center;
+}
+
+.delete-button {
+  background-color: transparent;
+  color: #d32f2f;
+  border: none;
+  padding: 8px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background-color: rgba(211, 47, 47, 0.1);
+    transform: scale(1.15);
+  }
+
+  .material-icon {
+    font-size: 20px;
+  }
+}
+
+// Fixed Paginator Styling
+.custom-paginator {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  margin-top: 1rem;
+  
+  .paginator-controls {
+    display: flex;
+    align-items: center;
+    
+    .page-number {
+      margin: 0 12px;
+      font-weight: 500;
+      color: #424242;
+    }
+    
+    .icon-button {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 50%;
+      
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      
+      &:not(:disabled):hover {
+        background-color: rgba(0, 0, 0, 0.05);
+      }
+    }
+  }
+  
+  .paginator-page-size {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    
+    select {
+      padding: 4px 8px;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+      font-size: 14px;
+    }
+  }
+}
+
+// Material Icons Fix
+.material-icon {
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+}
+
+// Add snackbar styles at the end of the file
+// Snackbar Styles
+::ng-deep .success-snackbar {
+  background-color: #4caf50;
+  color: white;
+  
+  .mat-simple-snackbar-action {
+    color: white;
+  }
+}
+
+::ng-deep .error-snackbar {
+  background-color: #f44336;
+  color: white;
+  
+  .mat-simple-snackbar-action {
+    color: white;
+  }
+}
+
+::ng-deep .mat-mdc-snack-bar-container {
+  --mat-mdc-snack-bar-button-color: #fff;
+  --mdc-snackbar-supporting-text-color: #fff;
+  
+  &.success-snackbar {
+    --mdc-snackbar-container-color: #4caf50;
+  }
+  
+  &.error-snackbar {
+    --mdc-snackbar-container-color: #f44336;
   }
 }

@@ -1,0 +1,159 @@
+<!-- approvals.component.html -->
+<div class="container">
+  <div class="header">
+    <h1>Pending Approvals</h1>
+    <div class="actions">
+      <button class="icon-button" 
+              (click)="getPendingRequests()" 
+              matTooltip="Refresh pending requests" 
+              matTooltipClass="action-button-tooltip"
+              matTooltipPosition="below">
+        <span class="material-icon">refresh</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Custom progress bar - can be added when loading logic is implemented -->
+  <!-- <div *ngIf="isLoading" class="progress-bar">
+    <div class="progress-bar-inner"></div>
+  </div> -->
+
+  <div class="table-container">
+    <!-- Table is always shown, regardless of data -->
+    <table class="custom-table">
+      <!-- Table Header - Always visible -->
+      <thead>
+        <tr>
+          <th>Username</th>
+          <th>Center Name</th>
+          <th>Address</th>
+          <th>Status</th>
+          <th>Created At</th>
+          <th>Meeting Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <!-- Table Body -->
+      <tbody>
+        <!-- No data message inside table -->
+        <tr *ngIf="dataSource.data.length === 0">
+          <td colspan="7" class="no-data-cell">
+            <div class="no-data-container">
+              <span class="material-icon">search_off</span>
+              <p>No pending requests found</p>
+            </div>
+          </td>
+        </tr>
+
+        <!-- Data rows if data exists -->
+        <tr *ngFor="let element of dataSource.data">
+          <td>{{element.username}}</td>
+          <td>{{element.centername}}</td>
+          <td>{{element.address}}</td>
+          <td>
+            <span class="status-badge pending">
+              {{element.status}}
+            </span>
+          </td>
+          <td>{{element.createdAt | date:'medium'}}</td>
+          <td>
+            <div class="date-container">
+              <span *ngIf="element.meetingDate">{{ formatDate(element.meetingDate) }}</span>
+              <span *ngIf="!element.meetingDate" class="no-date">Not set</span>
+              <button class="icon-button calendar-icon-button" 
+                      (click)="openCalendar(element)"
+                      matTooltip="Set meeting date"
+                      matTooltipClass="action-button-tooltip"
+                      matTooltipPosition="right">
+                <span class="material-icon">calendar_today</span>
+              </button>
+            </div>
+          </td>
+          <td>
+            <div class="actions-container">
+              <button class="verify-button"
+                      [disabled]="!element.meetingDate"
+                      (click)="verifyRequest(element.requestId, element.meetingDate)"
+                      [matTooltip]="!element.meetingDate ? 'Please set a meeting date first' : 'Approve this request'"
+                      [matTooltipClass]="element.meetingDate ? 'action-button-tooltip' : 'disabled-button-tooltip'"
+                      matTooltipPosition="above">
+                <span class="button-text">Approve</span>
+                <span class="button-icon">✓</span>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Custom paginator - Always visible -->
+  <div class="custom-paginator">
+    <div class="paginator-range-label">
+      {{ dataSource.data.length === 0 ? '0-0 of 0' : 
+         Math.min(dataSource.data.length, 1) === 0 ? 0 : (currentPage - 1) * pageSize + 1 + '-' +
+         Math.min(currentPage * pageSize, dataSource.data.length) + ' of ' + dataSource.data.length }}
+    </div>
+
+    <div class="paginator-controls">
+      <button
+        class="icon-button"
+        [disabled]="currentPage === 1 || dataSource.data.length === 0"
+        (click)="onPageChange(currentPage - 1)"
+      >
+        <span class="material-icon">chevron_left</span>
+      </button>
+
+      <span class="page-number">{{ currentPage }}</span>
+
+      <button
+        class="icon-button"
+        [disabled]="currentPage * pageSize >= dataSource.data.length || dataSource.data.length === 0"
+        (click)="onPageChange(currentPage + 1)"
+      >
+        <span class="material-icon">chevron_right</span>
+      </button>
+    </div>
+
+    <div class="paginator-page-size">
+      <label for="pageSize">Items per page:</label>
+      <select id="pageSize" [(ngModel)]="pageSize" (change)="updatePageSize()" [disabled]="dataSource.data.length === 0">
+        <option [value]="5">5</option>
+        <option [value]="10">10</option>
+        <option [value]="25">25</option>
+        <option [value]="100">100</option>
+      </select>
+    </div>
+  </div>
+  
+  <div class="calendar-overlay" *ngIf="showCalendar" (click)="closeCalendar($event)">
+    <div class="calendar-popup" (click)="$event.stopPropagation()">
+      <div class="calendar-header">
+        <button class="calendar-nav-button" (click)="prevMonth()"><</button>
+        <div class="calendar-title">{{ currentMonthName }} {{ currentYear }}</div>
+        <button class="calendar-nav-button" (click)="nextMonth()">></button>
+      </div>
+  
+      <div class="calendar-weekdays">
+        <div class="weekday" *ngFor="let day of weekdays">{{ day }}</div>
+      </div>
+  
+      <div class="calendar-days">
+        <div *ngFor="let day of calendarDays"
+             [class]="getDayClass(day)"
+             (click)="selectDate(day)"
+             [matTooltip]="getDayTooltip(day)"
+             [matTooltipClass]="getTooltipClass(day)"
+             matTooltipPosition="above">
+          {{ day.date }}
+        </div>
+      </div>
+  
+      <div class="calendar-actions">
+        <button class="calendar-button cancel" (click)="closeCalendar($event)">Cancel</button>
+        <button class="calendar-button apply" (click)="applyDate()">Apply</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,1076 @@
+/* Force override the calendar background */
+::ng-deep .mat-datepicker-content .mat-calendar {
+  background-color: rgb(238, 238, 238) ;
+  border-radius: 20px;
+  color: rgb(0, 0, 0);
+  
+}
+::ng-deep .mat-datepicker-content .mat-calendar-body-label {
+  
+  color: transparent !important;
+  
+}
+
+::ng-deep .mat-mdc-form-field-infix {
+  color: rgb(123, 123, 123);
+}
+
+
+::ng-deep .mat-mdc-form-field .mat-mdc-paginator-page-size-select .mat-mdc-form-field-type-mat-select .mat-form-field-appearance-outline .mat-primary .mat-form-field-animations-enabled{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: transparent;
+  border: 3px solid #8f5d5d;
+  
+
+}
+
+
+.container {
+  padding: 1.5rem;
+  background: linear-gradient(to bottom right, rgba(247, 250, 255, 0.6), rgba(255, 255, 255, 0.9));
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(149, 157, 165, 0.1);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  position: relative;
+
+  h1 {
+    margin: 0;
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: #1a365d;
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 0;
+      width: 40px;
+      height: 3px;
+      background: linear-gradient(to right, #2c3e50, #2c3e50);
+      border-radius: 3px;
+    }
+  }
+
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    button {
+      transition: transform 0.2s ease;
+
+      &:hover {
+        transform: rotate(45deg);
+      }
+    }
+  }
+}
+
+.content {
+  position: relative;
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.pending {
+  background: linear-gradient(135deg, #fff8e1, #fffde7);
+  color: #f57f17;
+  &::before { background-color: #f57f17;
+    animation: pulse 2s infinite; }
+  &:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(245, 127, 23, 0.15); }
+}
+
+.approved {
+  background: linear-gradient(135deg, #e3f2fd, #e8f5fb);
+  color: #1565c0;
+  &::before { background-color: #1565c0;  }
+  &:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(21, 101, 192, 0.15); }
+}
+
+.completed {
+  background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
+  color: #2e7d32;
+  &::before { background-color: #2e7d32; }
+  &:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(46, 125, 50, 0.15); }
+}
+
+.rejected {
+  background: #ffebee;
+  color: #c62828;
+  &::before { background-color: #c62828; }
+  &:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(198, 40, 40, 0.15); }
+}
+
+::ng-deep .mat-mdc-timepicker-panel {
+  background-color: #8a4e09;
+  border-radius: 10px;
+  padding: 12px;
+  font-family: 'Roboto', sans-serif;
+}
+::ng-deep .mat-mdc-option {
+  font-size: 14px;
+  color: #333;
+}
+
+::ng-deep .mat-mdc-option.mat-mdc-selected {
+  background-color: #2196f3;
+  color: white;
+}
+
+::ng-deep .mat-mdc-option:hover {
+  background-color: #fde3ed;
+}
+
+.table-container {
+  position: relative;
+  overflow: auto;
+  margin-bottom: 1.5rem;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 4px 16px rgba(31, 38, 135, 0.07);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  padding: 0;
+
+  .custom-table {
+    width: 100%;
+    background: transparent;
+    border-collapse: collapse;
+    
+    th, td {
+      padding: 1rem 1.25rem;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+    
+    th {
+      font-weight: 600;
+      background: #f5f5f5;
+      color: #424242;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    
+    tr:last-child td {
+      border-bottom: none;
+    }
+    
+    tr:hover td {
+      background-color: #f9f9f9;
+    }
+  }
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  border-radius: 30px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+  min-width: 100px;
+  letter-spacing: 0.02em;
+
+  &::before {
+    content: '';
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 8px;
+    animation: pulse 2s infinite;
+  }
+}
+
+.no-data-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  color: #64748b;
+  background: linear-gradient(to bottom right, rgba(245, 247, 250, 0.7), rgba(237, 242, 247, 0.3));
+  border-radius: 8px;
+  min-height: 200px;
+
+  .material-icon {
+    font-size: 3rem;
+    height: 3rem;
+    width: 3rem;
+    margin-bottom: 1rem;
+    color: #94a3b8;
+    opacity: 0.7;
+  }
+
+  p {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 500;
+  }
+}
+
+.date-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .no-date {
+    color: #9e9e9e;
+    font-style: italic;
+  }
+
+  .calendar-icon-button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #2c3e50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    padding: 4px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: rgba(25, 118, 210, 0.1);
+      transform: scale(1.15);
+    }
+  }
+}
+
+.actions-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.verify-button {
+  background-color: #2c3e50;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  
+  &:disabled {
+    background-color: #e0e0e0;
+    color: #9e9e9e;
+    cursor: not-allowed;
+  }
+  
+  &:not(:disabled):hover {
+    background-color: #1565c0;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(21, 101, 192, 0.15);
+  }
+}
+
+.button-text {
+  margin-right: 4px;
+}
+
+.button-icon {
+  font-size: 14px;
+}
+
+.custom-paginator {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  margin-top: 1rem;
+  
+  .paginator-controls {
+    display: flex;
+    align-items: center;
+    
+    .page-number {
+      margin: 0 12px;
+      font-weight: 500;
+      color: #424242;
+    }
+    
+    .icon-button {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 50%;
+      
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      
+      &:not(:disabled):hover {
+        background-color: rgba(0, 0, 0, 0.05);
+      }
+    }
+  }
+  
+  .paginator-page-size {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    
+    select {
+      padding: 4px 8px;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+      font-size: 14px;
+    }
+  }
+}
+
+.material-icon {
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+}
+
+.icon-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #2c3e50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  padding: 8px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: rgba(25, 118, 210, 0.1);
+    transform: scale(1.15);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.2);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(0, 0, 0, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+  }
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(237, 242, 247, 0.5);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(25, 118, 210, 0.3);
+  border-radius: 10px;
+
+  &:hover {
+    background: rgba(25, 118, 210, 0.5);
+  }
+}
+
+::ng-deep .success-snackbar {
+  background-color: #4caf50;
+  color: white;
+  
+  .mat-simple-snackbar-action {
+    color: white;
+  }
+}
+
+::ng-deep .error-snackbar {
+  background-color: #f44336;
+  color: white;
+  
+  .mat-simple-snackbar-action {
+    color: white;
+  }
+}
+
+::ng-deep .mat-mdc-snack-bar-container {
+  --mat-mdc-snack-bar-button-color: #fff;
+  --mdc-snackbar-supporting-text-color: #fff;
+  
+  &.success-snackbar {
+    --mdc-snackbar-container-color: #4caf50;
+  }
+  
+  &.error-snackbar {
+    --mdc-snackbar-container-color: #f44336;
+  }
+}
+
+/* Custom Calendar Styles */
+.calendar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.calendar-popup {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  width: 350px;
+  max-width: 95%;
+  overflow: hidden;
+  animation: pop-in 0.3s ease-out;
+}
+
+@keyframes pop-in {
+  0% { transform: scale(0.8); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background-color: #2c3e50;
+  color: white;
+}
+
+.calendar-title {
+  font-weight: 500;
+  font-size: 18px;
+}
+
+.calendar-nav-button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.calendar-nav-button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  padding: 8px 0;
+  background-color: #f5f5f5;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.weekday {
+  text-align: center;
+  font-weight: 500;
+  font-size: 12px;
+  color: #757575;
+}
+
+.calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  padding: 8px;
+  gap: 4px;
+}
+
+.calendar-days > div {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 50%;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.calendar-days > div:hover:not(.day-disabled) {
+  background-color: #f5f5f5;
+}
+
+.day-today {
+  font-weight: bold;
+  border: 2px solid #2c3e50;
+}
+
+.day-selected {
+  background-color: #2c3e50 !important;
+  color: white !important;
+}
+
+.day-disabled {
+  color: #bdbdbd;
+  cursor: default !important;
+}
+
+.calendar-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 12px 16px;
+  background-color: #f5f5f5;
+  border-top: 1px solid #e0e0e0;
+}
+
+.calendar-button {
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.calendar-button.cancel {
+  background-color: transparent;
+  color: #616161;
+  margin-right: 8px;
+}
+
+.calendar-button.cancel:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.calendar-button.apply {
+  background-color: #2c3e50;
+  color: white;
+}
+
+.calendar-button.apply:hover {
+  background-color: #1565c0;
+}
+
+/* View Details Button */
+.view-details-button {
+  background-color: #2196f3;
+  color: white;
+  border: none;
+  padding: 6px 16px;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-right: 8px;
+}
+
+.view-details-button:hover {
+  background-color: #2c3e50;
+}
+
+/* Selected Date Display */
+.selected-date-display {
+  text-align: center;
+  padding: 10px;
+  background-color: #f8f8f8;
+  border-bottom: 1px solid #e0e0e0;
+  font-size: 14px;
+  color: #333;
+}
+
+.selected-date-display span {
+  font-weight: 500;
+  color: #616161;
+}
+
+/* Button Icon and Text */
+.button-icon {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.button-text {
+  font-size: 14px;
+  letter-spacing: 0.5px;
+}
+
+/* Available days styling */
+.day-available {
+  background-color: rgba(76, 175, 80, 0.2);
+  position: relative;
+}
+
+.day-available::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  background-color: #4CAF50;
+  border-radius: 50%;
+}
+
+/* Sunday styling - crossed out */
+.day-sunday {
+  position: relative;
+}
+
+.day-sunday::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background-color: #f44336;
+  transform: rotate(-45deg);
+}
+
+.day-sunday::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background-color: #f44336;
+  transform: rotate(45deg);
+}
+
+/* Days with zero available slots */
+.day-zero-slots {
+  background-color: rgba(244, 67, 54, 0.2) !important;
+  color: #f44336 !important;
+}
+
+/* Adjust available days styling */
+.day-available {
+  position: relative;
+}
+
+.day-available::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  background-color: #4CAF50;
+  border-radius: 50%;
+} 
+
+.day-zero-slots {
+  color: red !important;
+  font-weight: bold;
+}
+
+.calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.calendar-days > div {
+  padding: 10px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.day-disabled {
+  color: #ccc;
+  cursor: not-allowed;
+}
+
+.day-today {
+  background-color: #e0e0e0;
+  font-weight: bold;
+}
+
+.day-selected {
+  background-color: #007bff;
+  color: white;
+  border-radius: 50%;
+}
+
+.day-available {
+  background-color: #f0f8ff;
+}
+
+.day-sunday {
+  color: #ff6f61;
+}
+
+/* Paginator Styling */
+::ng-deep .mat-paginator {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+::ng-deep .mat-paginator-container {
+  background: rgba(245, 247, 250, 0.5) !important;
+  border-radius: 25px !important;
+  padding: 0.5rem 1rem !important;
+  box-shadow: 0 4px 14px rgba(60, 72, 88, 0.04) !important;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1.2rem;
+  font-size: 1rem;
+  border: 1px solid rgba(224, 227, 234, 0.3) !important;
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
+::ng-deep .mat-paginator-range-label {
+  color: #616161;
+  font-weight: 500;
+  margin: 0 12px;
+}
+
+.mat-mdc-paginator-page-size-label,
+.mat-mdc-paginator-page-size-select {
+  font-size: 1rem;
+  color: #334155;
+}
+
+.mat-mdc-icon-button {
+  border-radius: 50%;
+  transition: all 0.2s ease;
+
+  &:hover:not([disabled]) {
+    background-color: rgba(97, 97, 97, 0.1);
+    transform: scale(1.1);
+  }
+}
+
+.mat-mdc-paginator-icon {
+  color: #616161;
+  font-size: 1.2rem;
+  fill: #616161;
+}
+
+.mat-mdc-paginator-navigation-disabled .mat-mdc-paginator-icon {
+  color: #cbd5e1;
+  fill: #cbd5e1;
+}
+
+.mat-mdc-button-base {
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.mat-mdc-button-base:hover:not([disabled]) {
+  background: rgba(97, 97, 97, 0.1);
+}
+
+.mat-mdc-select-value-text {
+  color: #616161;
+  font-weight: 500;
+}
+
+/* Make the table more responsive */
+@media (max-width: 1024px) {
+  .container {
+    padding: 1.2rem;
+  }
+
+  .header h1 {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .table-container .custom-table {
+    min-width: 700px;
+
+    th, td {
+      padding: 0.8rem 0.6rem;
+      font-size: 0.95rem;
+    }
+  }
+
+  .status-badge {
+    min-width: 80px;
+    padding: 0.3rem 0.7rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .container {
+    padding: 1rem 0.75rem;
+    border-radius: 8px;
+  }
+
+  .header h1 {
+    font-size: 1.3rem;
+
+    &::after {
+      width: 30px;
+      height: 2px;
+    }
+  }
+
+  .table-container {
+    padding: 0.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .table-container .custom-table {
+    min-width: 500px;
+
+    th, td {
+      padding: 0.6rem 0.4rem;
+      font-size: 0.9rem;
+    }
+  }
+
+  .status-badge {
+    min-width: 70px;
+    padding: 0.2em 0.5em;
+    font-size: 0.85em;
+  }
+}
+
+/* Custom Tooltip Styles */
+::ng-deep .mat-mdc-tooltip {
+  background: rgba(33, 33, 33, 0.95) !important;
+  color: white !important;
+  font-size: 12px !important;
+  padding: 10px 14px !important;
+  border-radius: 8px !important;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.15) inset;
+  max-width: 200px !important;
+  position: relative;
+  animation: tooltipFadeIn 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  margin: 12px !important;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  font-weight: 500;
+  line-height: 1.5;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.3), transparent);
+  }
+  
+  &::after {
+    content: '';
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: inherit;
+    transform: rotate(45deg);
+    bottom: -6px;
+    left: calc(50% - 6px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: -1;
+  }
+  
+  &.available-tooltip {
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.95), rgba(46, 125, 50, 0.95)) !important;
+    border-color: rgba(76, 175, 80, 0.4);
+    
+    &::after {
+      background: rgba(46, 125, 50, 0.95);
+      border-color: rgba(76, 175, 80, 0.4);
+    }
+  }
+  
+  &.unavailable-tooltip {
+    background: linear-gradient(135deg, rgba(244, 67, 54, 0.95), rgba(198, 40, 40, 0.95)) !important;
+    border-color: rgba(244, 67, 54, 0.4);
+    
+    &::after {
+      background: rgba(198, 40, 40, 0.95);
+      border-color: rgba(244, 67, 54, 0.4);
+    }
+  }
+  
+  &.action-button-tooltip {
+    background: linear-gradient(135deg, rgba(44, 62, 80, 0.95), rgba(36, 51, 66, 0.95)) !important;
+    border-color: rgba(44, 62, 80, 0.4);
+    
+    &::after {
+      background: rgba(36, 51, 66, 0.95);
+      border-color: rgba(44, 62, 80, 0.4);
+    }
+  }
+  
+  &.disabled-button-tooltip {
+    background: linear-gradient(135deg, rgba(158, 158, 158, 0.95), rgba(117, 117, 117, 0.95)) !important;
+    border-color: rgba(158, 158, 158, 0.4);
+    
+    &::after {
+      background: rgba(117, 117, 117, 0.95);
+      border-color: rgba(158, 158, 158, 0.4);
+    }
+  }
+}
+
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+// Style the tooltip arrows based on position
+::ng-deep .mat-mdc-tooltip-panel[data-position="above"] .mat-mdc-tooltip::after {
+  bottom: -6px;
+  top: auto;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+::ng-deep .mat-mdc-tooltip-panel[data-position="below"] .mat-mdc-tooltip {
+  animation-name: tooltipFadeInBottom;
+  
+  &::after {
+    top: -6px;
+    bottom: auto;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: none;
+    border-right: none;
+    box-shadow: -2px -2px 5px rgba(0, 0, 0, 0.1);
+  }
+}
+
+@keyframes tooltipFadeInBottom {
+  from {
+    opacity: 0;
+    transform: translateY(5px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+::ng-deep .mat-mdc-tooltip-panel[data-position="left"] .mat-mdc-tooltip {
+  animation-name: tooltipFadeInLeft;
+  
+  &::after {
+    right: -6px;
+    left: auto;
+    top: calc(50% - 6px);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: none;
+    border-left: none;
+    box-shadow: 2px -2px 5px rgba(0, 0, 0, 0.1);
+  }
+}
+
+@keyframes tooltipFadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-5px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+::ng-deep .mat-mdc-tooltip-panel[data-position="right"] .mat-mdc-tooltip {
+  animation-name: tooltipFadeInRight;
+  
+  &::after {
+    left: -6px;
+    right: auto;
+    top: calc(50% - 6px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: none;
+    border-right: none;
+    box-shadow: -2px 2px 5px rgba(0, 0, 0, 0.1);
+  }
+}
+
+@keyframes tooltipFadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(5px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+// No Data Cell inside table
+.no-data-cell {
+  padding: 0 !important;
+  background: transparent !important;
+  
+  .no-data-container {
+    margin: 40px 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+}

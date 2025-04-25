@@ -60,13 +60,9 @@ export class DashboardSidebarComponent {
       { icon: 'home', label: 'Home', route: '/' },
       { icon: 'dashboard', label: 'Dashboard', route: '/officer-dashboard/dashboard' },
       { icon: 'description', label: 'CPF Requests', route: '/officer-dashboard/requests' },
-      {
-        icon: 'assignment_turned_in',
-        label: 'Pending Approvals',
-        route: '/officer-dashboard/requests',
-        queryParams: { status: 'pending' }
-      },
+      { icon: 'assignment_turned_in', label: 'Pending Approvals', route: '/officer-dashboard/approvals' },
       { icon: 'event_available', label: 'Appointments', route: '/officer-dashboard/appointments' },
+      { icon: 'people', label: 'Citizens', route: '/officer-dashboard/citizens' },
       { icon: 'people', label: 'Citizens', route: '/officer-dashboard/citizens' },
       { icon: 'calendar_today', label: 'Schedule', route: '/officer-dashboard/schedule' },
       { icon: 'assessment', label: 'Reports', route: '/officer-dashboard/reports' }

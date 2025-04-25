@@ -1,14 +1,15 @@
 import { AfterViewInit, Component, ViewChild, Inject, PLATFORM_ID, signal, OnInit } from '@angular/core';
+import { isPlatformBrowser, DOCUMENT } from '@angular/common';
 import { forkJoin, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
-import { CpfRequestService, CpfRequest } from '../../../../core/services/cpf-request.service';
-import { isPlatformBrowser } from '@angular/common';
+import { CpfRequestService, CpfRequest, PopulatedUser } from '../../../../core/services/cpf-request.service';
 import { UserService } from '../../../../core/services/user.service';
 import { FormsModule } from '@angular/forms';
 import { Appointment, AppointmentService } from '../../../../core/services/appointment.service';
 import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 interface CpfRequestWithAppointment extends CpfRequest {
   appointmentCompleted?: boolean;
@@ -23,6 +24,7 @@ interface CpfRequestWithAppointment extends CpfRequest {
     RouterModule,
     FormsModule,
     ReactiveFormsModule,
+    MatSnackBarModule,
   ],
   templateUrl: './requests.component.html',
   styleUrls: ['./requests.component.scss']
@@ -39,7 +41,9 @@ export class OfficerRequestsComponent implements OnInit, AfterViewInit {
     private router: Router,
     private route: ActivatedRoute,
     private fb: FormBuilder,
-    @Inject(PLATFORM_ID) private platformId: any
+    private snackBar: MatSnackBar,
+    @Inject(PLATFORM_ID) private platformId: Object,
+    @Inject(DOCUMENT) private document: Document
   ) { }
 
   displayedColumns: string[] = [
@@ -48,7 +52,7 @@ export class OfficerRequestsComponent implements OnInit, AfterViewInit {
     'address',
     'status',
     'createdAt',
-    'actions'
+    'delete'
   ];
 
   // Custom implementation to replace MatTableDataSource
@@ -87,9 +91,9 @@ export class OfficerRequestsComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
     if (isPlatformBrowser(this.platformId)) {
+      this.dataSource.paginator = this.paginator;
+      this.dataSource.sort = this.sort;
       this.loadRequests();
     }
   }
@@ -157,10 +161,16 @@ export class OfficerRequestsComponent implements OnInit, AfterViewInit {
 
         // Check for specific error types
         if (err.status === 401 || err.status === 403) {
-          alert('You are not authorized to view these requests');
+          this.snackBar.open('You are not authorized to view these requests', 'Close', {
+            duration: 5000,
+            panelClass: ['error-snackbar']
+          });
           this.router.navigate(['/auth/login']);
         } else {
-          alert('Failed to load CPF requests');
+          this.snackBar.open('Failed to load CPF requests', 'Close', {
+            duration: 5000,
+            panelClass: ['error-snackbar']
+          });
         }
       }
     });
@@ -201,7 +211,10 @@ export class OfficerRequestsComponent implements OnInit, AfterViewInit {
     this.cpfRequestService.updateRequestStatus(request._id, status).subscribe({
       next: () => {
         this.isLoading.set(false);
-        alert(`Request ${status} successfully`);
+        this.snackBar.open(`Request ${status} successfully`, 'Close', {
+          duration: 3000,
+          panelClass: ['success-snackbar']
+        });
         this.loadRequests(this.currentPage);
       },
       error: (err) => {
@@ -209,9 +222,15 @@ export class OfficerRequestsComponent implements OnInit, AfterViewInit {
         console.error(`Error ${status}ing request:`, err);
 
         if (err.status === 401 || err.status === 403) {
-          alert('You are not authorized to perform this action');
+          this.snackBar.open('You are not authorized to perform this action', 'Close', {
+            duration: 5000,
+            panelClass: ['error-snackbar']
+          });
         } else {
-          alert(`Failed to ${status} request: ${err.error?.message || 'Unknown error'}`);
+          this.snackBar.open(`Failed to ${status} request: ${err.error?.message || 'Unknown error'}`, 'Close', {
+            duration: 5000,
+            panelClass: ['error-snackbar']
+          });
         }
       }
     });
@@ -280,5 +299,44 @@ export class OfficerRequestsComponent implements OnInit, AfterViewInit {
 
   private compare(a: any, b: any, isAsc: boolean) {
     return (a < b ? -1 : 1) * (isAsc ? 1 : -1);
+  }
+
+  getUserFullName(userId: string | PopulatedUser): string {
+    if (userId && typeof userId !== 'string' && userId.firstName && userId.lastName) {
+      return `${userId.firstName} ${userId.lastName}`;
+    }
+    return 'Unknown User';
+  }
+
+  deleteRequest(requestId: string): void {
+    if (confirm('Are you sure you want to delete this request? This action cannot be undone.')) {
+      this.isLoading.set(true);
+      this.cpfRequestService.deleteCpfRequest(requestId).subscribe({
+        next: () => {
+          this.isLoading.set(false);
+          this.snackBar.open('Request deleted successfully', 'Close', {
+            duration: 3000,
+            panelClass: ['success-snackbar']
+          });
+          this.loadRequests(this.currentPage);
+        },
+        error: (err) => {
+          this.isLoading.set(false);
+          console.error('Error deleting request:', err);
+          
+          if (err.status === 401 || err.status === 403) {
+            this.snackBar.open('You are not authorized to delete this request', 'Close', {
+              duration: 5000,
+              panelClass: ['error-snackbar']
+            });
+          } else {
+            this.snackBar.open(`Failed to delete request: ${err.error?.message || 'Unknown error'}`, 'Close', {
+              duration: 5000,
+              panelClass: ['error-snackbar']
+            });
+          }
+        }
+      });
+    }
   }
 }
