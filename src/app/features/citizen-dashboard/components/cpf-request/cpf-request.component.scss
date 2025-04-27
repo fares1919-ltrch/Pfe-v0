@@ -94,3 +94,11 @@ input:focus {
   line-height: 1.25rem;
 }
 
+input[type="date"],
+input[type="text"]#identityNumber {
+  background-color: white !important;
+
+  &:focus {
+    border-color: #2C3E50 !important;
+  }
+}

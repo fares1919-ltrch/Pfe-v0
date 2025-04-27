@@ -66,6 +66,8 @@
         border-radius: 20px;
         font-size: 0.9rem;
         transition: all 0.3s;
+        background-color: #ffffff;
+        color: #333333;
 
         &:focus {
           outline: none;
@@ -197,6 +199,11 @@
   }
   .dashboard-header .header-right .search-bar {
     width: 200px;
+
+    input {
+      background-color: #ffffff;
+      color: #333333;
+    }
   }
 }
 
@@ -237,6 +244,11 @@
     }
     .header-right .search-bar {
       width: 140px;
+
+      input {
+        background-color: #ffffff;
+        color: #333333;
+      }
     }
   }
 }
@@ -298,6 +310,13 @@
   &.collapsed {
     padding-left: 70px;
   }
+}
+
+// Global styles for search inputs
+input[type="text"][placeholder*="Search"],
+input[type="search"] {
+  background-color: #ffffff !important;
+  color: #333333 !important;
 }
 
 // Adjust content padding for responsive
