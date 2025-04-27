@@ -10,6 +10,7 @@ import { environment } from '../../../../../environments/environment';
 import { CpfRequestService, CpfRequest } from '../../../../core/services/cpf-request.service';
 import { CenterService } from '../../../../core/services/center.service';
 import { finalize } from 'rxjs/operators';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 interface Address {
   street: string;
@@ -44,6 +45,7 @@ interface LocationInfo {
     FormsModule,
     RouterModule,
     MapsComponent,
+    MatSnackBarModule,
   ],
   templateUrl: './cpf-request.component.html',
   styleUrls: ['./cpf-request.component.scss']
@@ -64,7 +66,6 @@ export class CpfRequestComponent {
   nearestCenter: string = '';
   centerDistance: number = 0;
   userProfile: any = null;
-  snackBar: any;
 
   constructor(
     private http: HttpClient,
@@ -72,9 +73,11 @@ export class CpfRequestComponent {
     private profileService: ProfileService,
     private cpfRequestService: CpfRequestService,
     private centerService: CenterService,
-    private router: Router
+    private router: Router,
+    private snackBar: MatSnackBar
   ) {
     this.loadUserProfile();
+    this.checkExistingRequest();
   }
 
   loadUserProfile() {
@@ -308,12 +311,14 @@ export class CpfRequestComponent {
         console.log('CPF request submitted successfully', response);
         this.status = 'submitted';
         this.showAlert = true;
-        this.alertMessage = 'Your CPF request has been submitted successfully!';
+        this.alertMessage = 'Request submitted successfully';
 
         // Show success message in snackbar
-        this.snackBar.open('CPF request submitted successfully!', 'Close', {
+        this.snackBar.open('Request submitted successfully', 'Close', {
           duration: 5000,
-          panelClass: ['success-snackbar']
+          panelClass: ['success-snackbar'],
+          horizontalPosition: 'center',
+          verticalPosition: 'bottom'
         });
 
         // Navigate to dashboard or confirmation page
@@ -325,10 +330,31 @@ export class CpfRequestComponent {
 
         // Provide more specific error messages
         if (error.status === 400) {
-          if (error.error?.message) {
+          if (error.error?.message?.includes('already exists')) {
+            this.alertMessage = 'You already have an existing CPF request';
+            // Show error in snackbar
+            this.snackBar.open('You already have an existing CPF request', 'Close', {
+              duration: 5000,
+              panelClass: ['error-snackbar'],
+              horizontalPosition: 'center',
+              verticalPosition: 'bottom'
+            });
+          } else if (error.error?.message) {
             this.alertMessage = error.error.message;
+            this.snackBar.open(this.alertMessage, 'Close', {
+              duration: 5000,
+              panelClass: ['error-snackbar'],
+              horizontalPosition: 'center',
+              verticalPosition: 'bottom'
+            });
           } else {
             this.alertMessage = 'Please check your request details and try again.';
+            this.snackBar.open(this.alertMessage, 'Close', {
+              duration: 5000,
+              panelClass: ['error-snackbar'],
+              horizontalPosition: 'center',
+              verticalPosition: 'bottom'
+            });
           }
         } else if (error.status === 401) {
           this.alertMessage = 'Your session has expired. Please log in again.';
@@ -342,7 +368,9 @@ export class CpfRequestComponent {
         // Show error in snackbar
         this.snackBar.open(this.alertMessage, 'Close', {
           duration: 5000,
-          panelClass: ['error-snackbar']
+          panelClass: ['error-snackbar'],
+          horizontalPosition: 'center',
+          verticalPosition: 'bottom'
         });
       }
     });
@@ -398,6 +426,27 @@ export class CpfRequestComponent {
       'Profile Complete': this.profileComplete,
       'Form Valid': !error,
       'Can Submit': this.profileComplete && !!this.selectedLocation && !this.loading && !error
+    });
+  }
+
+  // Add method to check for existing requests
+  checkExistingRequest() {
+    this.cpfRequestService.getCpfRequests().subscribe({
+      next: (requests) => {
+        console.log('Existing requests:', requests);
+        if (requests && requests.length > 0) {
+          // Show alert for existing request
+          this.snackBar.open('You already have an existing CPF request', 'Close', {
+            duration: 5000,
+            panelClass: ['error-snackbar'],
+            horizontalPosition: 'center',
+            verticalPosition: 'bottom'
+          });
+        }
+      },
+      error: (error) => {
+        console.error('Error checking existing requests:', error);
+      }
     });
   }
 }
