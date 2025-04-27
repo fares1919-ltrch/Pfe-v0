@@ -186,10 +186,10 @@ export class ApprovalsComponent implements OnInit, AfterViewInit {
       const prevMonthDay = daysInPrevMonth - i;
       const prevMonth = this.currentMonth === 0 ? 11 : this.currentMonth - 1;
       const prevYear = this.currentMonth === 0 ? this.currentYear - 1 : this.currentYear;
-      
+
       const date = new Date(prevYear, prevMonth, prevMonthDay);
       const isSunday = date.getDay() === 0;
-      
+
       this.calendarDays.push({
         date: prevMonthDay,
         month: prevMonth,
@@ -207,10 +207,10 @@ export class ApprovalsComponent implements OnInit, AfterViewInit {
       const dateStr = this.formatDateYYYYMMDD(this.currentYear, this.currentMonth, i);
       const isAvailable = this.availableDays.includes(dateStr);
       const availableSlots = this.availableSlots[dateStr] || 0;
-      
+
       const date = new Date(this.currentYear, this.currentMonth, i);
       const isSunday = date.getDay() === 0;
-      
+
       this.calendarDays.push({
         date: i,
         month: this.currentMonth,
@@ -230,10 +230,10 @@ export class ApprovalsComponent implements OnInit, AfterViewInit {
     for (let i = 1; i <= remainingDays; i++) {
       const nextMonth = this.currentMonth === 11 ? 0 : this.currentMonth + 1;
       const nextYear = this.currentMonth === 11 ? this.currentYear + 1 : this.currentYear;
-      
+
       const date = new Date(nextYear, nextMonth, i);
       const isSunday = date.getDay() === 0;
-      
+
       this.calendarDays.push({
         date: i,
         month: nextMonth,
@@ -297,11 +297,11 @@ export class ApprovalsComponent implements OnInit, AfterViewInit {
     }
     if (day.isAvailable) classes += 'day-available ';
     if (day.isSunday) classes += 'day-sunday ';
-    
+
     if (day.isCurrentMonth && day.availableSlots === 0 && day.isAvailable) {
       classes += 'day-zero-slots ';
     }
-    
+
     return classes;
   }
 
@@ -325,11 +325,11 @@ export class ApprovalsComponent implements OnInit, AfterViewInit {
     if (day.isAvailable && day.availableSlots && day.availableSlots > 0) {
       return 'available-tooltip';
     }
-    
+
     if (day.isSunday || (day.isAvailable && day.availableSlots === 0)) {
       return 'unavailable-tooltip';
     }
-    
+
     return '';
   }
 
@@ -356,7 +356,10 @@ export class ApprovalsComponent implements OnInit, AfterViewInit {
       const errorMsg = 'Please set meeting date';
       console.error('Verification failed:', errorMsg);
       this.error = errorMsg;
-      this.snackBar.open(errorMsg, 'Close', { duration: 3000 });
+      this.snackBar.open(errorMsg, 'Close', {
+        duration: 5000,
+        panelClass: ['error-snackbar']
+      });
       return;
     }
 
@@ -364,13 +367,19 @@ export class ApprovalsComponent implements OnInit, AfterViewInit {
       next: (response) => {
         console.log('Request verified successfully:', { requestId, response });
         this.loadRequests();
-        this.snackBar.open('Request verified successfully', 'Close', { duration: 3000 });
+        this.snackBar.open('Request verified successfully', 'Close', {
+        duration: 5000,
+        panelClass: ['success-snackbar']
+      });
       },
       error: (err) => {
         const errorMsg = 'Failed to verify request';
         console.error('Verification error:', { requestId, error: err });
         this.error = errorMsg;
-        this.snackBar.open(errorMsg, 'Close', { duration: 3000 });
+        this.snackBar.open(errorMsg, 'Close', {
+        duration: 5000,
+        panelClass: ['error-snackbar']
+      });
       }
     });
   }

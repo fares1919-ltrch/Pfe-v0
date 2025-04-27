@@ -93,3 +93,13 @@ input:focus {
   font-size: 0.875rem;
   line-height: 1.25rem;
 }
+
+// Custom styling for date input and identity number input with white background
+input[type="date"],
+input[type="text"]#identityNumber {
+  background-color: white !important;
+
+  &:focus {
+    border-color: #2C3E50 !important;
+  }
+}
