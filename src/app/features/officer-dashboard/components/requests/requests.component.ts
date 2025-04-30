@@ -339,4 +339,8 @@ export class OfficerRequestsComponent implements OnInit, AfterViewInit {
       });
     }
   }
+
+  refreshPage() {
+    window.location.reload();
+  }
 }

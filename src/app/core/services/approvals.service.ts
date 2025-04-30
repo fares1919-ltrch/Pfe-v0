@@ -27,8 +27,8 @@ export class ApprovalsService {
 
   constructor(private http: HttpClient) {}
 
-  getPendingRequests(): Observable<any> {
-    return this.http.get(`${this.baseUrl}/cpf-requests/getPending`);
+  GetPendingAndApprovedReq(): Observable<any> {
+    return this.http.get(`${this.baseUrl}/cpf-requests/PendingAndApprovedReq`);
   }
 
   getAvailableDays(centerId: string): Observable<AvailableDayItem[]> {
@@ -48,7 +48,7 @@ export class ApprovalsService {
     console.log(`Verifying request ${requestId} with date: ${dateTime}`);
     console.log("dateeeeeeeeeeeeeeeeeeee" , dateTime)
     
-    return this.http.post<any>(`${this.baseUrl}/appointments/schedule/${requestId}`, {
+    return this.http.post<any>(`${this.baseUrl}/appointments/createScheduleAppointment/${requestId}`, {
       date : dateTime
     }).pipe(
       tap(response => console.log('Verify response:', response)),
@@ -57,6 +57,11 @@ export class ApprovalsService {
         return throwError(() => error);
       })
     );
+  }
+
+  rescheduleRequest(requestId: string, newDate: Date): Observable<any> {
+    const date = this.formatDateTime(newDate); // format as yyyy-mm-dd
+    return this.http.put<any>(`${this.baseUrl}/appointments/reschedule/${requestId}`, { date });
   }
 
   private formatDateTime(date: Date): string {

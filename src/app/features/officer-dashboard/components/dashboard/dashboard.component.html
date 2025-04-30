@@ -1,0 +1,132 @@
+<div class="dashboard-container">
+  <!-- Header Section -->
+  <div class="dashboard-header">
+    <h1>Dashboard Overview</h1>
+    <div class="date-filter">
+      <mat-form-field appearance="outline" class="date-picker">
+        <mat-label>Select Date</mat-label>
+        <input matInput [matDatepicker]="picker" 
+               [(ngModel)]="selectedDate"
+               (dateChange)="onDateChange($event)"
+               [min]="minDate"
+               [max]="maxDate"
+               placeholder="Choose a date">
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
+      <div class="reschedule-actions" *ngIf="isRescheduling">
+        <button mat-icon-button color="primary" (click)="confirmRescheduling()" class="action-button">
+          <mat-icon>check</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" (click)="cancelRescheduling()" class="action-button">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+      <button mat-icon-button *ngIf="!isRescheduling" (click)="startRescheduling()" class="reschedule-button">
+        <mat-icon>event</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- Statistics Cards -->
+  <div class="stats-grid">
+    <div class="stat-card" *ngFor="let stat of stats" [style.--card-color]="stat.color">
+      <div class="stat-icon">
+        <mat-icon [style.color]="stat.color">{{ stat.icon }}</mat-icon>
+      </div>
+      <div class="stat-content">
+        <h3>{{ stat.title }}</h3>
+        <div class="stat-value">{{ stat.value }}</div>
+        <div class="stat-trend" [class.trend-up]="stat.trendDirection === 'up'" [class.trend-down]="stat.trendDirection === 'down'">
+          <mat-icon>{{ stat.trendDirection === 'up' ? 'trending_up' : 'trending_down' }}</mat-icon>
+          <span>{{ stat.trend }}%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Grid -->
+  <div class="dashboard-grid">
+    <!-- Progress Section -->
+    <div class="dashboard-card progress-section">
+      <h2>Request Progress</h2>
+      <div class="progress-list">
+        <div class="progress-item" *ngFor="let item of progressItems">
+          <div class="progress-header">
+            <span class="progress-label">{{ item.label }}</span>
+            <span class="progress-value">{{ item.value }}/{{ item.total }}</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width]="getProgressPercentage(item)" [style.background-color]="item.color"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activity Section -->
+    <div class="dashboard-card activity-section">
+      <h2>Recent Activity</h2>
+      <div class="activity-list">
+        <div class="activity-item" *ngFor="let activity of recentActivities">
+          <div class="activity-icon" [style.background-color]="activity.color">
+            <mat-icon>notifications</mat-icon>
+          </div>
+          <div class="activity-content">
+            <div class="activity-header">
+              <span class="activity-type">{{ activity.type }}</span>
+              <span class="activity-time">{{ activity.time }}</span>
+            </div>
+            <div class="activity-details">
+              <span class="activity-citizen">{{ activity.citizen }}</span>
+              <span class="activity-status" [style.color]="activity.color">{{ activity.status }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Stats Section -->
+    <div class="dashboard-card quick-stats">
+      <h2>Quick Statistics</h2>
+      <div class="stats-grid-small">
+        <div class="stat-item">
+          <div class="stat-circle" style="--stat-color: #7FB3D5">
+            <span>85%</span>
+          </div>
+          <span>Approval Rate</span>
+        </div>
+        <div class="stat-item">
+          <div class="stat-circle" style="--stat-color: #82E0AA">
+            <span>92%</span>
+          </div>
+          <span>On-Time Delivery</span>
+        </div>
+        <div class="stat-item">
+          <div class="stat-circle" style="--stat-color: #F5B7B1">
+            <span>78%</span>
+          </div>
+          <span>Customer Satisfaction</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Performance Metrics -->
+    <div class="dashboard-card performance">
+      <h2>Performance Metrics</h2>
+      <div class="metrics-grid">
+        <div class="metric-item">
+          <div class="metric-value">4.8</div>
+          <div class="metric-label">Average Processing Time (days)</div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-value">98%</div>
+          <div class="metric-label">Document Accuracy</div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-value">12k</div>
+          <div class="metric-label">Total Processed</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

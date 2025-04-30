@@ -4,7 +4,7 @@
     <h1>Pending Approvals</h1>
     <div class="actions">
       <button class="icon-button" 
-              (click)="getPendingRequests()" 
+             (click)="refreshPage()" 
               matTooltip="Refresh pending requests" 
               matTooltipClass="action-button-tooltip"
               matTooltipPosition="below">
@@ -52,7 +52,7 @@
           <td>{{element.centername}}</td>
           <td>{{element.address}}</td>
           <td>
-            <span class="status-badge pending">
+            <span class="status-badge" [ngClass]="element.status.toLowerCase()">
               {{element.status}}
             </span>
           </td>
@@ -73,6 +73,7 @@
           <td>
             <div class="actions-container">
               <button class="verify-button"
+                      *ngIf="element.status === 'pending'"
                       [disabled]="!element.meetingDate"
                       (click)="verifyRequest(element.requestId, element.meetingDate)"
                       [matTooltip]="!element.meetingDate ? 'Please set a meeting date first' : 'Approve this request'"
@@ -80,6 +81,16 @@
                       matTooltipPosition="above">
                 <span class="button-text">Approve</span>
                 <span class="button-icon">✓</span>
+              </button>
+              <button class="verify-button"
+                      *ngIf="element.status === 'approved'"
+                      [disabled]="!element.meetingDate"
+                      (click)="RescheduleRequest(element.requestId, element.meetingDate)"
+                      [matTooltip]="!element.meetingDate ? 'Please set a meeting date first' : 'Reschedule this request'"
+                      [matTooltipClass]="element.meetingDate ? 'action-button-tooltip' : 'disabled-button-tooltip'"
+                      matTooltipPosition="above">
+                <span class="button-text">Reschedule</span>
+                <span class="button-icon">⟳</span>
               </button>
             </div>
           </td>

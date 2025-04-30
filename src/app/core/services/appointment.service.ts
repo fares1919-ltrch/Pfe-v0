@@ -42,6 +42,8 @@ export interface AvailableSlotsResponse {
   slots: TimeSlot[];
 }
 
+
+
 @Injectable({
   providedIn: 'root'
 })
@@ -103,5 +105,26 @@ export class AppointmentService {
   getCenterDailyAppointments(centerId: string, date: string): Observable<Appointment[]> {
     const params = new HttpParams().set('date', date);
     return this.http.get<Appointment[]>(`${this.API_URL}/appointments/center/${centerId}/daily`, { params, withCredentials: true });
+  }
+
+  getTodayAppointements(): Observable<any> {
+    console.log("get today appointments servicccccccccccccccccce")
+    return this.http.get<any>(`${this.API_URL}/appointments/today`, { withCredentials: true });
+  }
+
+  getUpcomingAppointements(): Observable<any> {
+    console.log("get upcoming appointments servicccccccccccccccccce")
+    return this.http.get<any>(`${this.API_URL}/appointments/upcoming`, { withCredentials: true });
+  }
+
+  cancelAppointment(appointmentId: string): Observable<any> {
+    console.log("cancel appointment servicccccccccccccccccce" , appointmentId)
+    return this.http.put(`${this.API_URL}/appointments/cancel/${appointmentId}`, {}, { withCredentials: true });
+  }
+
+  markAppointmentAsMissed(appointmentId: string): Observable<any> {
+    console.log("missed appointment servicccccccccccccccccce" , appointmentId)
+
+    return this.http.put(`${this.API_URL}/appointments/missed/${appointmentId}`, {}, { withCredentials: true });
   }
 }
