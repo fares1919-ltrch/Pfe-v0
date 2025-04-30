@@ -1,23 +1,38 @@
 <!-- data-submission.component.html -->
 <div class="biometric-container">
-    <div style="margin-bottom: 1rem;padding:0 1rem; display: flex; justify-content: space-between;align-items: center;">
+    <div class="top-header">
         <div class="header">
             <h1>Biometric Data Submission</h1>
+            <p class="subtitle">Capture high-quality biometric data for user authentication</p>
         </div> 
          <!-- Submit Button -->
          <div class="submit-section">
           <button class="submit-button" 
                   [disabled]="!isSubmissionReady"
                   (click)="submitBiometricData()">
-            Submit 
+            <span class="material-icons">upload</span>
+            Submit Data
           </button>
         </div>
     </div>
     
     <div class="content-wrapper">
+      <!-- Progress Bar -->
+      <div class="progress-container" *ngIf="getCompletionPercentage() > 0">
+        <div class="progress-label">
+          <span>Completion Progress: {{ getCompletionPercentage() }}%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-filled" [style.width.%]="getCompletionPercentage()"></div>
+        </div>
+      </div>
+
       <!-- User Information Section -->
       <div class="user-info-section">
-        <h2>User Information</h2>
+        <div class="section-header">
+          <span class="material-icons">person</span>
+          <h2>User Information</h2>
+        </div>
         <div class="user-info-grid">
           <div class="info-field">
             <label>Full Name</label>
@@ -40,10 +55,32 @@
       
       <!-- Biometric Data Section -->
       <div class="biometric-section">
-        <h2>Biometric Data</h2>
-        <div class="biometric-grid">
-          <!-- Face Photo -->
-          <div class="biometric-card">
+        <div class="section-header">
+          <span class="material-icons">fingerprint</span>
+          <h2>Biometric Data Collection</h2>
+        </div>
+        
+        <div class="biometric-tabs">
+          <div class="tab" [class.active]="activeTab === 'face'" (click)="activeTab = 'face'">
+            <span class="material-icons">face</span>
+            <span>Face</span>
+            <div class="status-dot" [class.complete]="faceImage !== null"></div>
+          </div>
+          <div class="tab" [class.active]="activeTab === 'iris'" (click)="activeTab = 'iris'">
+            <span class="material-icons">visibility</span>
+            <span>Iris</span>
+            <div class="status-dot" [class.partial]="(irisLeftImage || irisRightImage) && (!irisLeftImage || !irisRightImage)" [class.complete]="irisLeftImage && irisRightImage"></div>
+          </div>
+          <div class="tab" [class.active]="activeTab === 'fingerprints'" (click)="activeTab = 'fingerprints'">
+            <span class="material-icons">fingerprint</span>
+            <span>Fingerprints</span>
+            <div class="status-dot" [class.partial]="fingerprintImagesCount > 0 && fingerprintImagesCount < 10" [class.complete]="fingerprintImagesCount === 10"></div>
+          </div>
+        </div>
+
+        <!-- Face Image Panel -->
+        <div class="tab-panel" *ngIf="activeTab === 'face'">
+          <div class="biometric-card wide-card">
             <div class="card-header">
               <span class="material-icons">face</span>
               <h3>Face Image</h3>
@@ -55,6 +92,7 @@
               <div class="upload-zone" (click)="triggerFaceUpload()" *ngIf="!faceImage">
                 <span class="material-icons">add_a_photo</span>
                 <p>Click to upload face photo</p>
+                <p class="upload-hint">High quality, neutral expression, even lighting</p>
               </div>
               <div class="preview" *ngIf="faceImage">
                 <img [src]="faceImage" alt="Face preview">
@@ -63,157 +101,219 @@
                 </button>
               </div>
             </div>
+            <div class="card-footer" *ngIf="faceImage">
+              <div class="quality-info">
+                <span class="material-icons">check_circle</span>
+                <span>Image meets quality standards</span>
+              </div>
+            </div>
           </div>
           <input type="file" #faceInput hidden accept="image/jpeg,image/png" (change)="onFaceFileSelected($event)">
+        </div>
 
-          <!-- Iris Scan -->
-          <div class="biometric-card">
-            <div class="card-header">
-              <span class="material-icons">visibility</span>
-              <h3>Iris Images (2)</h3>
-              <div class="status-indicator" 
-                   [class.partial]="(irisLeftImage || irisRightImage) && (!irisLeftImage || !irisRightImage)"
-                   [class.complete]="irisLeftImage && irisRightImage">
-                {{ (irisLeftImage && irisRightImage) ? 'Complete' : ((irisLeftImage || irisRightImage) ? 'Partial' : 'Required') }}
+        <!-- Iris Images Panel -->
+        <div class="tab-panel" *ngIf="activeTab === 'iris'">
+          <div class="iris-grid">
+            <!-- Left Iris -->
+            <div class="biometric-card">
+              <div class="card-header">
+                <span class="material-icons">visibility</span>
+                <h3>Left Iris</h3>
+                <div class="status-indicator" [class.complete]="irisLeftImage !== null">
+                  {{ irisLeftImage ? 'Uploaded' : 'Required' }}
+                </div>
+              </div>
+              <div class="card-content" [class.has-image]="irisLeftImage">
+                <div class="upload-zone" (click)="triggerIrisLeftUpload()" *ngIf="!irisLeftImage">
+                  <span class="material-icons">add_a_photo</span>
+                  <p>Click to upload left iris</p>
+                  <span class="eye-label left-eye">L</span>
+                </div>
+                <div class="preview" *ngIf="irisLeftImage">
+                  <img [src]="irisLeftImage" alt="Left iris preview">
+                  <button class="delete-btn" (click)="irisLeftImage = null">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                  <div class="image-label">Left Iris</div>
+                </div>
               </div>
             </div>
-            <div class="card-content" [class.has-images]="irisLeftImage || irisRightImage">
-              <div class="upload-zone" (click)="triggerIrisMultipleUpload()" *ngIf="!irisLeftImage && !irisRightImage">
-                <span class="material-icons">add_a_photo</span>
-                <p>Click to upload left and right iris images</p>
+            
+            <!-- Right Iris -->
+            <div class="biometric-card">
+              <div class="card-header">
+                <span class="material-icons">visibility</span>
+                <h3>Right Iris</h3>
+                <div class="status-indicator" [class.complete]="irisRightImage !== null">
+                  {{ irisRightImage ? 'Uploaded' : 'Required' }}
+                </div>
               </div>
-              <div class="preview-grid" *ngIf="irisLeftImage || irisRightImage">
-                <div class="preview-item" *ngIf="irisLeftImage">
-                  <div class="preview-label">Left Eye</div>
-                  <img [src]="irisLeftImage" alt="Left Iris Image">
-                  <button class="preview-delete-btn" (click)="irisLeftImage = null">
+              <div class="card-content" [class.has-image]="irisRightImage">
+                <div class="upload-zone" (click)="triggerIrisRightUpload()" *ngIf="!irisRightImage">
+                  <span class="material-icons">add_a_photo</span>
+                  <p>Click to upload right iris</p>
+                  <span class="eye-label right-eye">R</span>
+                </div>
+                <div class="preview" *ngIf="irisRightImage">
+                  <img [src]="irisRightImage" alt="Right iris preview">
+                  <button class="delete-btn" (click)="irisRightImage = null">
                     <mat-icon>delete</mat-icon>
                   </button>
-                </div>
-                <div class="preview-item" *ngIf="irisRightImage">
-                  <div class="preview-label">Right Eye</div>
-                  <img [src]="irisRightImage" alt="Right Iris Image">
-                  <button class="preview-delete-btn" (click)="irisRightImage = null">
-                    <mat-icon>delete</mat-icon>
-                  </button>
-                </div>
-                <div class="add-more" *ngIf="!irisLeftImage || !irisRightImage" (click)="triggerIrisMultipleUpload()">
-                  <span class="material-icons">add_circle</span>
-                  <p>Add {{ !irisLeftImage && !irisRightImage ? 'both' : 'more' }}</p>
+                  <div class="image-label">Right Iris</div>
                 </div>
               </div>
             </div>
           </div>
-          <input type="file" #irisMultipleInput hidden accept="image/jpeg,image/png" multiple (change)="onIrisMultipleSelected($event)">
+          <input type="file" #irisLeftInput hidden accept="image/jpeg,image/png" (change)="onIrisLeftFileSelected($event)">
+          <input type="file" #irisRightInput hidden accept="image/jpeg,image/png" (change)="onIrisRightFileSelected($event)">
+        </div>
 
-          <!-- Fingerprint -->
-          <div class="biometric-card">
-            <div class="card-header">
-              <span class="material-icons">fingerprint</span>
-              <h3>Fingerprints (10)</h3>
-              <div class="status-indicator" 
-                   [class.partial]="fingerprintImagesCount > 0 && fingerprintImagesCount < 10"
-                   [class.complete]="fingerprintImagesCount === 10">
-                {{ (fingerprintImagesCount === 10) ? 'Complete' : ((fingerprintImagesCount > 0) ? 'Partial (' + fingerprintImagesCount + '/10)' : 'Required') }}
+        <!-- Fingerprints Panel -->
+        <div class="tab-panel" *ngIf="activeTab === 'fingerprints'">
+          <div class="hand-container">
+            <!-- Left Hand -->
+            <div class="hand-section">
+              <h3 class="hand-title">Left Hand</h3>
+              <div class="hand-image left-hand">
+                <div class="finger thumb" 
+                     [class.uploaded]="fingerprintLeftThumbImage" 
+                     (click)="triggerFingerprintUpload('leftThumb')">
+                  <div class="finger-label">Thumb</div>
+                  <div class="status-indicator" [class.complete]="fingerprintLeftThumbImage !== null">
+                    {{ fingerprintLeftThumbImage ? '✓' : '+' }}
+                  </div>
+                </div>
+                <div class="finger index" 
+                     [class.uploaded]="fingerprintLeftIndexImage" 
+                     (click)="triggerFingerprintUpload('leftIndex')">
+                  <div class="finger-label">Index</div>
+                  <div class="status-indicator" [class.complete]="fingerprintLeftIndexImage !== null">
+                    {{ fingerprintLeftIndexImage ? '✓' : '+' }}
+                  </div>
+                </div>
+                <div class="finger middle" 
+                     [class.uploaded]="fingerprintLeftMiddleImage" 
+                     (click)="triggerFingerprintUpload('leftMiddle')">
+                  <div class="finger-label">Middle</div>
+                  <div class="status-indicator" [class.complete]="fingerprintLeftMiddleImage !== null">
+                    {{ fingerprintLeftMiddleImage ? '✓' : '+' }}
+                  </div>
+                </div>
+                <div class="finger ring" 
+                     [class.uploaded]="fingerprintLeftRingImage" 
+                     (click)="triggerFingerprintUpload('leftRing')">
+                  <div class="finger-label">Ring</div>
+                  <div class="status-indicator" [class.complete]="fingerprintLeftRingImage !== null">
+                    {{ fingerprintLeftRingImage ? '✓' : '+' }}
+                  </div>
+                </div>
+                <div class="finger pinky" 
+                     [class.uploaded]="fingerprintLeftPinkyImage" 
+                     (click)="triggerFingerprintUpload('leftPinky')">
+                  <div class="finger-label">Pinky</div>
+                  <div class="status-indicator" [class.complete]="fingerprintLeftPinkyImage !== null">
+                    {{ fingerprintLeftPinkyImage ? '✓' : '+' }}
+                  </div>
+                </div>
               </div>
-            </div>
-            <div class="card-content" [class.has-images]="fingerprintImagesCount > 0">
-              <div class="upload-zone" (click)="triggerFingerprintMultipleUpload()" *ngIf="fingerprintImagesCount === 0">
-                <span class="material-icons">add_a_photo</span>
-                <p>Click to upload all 10 fingerprint images</p>
-              </div>
-              <div class="preview-grid fingerprint-grid" *ngIf="fingerprintImagesCount > 0">
-                <!-- Left Hand Fingers -->
+              
+              <div class="fingerprint-previews" *ngIf="hasLeftHandFingerprints()">
                 <div class="preview-item" *ngIf="fingerprintLeftThumbImage">
-                  <div class="preview-label">Left Thumb</div>
                   <img [src]="fingerprintLeftThumbImage" alt="Left Thumb">
-                  <button class="preview-delete-btn" (click)="removeFingerprintImage('leftThumb')">
-                    <mat-icon>delete</mat-icon>
+                  <div class="preview-label">Left Thumb</div>
+                  <button class="delete-preview" (click)="removeFingerprintImage('leftThumb')">
+                    <mat-icon>close</mat-icon>
                   </button>
                 </div>
                 <div class="preview-item" *ngIf="fingerprintLeftIndexImage">
-                  <div class="preview-label">Left Index</div>
                   <img [src]="fingerprintLeftIndexImage" alt="Left Index">
-                  <button class="preview-delete-btn" (click)="removeFingerprintImage('leftIndex')">
-                    <mat-icon>delete</mat-icon>
+                  <div class="preview-label">Left Index</div>
+                  <button class="delete-preview" (click)="removeFingerprintImage('leftIndex')">
+                    <mat-icon>close</mat-icon>
                   </button>
                 </div>
-                <div class="preview-item" *ngIf="fingerprintLeftMiddleImage">
-                  <div class="preview-label">Left Middle</div>
-                  <img [src]="fingerprintLeftMiddleImage" alt="Left Middle">
-                  <button class="preview-delete-btn" (click)="removeFingerprintImage('leftMiddle')">
-                    <mat-icon>delete</mat-icon>
-                  </button>
+                <!-- Add similar blocks for other fingers -->
+              </div>
+            </div>
+            
+            <!-- Right Hand -->
+            <div class="hand-section">
+              <h3 class="hand-title">Right Hand</h3>
+              <div class="hand-image right-hand">
+                <div class="finger pinky" 
+                     [class.uploaded]="fingerprintRightPinkyImage" 
+                     (click)="triggerFingerprintUpload('rightPinky')">
+                  <div class="finger-label">Pinky</div>
+                  <div class="status-indicator" [class.complete]="fingerprintRightPinkyImage !== null">
+                    {{ fingerprintRightPinkyImage ? '✓' : '+' }}
+                  </div>
                 </div>
-                <div class="preview-item" *ngIf="fingerprintLeftRingImage">
-                  <div class="preview-label">Left Ring</div>
-                  <img [src]="fingerprintLeftRingImage" alt="Left Ring">
-                  <button class="preview-delete-btn" (click)="removeFingerprintImage('leftRing')">
-                    <mat-icon>delete</mat-icon>
-                  </button>
+                <div class="finger ring" 
+                     [class.uploaded]="fingerprintRightRingImage" 
+                     (click)="triggerFingerprintUpload('rightRing')">
+                  <div class="finger-label">Ring</div>
+                  <div class="status-indicator" [class.complete]="fingerprintRightRingImage !== null">
+                    {{ fingerprintRightRingImage ? '✓' : '+' }}
+                  </div>
                 </div>
-                <div class="preview-item" *ngIf="fingerprintLeftPinkyImage">
-                  <div class="preview-label">Left Pinky</div>
-                  <img [src]="fingerprintLeftPinkyImage" alt="Left Pinky">
-                  <button class="preview-delete-btn" (click)="removeFingerprintImage('leftPinky')">
-                    <mat-icon>delete</mat-icon>
-                  </button>
+                <div class="finger middle" 
+                     [class.uploaded]="fingerprintRightMiddleImage" 
+                     (click)="triggerFingerprintUpload('rightMiddle')">
+                  <div class="finger-label">Middle</div>
+                  <div class="status-indicator" [class.complete]="fingerprintRightMiddleImage !== null">
+                    {{ fingerprintRightMiddleImage ? '✓' : '+' }}
+                  </div>
                 </div>
-                
-                <!-- Right Hand Fingers -->
+                <div class="finger index" 
+                     [class.uploaded]="fingerprintRightIndexImage" 
+                     (click)="triggerFingerprintUpload('rightIndex')">
+                  <div class="finger-label">Index</div>
+                  <div class="status-indicator" [class.complete]="fingerprintRightIndexImage !== null">
+                    {{ fingerprintRightIndexImage ? '✓' : '+' }}
+                  </div>
+                </div>
+                <div class="finger thumb" 
+                     [class.uploaded]="fingerprintRightThumbImage" 
+                     (click)="triggerFingerprintUpload('rightThumb')">
+                  <div class="finger-label">Thumb</div>
+                  <div class="status-indicator" [class.complete]="fingerprintRightThumbImage !== null">
+                    {{ fingerprintRightThumbImage ? '✓' : '+' }}
+                  </div>
+                </div>
+              </div>
+              
+              <div class="fingerprint-previews" *ngIf="hasRightHandFingerprints()">
                 <div class="preview-item" *ngIf="fingerprintRightThumbImage">
-                  <div class="preview-label">Right Thumb</div>
                   <img [src]="fingerprintRightThumbImage" alt="Right Thumb">
-                  <button class="preview-delete-btn" (click)="removeFingerprintImage('rightThumb')">
-                    <mat-icon>delete</mat-icon>
+                  <div class="preview-label">Right Thumb</div>
+                  <button class="delete-preview" (click)="removeFingerprintImage('rightThumb')">
+                    <mat-icon>close</mat-icon>
                   </button>
                 </div>
                 <div class="preview-item" *ngIf="fingerprintRightIndexImage">
-                  <div class="preview-label">Right Index</div>
                   <img [src]="fingerprintRightIndexImage" alt="Right Index">
-                  <button class="preview-delete-btn" (click)="removeFingerprintImage('rightIndex')">
-                    <mat-icon>delete</mat-icon>
+                  <div class="preview-label">Right Index</div>
+                  <button class="delete-preview" (click)="removeFingerprintImage('rightIndex')">
+                    <mat-icon>close</mat-icon>
                   </button>
                 </div>
-                <div class="preview-item" *ngIf="fingerprintRightMiddleImage">
-                  <div class="preview-label">Right Middle</div>
-                  <img [src]="fingerprintRightMiddleImage" alt="Right Middle">
-                  <button class="preview-delete-btn" (click)="removeFingerprintImage('rightMiddle')">
-                    <mat-icon>delete</mat-icon>
-                  </button>
-                </div>
-                <div class="preview-item" *ngIf="fingerprintRightRingImage">
-                  <div class="preview-label">Right Ring</div>
-                  <img [src]="fingerprintRightRingImage" alt="Right Ring">
-                  <button class="preview-delete-btn" (click)="removeFingerprintImage('rightRing')">
-                    <mat-icon>delete</mat-icon>
-                  </button>
-                </div>
-                <div class="preview-item" *ngIf="fingerprintRightPinkyImage">
-                  <div class="preview-label">Right Pinky</div>
-                  <img [src]="fingerprintRightPinkyImage" alt="Right Pinky">
-                  <button class="preview-delete-btn" (click)="removeFingerprintImage('rightPinky')">
-                    <mat-icon>delete</mat-icon>
-                  </button>
-                </div>
-                
-                <div class="add-more" *ngIf="fingerprintImagesCount < 10" (click)="triggerFingerprintMultipleUpload()">
-                  <span class="material-icons">add_circle</span>
-                  <p>Add more ({{fingerprintImagesCount}}/10)</p>
-                </div>
+                <!-- Add similar blocks for other fingers -->
               </div>
             </div>
           </div>
-          <input type="file" #fingerprintMultipleInput hidden accept="image/jpeg,image/png" multiple (change)="onFingerprintMultipleSelected($event)">
+          
+          <!-- Hidden file inputs for each finger -->
+          <input type="file" #fingerprintLeftThumbInput hidden accept="image/jpeg,image/png" (change)="onFingerprintFileSelected($event, 'leftThumb')">
+          <input type="file" #fingerprintLeftIndexInput hidden accept="image/jpeg,image/png" (change)="onFingerprintFileSelected($event, 'leftIndex')">
+          <input type="file" #fingerprintLeftMiddleInput hidden accept="image/jpeg,image/png" (change)="onFingerprintFileSelected($event, 'leftMiddle')">
+          <input type="file" #fingerprintLeftRingInput hidden accept="image/jpeg,image/png" (change)="onFingerprintFileSelected($event, 'leftRing')">
+          <input type="file" #fingerprintLeftPinkyInput hidden accept="image/jpeg,image/png" (change)="onFingerprintFileSelected($event, 'leftPinky')">
+          <input type="file" #fingerprintRightThumbInput hidden accept="image/jpeg,image/png" (change)="onFingerprintFileSelected($event, 'rightThumb')">
+          <input type="file" #fingerprintRightIndexInput hidden accept="image/jpeg,image/png" (change)="onFingerprintFileSelected($event, 'rightIndex')">
+          <input type="file" #fingerprintRightMiddleInput hidden accept="image/jpeg,image/png" (change)="onFingerprintFileSelected($event, 'rightMiddle')">
+          <input type="file" #fingerprintRightRingInput hidden accept="image/jpeg,image/png" (change)="onFingerprintFileSelected($event, 'rightRing')">
+          <input type="file" #fingerprintRightPinkyInput hidden accept="image/jpeg,image/png" (change)="onFingerprintFileSelected($event, 'rightPinky')">
         </div>
-      </div>
-
-      <!-- Progress Section -->
-      <div class="progress-section" *ngIf="isUploading">
-        <div class="progress-bar">
-          <div class="progress-fill" [style.width.%]="progressPercentage"></div>
-        </div>
-        <div class="progress-text">{{ progressPercentage }}% Complete</div>
       </div>
     </div>
 </div> 

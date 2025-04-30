@@ -11,7 +11,7 @@ interface UserData {
   idNumber: string;
   dateOfBirth: string;
   email: string;
-  
+  userId?: string; // MongoDB _id
 }
 
 interface BiometricSubmission {
@@ -39,12 +39,24 @@ interface BiometricSubmission {
   styleUrl: './data-submission.component.scss'
 })
 export class DataSubmissionComponent implements OnInit {
+  // ViewChild references for file inputs
   @ViewChild('faceInput') faceInput!: ElementRef;
-  @ViewChild('irisMultipleInput') irisMultipleInput!: ElementRef;
-  @ViewChild('fingerprintMultipleInput') fingerprintMultipleInput!: ElementRef;
+  @ViewChild('irisLeftInput') irisLeftInput!: ElementRef;
+  @ViewChild('irisRightInput') irisRightInput!: ElementRef;
+  @ViewChild('fingerprintLeftThumbInput') fingerprintLeftThumbInput!: ElementRef;
+  @ViewChild('fingerprintLeftIndexInput') fingerprintLeftIndexInput!: ElementRef;
+  @ViewChild('fingerprintLeftMiddleInput') fingerprintLeftMiddleInput!: ElementRef;
+  @ViewChild('fingerprintLeftRingInput') fingerprintLeftRingInput!: ElementRef;
+  @ViewChild('fingerprintLeftPinkyInput') fingerprintLeftPinkyInput!: ElementRef;
+  @ViewChild('fingerprintRightThumbInput') fingerprintRightThumbInput!: ElementRef;
+  @ViewChild('fingerprintRightIndexInput') fingerprintRightIndexInput!: ElementRef;
+  @ViewChild('fingerprintRightMiddleInput') fingerprintRightMiddleInput!: ElementRef;
+  @ViewChild('fingerprintRightRingInput') fingerprintRightRingInput!: ElementRef;
+  @ViewChild('fingerprintRightPinkyInput') fingerprintRightPinkyInput!: ElementRef;
 
   userId: string | null = null;
   appointmentId: string | null = null;
+  activeTab: 'face' | 'iris' | 'fingerprints' = 'face';
 
   constructor(
     private route: ActivatedRoute,
@@ -78,8 +90,10 @@ export class DataSubmissionComponent implements OnInit {
               fullName: `${user.firstName} ${user.lastName}`,
               idNumber: user.identityNumber || 'N/A',
               dateOfBirth: user.birthDate ? user.birthDate.split('T')[0] : 'N/A',
-              email: user.email || 'N/A'
+              email: user.email || 'N/A',
+              userId: user._id // Add the MongoDB user ID
             };
+            console.log('Set user data with MongoDB ID:', this.userData);
           }
         },
         error: (error) => {
@@ -97,7 +111,8 @@ export class DataSubmissionComponent implements OnInit {
     fullName: 'John Doe',
     idNumber: 'ID123456789',
     dateOfBirth: '1990-01-01',
-    email: 'john.doe@example.com'
+    email: 'john.doe@example.com',
+    userId: undefined // Added undefined userId
   };
 
   // Data storage
@@ -141,16 +156,62 @@ export class DataSubmissionComponent implements OnInit {
            this.fingerprintImagesCount === 10;
   }
 
+  // Calculate the percentage of completion for all biometric data
+  getCompletionPercentage(): number {
+    const totalRequired = 12; // 1 face + 2 iris + 10 fingerprints
+    let completed = 0;
+    
+    if (this.faceImage) completed++;
+    if (this.irisLeftImage) completed++;
+    if (this.irisRightImage) completed++;
+    completed += this.fingerprintImagesCount;
+    
+    return Math.round((completed / totalRequired) * 100);
+  }
+
+  // Trigger file upload methods
   triggerFaceUpload(): void {
     this.faceInput.nativeElement.click();
   }
 
-  triggerIrisMultipleUpload(): void {
-    this.irisMultipleInput.nativeElement.click();
+  triggerIrisLeftUpload(): void {
+    this.irisLeftInput.nativeElement.click();
+  }
+  
+  triggerIrisRightUpload(): void {
+    this.irisRightInput.nativeElement.click();
   }
 
-  triggerFingerprintMultipleUpload(): void {
-    this.fingerprintMultipleInput.nativeElement.click();
+  triggerFingerprintUpload(fingerType: string): void {
+    switch (fingerType) {
+      case 'leftThumb': this.fingerprintLeftThumbInput.nativeElement.click(); break;
+      case 'leftIndex': this.fingerprintLeftIndexInput.nativeElement.click(); break;
+      case 'leftMiddle': this.fingerprintLeftMiddleInput.nativeElement.click(); break;
+      case 'leftRing': this.fingerprintLeftRingInput.nativeElement.click(); break;
+      case 'leftPinky': this.fingerprintLeftPinkyInput.nativeElement.click(); break;
+      case 'rightThumb': this.fingerprintRightThumbInput.nativeElement.click(); break;
+      case 'rightIndex': this.fingerprintRightIndexInput.nativeElement.click(); break;
+      case 'rightMiddle': this.fingerprintRightMiddleInput.nativeElement.click(); break;
+      case 'rightRing': this.fingerprintRightRingInput.nativeElement.click(); break;
+      case 'rightPinky': this.fingerprintRightPinkyInput.nativeElement.click(); break;
+    }
+  }
+
+  // Check if any fingerprints are uploaded for hand sections
+  hasLeftHandFingerprints(): boolean {
+    return this.fingerprintLeftThumbImage !== null || 
+           this.fingerprintLeftIndexImage !== null || 
+           this.fingerprintLeftMiddleImage !== null || 
+           this.fingerprintLeftRingImage !== null || 
+           this.fingerprintLeftPinkyImage !== null;
+  }
+  
+  hasRightHandFingerprints(): boolean {
+    return this.fingerprintRightThumbImage !== null || 
+           this.fingerprintRightIndexImage !== null || 
+           this.fingerprintRightMiddleImage !== null || 
+           this.fingerprintRightRingImage !== null || 
+           this.fingerprintRightPinkyImage !== null;
   }
 
   removeFingerprintImage(fingerType: string): void {
@@ -197,132 +258,111 @@ export class DataSubmissionComponent implements OnInit {
     reader.readAsDataURL(file);
   }
 
+  // Handle individual file selection methods
   onFaceFileSelected(event: Event): void {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (file) {
       this.handleFileUpload(file, (result) => {
         this.faceImage = result;
+        // After successful upload, show a toast notification
+        this.showToast('Face image uploaded successfully');
+        // Advance to the next tab if it's the user's first upload
+        if (!this.irisLeftImage && !this.irisRightImage) {
+          setTimeout(() => this.activeTab = 'iris', 500);
+        }
       });
     }
   }
 
-  onIrisMultipleSelected(event: Event): void {
-    const files = (event.target as HTMLInputElement).files;
-    if (!files || files.length === 0) return;
+  onIrisLeftFileSelected(event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (file) {
+      this.handleFileUpload(file, (result) => {
+        this.irisLeftImage = result;
+        this.showToast('Left iris image uploaded successfully');
+      });
+    }
+    // Reset the input to allow selecting the same file again
+    (event.target as HTMLInputElement).value = '';
+  }
+  
+  onIrisRightFileSelected(event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (file) {
+      this.handleFileUpload(file, (result) => {
+        this.irisRightImage = result;
+        this.showToast('Right iris image uploaded successfully');
+        // If both iris images are now uploaded, advance to fingerprints tab
+        if (this.irisLeftImage && this.irisRightImage && this.fingerprintImagesCount === 0) {
+          setTimeout(() => this.activeTab = 'fingerprints', 500);
+        }
+      });
+    }
+    // Reset the input to allow selecting the same file again
+    (event.target as HTMLInputElement).value = '';
+  }
+  
+  onFingerprintFileSelected(event: Event, fingerType: string): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
     
-    // Reset the input to allow selecting the same files again before processing
-    const inputElement = event.target as HTMLInputElement;
-    
-    // Process files
-    const neededScans = [];
-    if (!this.irisLeftImage) neededScans.push('left');
-    if (!this.irisRightImage) neededScans.push('right');
-    
-    // Limit to number of needed scans
-    const maxFiles = Math.min(files.length, neededScans.length);
-    
-    for (let i = 0; i < maxFiles; i++) {
-      const file = files[i];
-      const scanType = neededScans[i];
-      
-      if (scanType === 'left') {
-        this.handleFileUpload(file, (result) => {
-          this.irisLeftImage = result;
-        });
-      } else if (scanType === 'right') {
-        this.handleFileUpload(file, (result) => {
-          this.irisRightImage = result;
-        });
-      }
+    // Create a descriptive name for the toast notification
+    let fingerName = '';
+    switch (fingerType) {
+      case 'leftThumb': 
+        fingerName = 'Left Thumb';
+        this.handleFileUpload(file, (result) => this.fingerprintLeftThumbImage = result);
+        break;
+      case 'leftIndex': 
+        fingerName = 'Left Index';
+        this.handleFileUpload(file, (result) => this.fingerprintLeftIndexImage = result);
+        break;
+      case 'leftMiddle': 
+        fingerName = 'Left Middle';
+        this.handleFileUpload(file, (result) => this.fingerprintLeftMiddleImage = result);
+        break;
+      case 'leftRing': 
+        fingerName = 'Left Ring';
+        this.handleFileUpload(file, (result) => this.fingerprintLeftRingImage = result);
+        break;
+      case 'leftPinky': 
+        fingerName = 'Left Pinky';
+        this.handleFileUpload(file, (result) => this.fingerprintLeftPinkyImage = result);
+        break;
+      case 'rightThumb': 
+        fingerName = 'Right Thumb';
+        this.handleFileUpload(file, (result) => this.fingerprintRightThumbImage = result);
+        break;
+      case 'rightIndex': 
+        fingerName = 'Right Index';
+        this.handleFileUpload(file, (result) => this.fingerprintRightIndexImage = result);
+        break;
+      case 'rightMiddle': 
+        fingerName = 'Right Middle';
+        this.handleFileUpload(file, (result) => this.fingerprintRightMiddleImage = result);
+        break;
+      case 'rightRing': 
+        fingerName = 'Right Ring';
+        this.handleFileUpload(file, (result) => this.fingerprintRightRingImage = result);
+        break;
+      case 'rightPinky': 
+        fingerName = 'Right Pinky';
+        this.handleFileUpload(file, (result) => this.fingerprintRightPinkyImage = result);
+        break;
     }
     
-    // Reset input value
-    inputElement.value = '';
+    this.showToast(`${fingerName} fingerprint uploaded successfully`);
+    
+    // Reset the input to allow selecting the same file again
+    (event.target as HTMLInputElement).value = '';
   }
 
-  onFingerprintMultipleSelected(event: Event): void {
-    const files = (event.target as HTMLInputElement).files;
-    if (!files || files.length === 0) return;
-    
-    // Reset the input to allow selecting the same files again before processing
-    const inputElement = event.target as HTMLInputElement;
-    
-    // Store which fingerprints we still need
-    const neededFingerprints: string[] = [];
-    if (!this.fingerprintLeftThumbImage) neededFingerprints.push('leftThumb');
-    if (!this.fingerprintLeftIndexImage) neededFingerprints.push('leftIndex');
-    if (!this.fingerprintLeftMiddleImage) neededFingerprints.push('leftMiddle');
-    if (!this.fingerprintLeftRingImage) neededFingerprints.push('leftRing');
-    if (!this.fingerprintLeftPinkyImage) neededFingerprints.push('leftPinky');
-    if (!this.fingerprintRightThumbImage) neededFingerprints.push('rightThumb');
-    if (!this.fingerprintRightIndexImage) neededFingerprints.push('rightIndex');
-    if (!this.fingerprintRightMiddleImage) neededFingerprints.push('rightMiddle');
-    if (!this.fingerprintRightRingImage) neededFingerprints.push('rightRing');
-    if (!this.fingerprintRightPinkyImage) neededFingerprints.push('rightPinky');
-    
-    // Limit to number of needed fingerprints
-    const maxFiles = Math.min(files.length, neededFingerprints.length);
-    
-    for (let i = 0; i < maxFiles; i++) {
-      const file = files[i];
-      const fingerprintType = neededFingerprints[i];
-      
-      switch (fingerprintType) {
-        case 'leftThumb':
-          this.handleFileUpload(file, (result) => {
-            this.fingerprintLeftThumbImage = result;
-          });
-          break;
-        case 'leftIndex':
-          this.handleFileUpload(file, (result) => {
-            this.fingerprintLeftIndexImage = result;
-          });
-          break;
-        case 'leftMiddle':
-          this.handleFileUpload(file, (result) => {
-            this.fingerprintLeftMiddleImage = result;
-          });
-          break;
-        case 'leftRing':
-          this.handleFileUpload(file, (result) => {
-            this.fingerprintLeftRingImage = result;
-          });
-          break;
-        case 'leftPinky':
-          this.handleFileUpload(file, (result) => {
-            this.fingerprintLeftPinkyImage = result;
-          });
-          break;
-        case 'rightThumb':
-          this.handleFileUpload(file, (result) => {
-            this.fingerprintRightThumbImage = result;
-          });
-          break;
-        case 'rightIndex':
-          this.handleFileUpload(file, (result) => {
-            this.fingerprintRightIndexImage = result;
-          });
-          break;
-        case 'rightMiddle':
-          this.handleFileUpload(file, (result) => {
-            this.fingerprintRightMiddleImage = result;
-          });
-          break;
-        case 'rightRing':
-          this.handleFileUpload(file, (result) => {
-            this.fingerprintRightRingImage = result;
-          });
-          break;
-        case 'rightPinky':
-          this.handleFileUpload(file, (result) => {
-            this.fingerprintRightPinkyImage = result;
-          });
-          break;
-      }
-    }
-    
-    // Reset input value
-    inputElement.value = '';
+  // Helper method to show toast notifications
+  private showToast(message: string, duration: number = 2000): void {
+    this.snackBar.open(message, 'Close', {
+      duration: duration,
+      panelClass: 'success-snackbar'
+    });
   }
 
   submitBiometricData(): void {
@@ -333,6 +373,18 @@ export class DataSubmissionComponent implements OnInit {
       });
       return;
     }
+
+    // Check if we have a valid MongoDB user ID
+    if (!this.userData.userId) {
+      console.error('No valid user ID available. Using user data:', this.userData);
+      this.snackBar.open('User ID error. Please refresh and try again.', 'Close', {
+        duration: 3000,
+        panelClass: 'error-snackbar'
+      });
+      return;
+    }
+
+    console.log('Submitting biometric data for user:', this.userData);
 
     const data: BiometricSubmission = {
       userData: this.userData,
@@ -353,27 +405,32 @@ export class DataSubmissionComponent implements OnInit {
 
     this.biometricService.submitBiometricData(data).subscribe({
       next: (response) => {
-        this.snackBar.open('Data submitted successfully!', 'Close', {
+        console.log('Biometric data submitted successfully:', response);
+        this.snackBar.open('Biometric data submitted successfully!', 'Close', {
           duration: 3000,
           panelClass: 'success-snackbar'
         });
         this.resetForm();
       },
       error: (error) => {
-        this.snackBar.open('Failed to submit data. Please try again.', 'Close', {
-          duration: 3000,
+        console.error('Submission error details:', error);
+        let errorMessage = 'Failed to submit data. Please try again.';
+        if (error.error && error.error.message) {
+          errorMessage += ' Error: ' + error.error.message;
+        }
+        this.snackBar.open(errorMessage, 'Close', {
+          duration: 5000,
           panelClass: 'error-snackbar'
         });
-        console.error('Submission error:', error);
       }
     });
   }
 
   private resetForm(): void {
+    // Reset all biometric data
     this.faceImage = null;
     this.irisLeftImage = null;
     this.irisRightImage = null;
-    
     this.fingerprintLeftThumbImage = null;
     this.fingerprintLeftIndexImage = null;
     this.fingerprintLeftMiddleImage = null;
@@ -385,7 +442,7 @@ export class DataSubmissionComponent implements OnInit {
     this.fingerprintRightRingImage = null;
     this.fingerprintRightPinkyImage = null;
     
-    this.progressPercentage = 0;
-    this.isUploading = false;
+    // Reset active tab to face
+    this.activeTab = 'face';
   }
 }

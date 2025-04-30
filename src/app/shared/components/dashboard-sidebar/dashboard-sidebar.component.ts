@@ -57,7 +57,7 @@ export class DashboardSidebarComponent {
       { icon: 'history', label: 'History', route: '/citizen-dashboard/history' }
     ],
     officer: [
-      { icon: 'home', label: 'Home', route: '/' },
+      { icon: 'home', label: 'Home', route: '/home' },
       { icon: 'dashboard', label: 'Dashboard', route: '/officer-dashboard/dashboard' },
       { icon: 'description', label: 'CPF Requests', route: '/officer-dashboard/requests' },
       { icon: 'assignment_turned_in', label: 'Pending Approvals', route: '/officer-dashboard/approvals' },
