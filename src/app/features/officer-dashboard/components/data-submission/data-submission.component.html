@@ -28,30 +28,36 @@
       </div>
 
       <!-- User Information Section -->
-      <div class="user-info-section">
-        <div class="section-header">
-          <span class="material-icons">person</span>
-          <h2>User Information</h2>
-        </div>
-        <div class="user-info-grid">
-          <div class="info-field">
-            <label>Full Name</label>
-            <input type="text" [value]="userData.fullName" readonly>
-          </div>
-          <div class="info-field">
-            <label>ID Number</label>
-            <input type="text" [value]="userData.idNumber" readonly>
-          </div>
-          <div class="info-field">
-            <label>Date of Birth</label>
-            <input type="text" [value]="userData.dateOfBirth" readonly>
-          </div>
-          <div class="info-field">
-            <label>Email</label>
-            <input type="text" [value]="userData.email" readonly>
-          </div>
-        </div>
-      </div>
+<div class="user-info-section">
+  <div class="section-header">
+    <span class="material-icons">person</span>
+    <h2>User Information</h2>
+  </div>
+  <div class="user-info-grid">
+    <div class="info-field">
+      <label>Full Name</label>
+      <input type="text" [value]="userData.fullName" readonly>
+    </div>
+    <div class="info-field">
+      <label>ID Number</label>
+      <input
+        type="text"
+        [(ngModel)]="userData.idNumber"
+        [readonly]="isIdNumberReadOnly"
+        (input)="onIdNumberInput($event)"
+        placeholder="Enter ID Number"
+      >
+    </div>
+    <div class="info-field">
+      <label>Date of Birth</label>
+      <input type="text" [value]="userData.dateOfBirth" readonly>
+    </div>
+    <div class="info-field">
+      <label>Email</label>
+      <input type="text" [value]="userData.email" readonly>
+    </div>
+  </div>
+</div>
       
       <!-- Biometric Data Section -->
       <div class="biometric-section">

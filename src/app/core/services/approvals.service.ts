@@ -9,10 +9,6 @@ interface VerifyResponse {
   message: string;
 }
 
-interface VerifyRequest {
-  dateTime: string;  // Combined date and time
-}
-
 // Represents a day with its available slots as returned by the API
 interface AvailableDayItem {
   date: string;

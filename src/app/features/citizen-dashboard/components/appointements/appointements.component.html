@@ -1,0 +1,139 @@
+<div class="appointments-container">
+  <!-- Header -->
+  <div class="header">
+    <h1>My Appointments</h1>
+    <div class="search-filters">
+      <div class="search-box">
+        <input type="text" 
+               [(ngModel)]="searchQuery" 
+               (input)="searchAppointments(searchQuery)" 
+               placeholder="Search appointments...">
+        <button class="search-button">
+          <i class="fas fa-search"></i>
+        </button>
+      </div>
+      <button class="refresh-button" (click)="fetchAppointments()">
+        <i class="fas fa-sync-alt"></i> Refresh
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Loading your appointments...</p>
+  </div>
+
+  <!-- Error State -->
+  <div class="error-container" *ngIf="error">
+    <div class="error-icon">
+      <i class="fas fa-exclamation-circle"></i>
+    </div>
+    <h2>Unable to load appointments</h2>
+    <p>We couldn't retrieve your appointment data. Please try again.</p>
+    <button class="primary-button" (click)="fetchAppointments()">
+      Try Again
+    </button>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-container" *ngIf="!loading && !error && filteredAppointments.length === 0">
+    <div class="empty-icon">
+      <i class="far fa-calendar-times"></i>
+    </div>
+    <h2>No Appointments Found</h2>
+    <p *ngIf="searchQuery">No appointments match your search criteria. Try another search term.</p>
+    <p *ngIf="!searchQuery">You don't have any appointments scheduled at the moment.</p>
+  </div>
+
+  <!-- Appointments List -->
+  <div class="appointments-list" *ngIf="!loading && !error && filteredAppointments.length > 0 && !selectedAppointment">
+    <!-- Cards View -->
+    <div class="appointment-cards">
+      <div class="appointment-card" *ngFor="let appointment of filteredAppointments" (click)="viewAppointmentDetails(appointment)">
+        <div class="appointment-status" [ngClass]="appointment.status">
+          <span class="status-indicator"></span>
+          {{appointment.status}}
+        </div>
+        
+        <div class="appointment-content">
+          <div class="appointment-service">
+            <h3>{{appointment.service}}</h3>
+          </div>
+          
+          <div class="appointment-details">
+            <div class="detail">
+              <i class="far fa-calendar"></i>
+              <span>{{formatDate(appointment.appointmentDate)}}</span>
+            </div>
+            
+            <div class="detail">
+              <i class="fas fa-map-marker-alt"></i>
+              <span>{{appointment.location || 'Location not specified'}}</span>
+            </div>
+          </div>
+
+          <div class="appointment-footer">
+            <span class="created-date">Created: {{formatDate(appointment.createdAt)}}</span>
+            <button class="view-details-button">
+              View Details
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Appointment Details Modal -->
+  <div class="modal-overlay" *ngIf="selectedAppointment" (click)="closeDetails()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Appointment Details</h2>
+        <button class="close-button" (click)="closeDetails()">×</button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="detail-row">
+          <div class="detail-label">ID</div>
+          <div class="detail-value">{{selectedAppointment._id}}</div>
+        </div>
+        
+        <div class="detail-row">
+          <div class="detail-label">Service</div>
+          <div class="detail-value">{{selectedAppointment.service}}</div>
+        </div>
+        
+        <div class="detail-row">
+          <div class="detail-label">Date & Time</div>
+          <div class="detail-value">{{formatDate(selectedAppointment.appointmentDate)}}</div>
+        </div>
+        
+        <div class="detail-row">
+          <div class="detail-label">Status</div>
+          <div class="detail-value">
+            <span class="status-badge" [ngClass]="selectedAppointment.status">
+              {{selectedAppointment.status}}
+            </span>
+          </div>
+        </div>
+        
+        <div class="detail-row">
+          <div class="detail-label">Location</div>
+          <div class="detail-value">{{selectedAppointment.location || 'Location not specified'}}</div>
+        </div>
+        
+        <div class="detail-row" *ngIf="selectedAppointment.notes">
+          <div class="detail-label">Notes</div>
+          <div class="detail-value">{{selectedAppointment.notes}}</div>
+        </div>
+        
+        <div class="detail-row">
+          <div class="detail-label">Created</div>
+          <div class="detail-value">{{formatDate(selectedAppointment.createdAt)}}</div>
+        </div>
+      </div>
+      
+      
+    </div>
+  </div>
+</div>

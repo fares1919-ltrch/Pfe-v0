@@ -373,7 +373,8 @@ export class ApprovalsComponent implements OnInit, AfterViewInit {
       });
       },
       error: (err) => {
-        const errorMsg = 'Failed to verify request';
+        
+        const errorMsg = err.error.message;
         console.error('Verification error:', { requestId, error: err });
         this.error = errorMsg;
         this.snackBar.open(errorMsg, 'Close', {
@@ -419,7 +420,7 @@ export class ApprovalsComponent implements OnInit, AfterViewInit {
       });
       },
       error: (err) => {
-        const errorMsg = 'Failed to verify request';
+        const errorMsg = err.error.message;
         console.error('Verification error:', { requestId, error: err });
         this.error = errorMsg;
         this.snackBar.open(errorMsg, 'Close', {

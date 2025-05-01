@@ -51,8 +51,8 @@ export class DashboardSidebarComponent {
       { icon: 'home', label: 'Home', route: '/' },
       { icon: 'dashboard', label: 'Dashboard', route: '/citizen-dashboard/dashboard' },
       { icon: 'description', label: 'Cpf Request', route: '/citizen-dashboard/cpf-request' },
+      { icon: 'event', label: 'My Appointment', route: '/citizen-dashboard/appointment' },
       { icon: 'description', label: 'My Documents', route: '/citizen-dashboard/documents' },
-      { icon: 'event', label: 'Appointments', route: '/citizen-dashboard/appointments' },
       { icon: 'notifications', label: 'Notifications', route: '/citizen-dashboard/notifications' },
       { icon: 'history', label: 'History', route: '/citizen-dashboard/history' }
     ],
@@ -64,9 +64,7 @@ export class DashboardSidebarComponent {
       { icon: 'event_available', label: 'Appointments', route: '/officer-dashboard/appointments' },
       { icon: 'people', label: 'citizens', route: '/officer-dashboard/citizens' },
       // { icon: 'people', label: 'dataSubmission', route: '/officer-dashboard/data-submission/:userId/:appointmentId' },
-      { icon: 'calendar_today', label: 'Schedule', route: '/officer-dashboard/schedule' },
-      { icon: 'assessment', label: 'Reports', route: '/officer-dashboard/reports' }
-    ],
+      ],
     manager: [
       { icon: 'home', label: 'Home', route: '/' },
       { icon: 'dashboard', label: 'Dashboard', route: '/manager-dashboard' },

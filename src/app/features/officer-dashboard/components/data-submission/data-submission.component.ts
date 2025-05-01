@@ -39,59 +39,49 @@ interface BiometricSubmission {
   styleUrl: './data-submission.component.scss'
 })
 export class DataSubmissionComponent implements OnInit {
-  // ViewChild references for file inputs
-  @ViewChild('faceInput') faceInput!: ElementRef;
-  @ViewChild('irisLeftInput') irisLeftInput!: ElementRef;
-  @ViewChild('irisRightInput') irisRightInput!: ElementRef;
-  @ViewChild('fingerprintLeftThumbInput') fingerprintLeftThumbInput!: ElementRef;
-  @ViewChild('fingerprintLeftIndexInput') fingerprintLeftIndexInput!: ElementRef;
-  @ViewChild('fingerprintLeftMiddleInput') fingerprintLeftMiddleInput!: ElementRef;
-  @ViewChild('fingerprintLeftRingInput') fingerprintLeftRingInput!: ElementRef;
-  @ViewChild('fingerprintLeftPinkyInput') fingerprintLeftPinkyInput!: ElementRef;
-  @ViewChild('fingerprintRightThumbInput') fingerprintRightThumbInput!: ElementRef;
-  @ViewChild('fingerprintRightIndexInput') fingerprintRightIndexInput!: ElementRef;
-  @ViewChild('fingerprintRightMiddleInput') fingerprintRightMiddleInput!: ElementRef;
-  @ViewChild('fingerprintRightRingInput') fingerprintRightRingInput!: ElementRef;
-  @ViewChild('fingerprintRightPinkyInput') fingerprintRightPinkyInput!: ElementRef;
+
+
 
   userId: string | null = null;
   appointmentId: string | null = null;
+  isIdNumberReadOnly: boolean = true; // New flag to control ID Number input readonly state
   activeTab: 'face' | 'iris' | 'fingerprints' = 'face';
 
-  constructor(
-    private route: ActivatedRoute,
-    private biometricService: BiometricService,
-    private snackBar: MatSnackBar,
-    private userService: UserService
-  ) {}
+ 
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
       this.userId = params['userId'];
       this.appointmentId = params['appointmentId'];
-  
+
       console.log('userId:', this.userId);
       console.log('appointmentId:', this.appointmentId);
-  
+
       if (!this.userId || !this.appointmentId) {
-        console.error('userId or appointmentId is missing');
-        this.snackBar.open('Invalid user or appointment ID', 'Close', {
-          duration: 3000,
-          panelClass: 'error-snackbar'
-        });
+        // If userId or appointmentId is missing, make ID Number field editable
+        this.isIdNumberReadOnly = false;
+        this.userData = {
+          fullName: '',
+          idNumber: '',
+          dateOfBirth: '',
+          email: '',
+          userId: undefined
+        };
+        console.log('No userId or appointmentId provided. ID Number field is editable.');
         return;
       }
-  
+
+      // Fetch user data by userId if provided
       this.userService.getUserById(this.userId).subscribe({
         next: (user) => {
-          console.log('User details:in data-submission', user);
+          console.log('User details in data-submission:', user);
           if (user) {
             this.userData = {
               fullName: `${user.firstName} ${user.lastName}`,
               idNumber: user.identityNumber || 'N/A',
               dateOfBirth: user.birthDate ? user.birthDate.split('T')[0] : 'N/A',
               email: user.email || 'N/A',
-              userId: user._id // Add the MongoDB user ID
+              userId: user._id
             };
             console.log('Set user data with MongoDB ID:', this.userData);
           }
@@ -108,12 +98,107 @@ export class DataSubmissionComponent implements OnInit {
   }
 
   userData: UserData = {
-    fullName: 'John Doe',
-    idNumber: 'ID123456789',
-    dateOfBirth: '1990-01-01',
-    email: 'john.doe@example.com',
-    userId: undefined // Added undefined userId
+    fullName: '',
+    idNumber: '',
+    dateOfBirth: '',
+    email: '',
+    userId: undefined
   };
+
+  // New method to handle ID Number input and fetch user data
+  onIdNumberInput(event: Event): void {
+    const idNumber = (event.target as HTMLInputElement).value.trim();
+    if (!idNumber) {
+      // Reset userData if ID Number is cleared
+      this.userData = {
+        fullName: '',
+        idNumber: '',
+        dateOfBirth: '',
+        email: '',
+        userId: undefined
+      };
+      return;
+    }
+
+    // Fetch user data by ID Number
+    this.userService.getUserById(idNumber).subscribe({
+      next: (user) => {
+        if (user) {
+          this.userData = {
+            fullName: `${user.firstName} ${user.lastName}`,
+            idNumber: user.identityNumber || idNumber,
+            dateOfBirth: user.birthDate ? user.birthDate.split('T')[0] : 'N/A',
+            email: user.email || 'N/A',
+            userId: user._id
+          };
+          this.snackBar.open('User data loaded successfully', 'Close', {
+            duration: 2000,
+            panelClass: 'success-snackbar'
+          });
+        } else {
+          this.snackBar.open('No user found with this ID Number', 'Close', {
+            duration: 3000,
+            panelClass: 'error-snackbar'
+          });
+          this.userData = {
+            fullName: '',
+            idNumber: idNumber,
+            dateOfBirth: '',
+            email: '',
+            userId: undefined
+          };
+        }
+      },
+      error: (error: any) => {
+        console.error('Error fetching user by ID Number:', error);
+        this.snackBar.open('Failed to fetch user data', 'Close', {
+          duration: 3000,
+          panelClass: 'error-snackbar'
+        });
+        this.userData = {
+          fullName: '',
+          idNumber: idNumber,
+          dateOfBirth: '',
+          email: '',
+          userId: undefined
+        };
+      }
+    });
+  }
+
+
+
+
+
+
+  // ViewChild references for file inputs
+  @ViewChild('faceInput') faceInput!: ElementRef;
+  @ViewChild('irisLeftInput') irisLeftInput!: ElementRef;
+  @ViewChild('irisRightInput') irisRightInput!: ElementRef;
+  @ViewChild('fingerprintLeftThumbInput') fingerprintLeftThumbInput!: ElementRef;
+  @ViewChild('fingerprintLeftIndexInput') fingerprintLeftIndexInput!: ElementRef;
+  @ViewChild('fingerprintLeftMiddleInput') fingerprintLeftMiddleInput!: ElementRef;
+  @ViewChild('fingerprintLeftRingInput') fingerprintLeftRingInput!: ElementRef;
+  @ViewChild('fingerprintLeftPinkyInput') fingerprintLeftPinkyInput!: ElementRef;
+  @ViewChild('fingerprintRightThumbInput') fingerprintRightThumbInput!: ElementRef;
+  @ViewChild('fingerprintRightIndexInput') fingerprintRightIndexInput!: ElementRef;
+  @ViewChild('fingerprintRightMiddleInput') fingerprintRightMiddleInput!: ElementRef;
+  @ViewChild('fingerprintRightRingInput') fingerprintRightRingInput!: ElementRef;
+  @ViewChild('fingerprintRightPinkyInput') fingerprintRightPinkyInput!: ElementRef;
+
+  
+
+  constructor(
+    private route: ActivatedRoute,
+    private biometricService: BiometricService,
+    private snackBar: MatSnackBar,
+    private userService: UserService,
+    
+  ) {}
+
+
+
+
 
   // Data storage
   faceImage: string | null = null;
