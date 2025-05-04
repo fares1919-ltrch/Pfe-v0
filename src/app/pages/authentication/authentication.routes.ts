@@ -6,6 +6,7 @@ import { ForgotPasswordComponent } from './forgot-password/forgot-password.compo
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
 import { OAuthCallbackComponent } from './oauth-callback/oauth-callback.component';
 import { NewPasswordComponent } from './new-password/new-password.component';
+import { VerifyEmailComponent } from './verify-email/verify-email.component';
 
 export const AUTH_ROUTES: Routes = [
   { path: 'login', component: LoginComponent },
@@ -25,6 +26,14 @@ export const AUTH_ROUTES: Routes = [
   {
     path: 'new-password',
     component: NewPasswordComponent
+  },
+  {
+    path: 'new-password/:token',
+    component: NewPasswordComponent
+  },
+  {
+    path: 'verify-email',
+    component: VerifyEmailComponent
   },
   {
     path: 'oauth-callback/:provider',

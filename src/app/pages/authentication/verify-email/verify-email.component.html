@@ -1,0 +1,53 @@
+<div class="auth-main">
+  <div class="auth-wrapper">
+    <div class="auth-form">
+      <div class="card">
+        <div class="logo-container">
+          <div class="logo-circle">
+            <img src="assets/images/icons/sign-in.svg" alt="logo" />
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="auth-header">
+            <h2>Email Verification</h2>
+            <p>Verify your email address to continue</p>
+          </div>
+
+          <div class="verification-content">
+            <!-- Loading state -->
+            <div *ngIf="isVerifying" class="verification-message">
+              <div class="spinner"></div>
+              <p>{{ message }}</p>
+            </div>
+
+            <!-- Success state -->
+            <div *ngIf="isSuccess" class="verification-message success">
+              <div class="success-icon">✓</div>
+              <p>{{ message }}</p>
+              <button
+                type="button"
+                (click)="navigateToLogin()"
+                class="sign-in-btn"
+              >
+                Go to Login
+              </button>
+            </div>
+
+            <!-- Error state -->
+            <div *ngIf="isError" class="verification-message error">
+              <div class="error-icon">✗</div>
+              <p>{{ message }}</p>
+              <button
+                type="button"
+                (click)="navigateToLogin()"
+                class="sign-in-btn"
+              >
+                Go to Login
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

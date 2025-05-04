@@ -1,0 +1,194 @@
+// Common animations
+@keyframes fadeIn {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+// Base auth styles
+.auth-main {
+  padding: 15px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #121212;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+  .auth-wrapper {
+    width: 100%;
+    max-width: 400px;
+    padding: 0 15px;
+    animation: fadeIn 0.8s ease-out;
+
+    .auth-form {
+      .card {
+        background-color: #1e1e1e;
+        border-radius: 16px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+        overflow: visible;
+        position: relative;
+        margin-top: 25px;
+
+        .logo-container {
+          display: flex;
+          justify-content: center;
+          position: relative;
+          top: -25px;
+          margin-bottom: -15px;
+          z-index: 1;
+        }
+
+        .logo-circle {
+          width: 56px;
+          height: 56px;
+          background: linear-gradient(135deg, #333, #505050);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+          border: 3px solid #1e1e1e;
+          animation: pulse 2s infinite ease-in-out;
+
+          img {
+            width: 28px;
+            height: 28px;
+            object-fit: contain;
+          }
+        }
+
+        .card-body {
+          padding: 1.5rem;
+
+          .auth-header {
+            text-align: center;
+            margin-bottom: 1.25rem;
+
+            h2 {
+              color: #fff;
+              font-weight: 600;
+              font-size: 20px;
+              margin-bottom: 0.4rem;
+              animation: fadeIn 0.5s ease-out forwards;
+            }
+
+            p {
+              color: #a0a0a0;
+              font-size: 14px;
+              animation: fadeIn 0.5s 0.2s ease-out both;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// Verification specific styles
+.verification-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  text-align: center;
+  animation: fadeIn 0.5s 0.4s ease-out both;
+}
+
+.verification-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 15px 0;
+  width: 100%;
+
+  p {
+    margin: 15px 0;
+    font-size: 15px;
+    line-height: 1.5;
+    color: #e0e0e0;
+  }
+
+  &.success p {
+    color: #a5d6a7;
+  }
+
+  &.error p {
+    color: #ef9a9a;
+  }
+}
+
+.success-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #43a047, #2e7d32);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  margin-bottom: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.error-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #e53935, #c62828);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  margin-bottom: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.spinner {
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border-left-color: #64b5f6;
+  animation: spin 1s ease infinite;
+  margin-bottom: 15px;
+}
+
+.sign-in-btn {
+  width: 100%;
+  max-width: 200px;
+  background: linear-gradient(135deg, #555, #333);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 0.5px;
+  margin: 20px 0;
+
+  &:hover {
+    background: linear-gradient(135deg, #666, #444);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}

@@ -1,7 +1,8 @@
 import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { RouterOutlet, RouterLink, Router, ActivatedRoute } from '@angular/router';
+import { RouterOutlet, RouterLink, ActivatedRoute } from '@angular/router';
 import { TokenStorageService } from '../../core/services/token-storage.service';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-auth-layout',
@@ -15,8 +16,8 @@ export class AuthLayoutComponent implements OnInit {
 
   constructor(
     private tokenStorage: TokenStorageService,
-    private router: Router,
     private route: ActivatedRoute,
+    private authService: AuthService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
@@ -25,7 +26,6 @@ export class AuthLayoutComponent implements OnInit {
   ngOnInit(): void {
     // First check if there's a logout parameter in the URL
     const hasLogoutParam = this.route.snapshot.queryParamMap.has('logout');
-    const googleProvider = this.route.snapshot.queryParamMap.get('provider') === 'google';
 
     // Check for google-logout flag in sessionStorage (only in browser context)
     let googleLogoutFlag = false;
@@ -49,9 +49,9 @@ export class AuthLayoutComponent implements OnInit {
     // Otherwise proceed with normal token check
     const token = this.tokenStorage.getToken();
     if (token && !this.tokenStorage.getLogoutFlag()) {
-      // Only redirect to profile if token exists and user hasn't recently logged out
-      console.log('Token found, redirecting to profile');
-      this.router.navigate(['/account/profile']);
+      // Redirect based on user roles if token exists and user hasn't recently logged out
+      console.log('Token found, redirecting to appropriate dashboard');
+      this.authService.redirectBasedOnUserRoles();
     }
   }
 }

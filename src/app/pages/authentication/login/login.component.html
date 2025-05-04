@@ -16,6 +16,18 @@
           <!-- Error Message -->
           <div class="error-message" *ngIf="errorMessage">
             {{ errorMessage }}
+            <!-- Email verification required message -->
+            <div *ngIf="emailVerificationRequired" class="verification-actions">
+              <p>Didn't receive the verification email?</p>
+              <button
+                type="button"
+                (click)="resendVerificationEmail()"
+                class="resend-btn"
+                [disabled]="isLoading"
+              >
+                Resend Verification Email
+              </button>
+            </div>
           </div>
 
           <!-- Success Message -->

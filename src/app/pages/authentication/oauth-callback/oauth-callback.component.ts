@@ -73,8 +73,8 @@ export class OAuthCallbackComponent implements OnInit {
           }
           this.tokenStorage.saveUser(data);
 
-          // Redirect to profile page
-          this.router.navigate(['/profile']);
+          // Redirect based on user roles
+          this.authService.redirectBasedOnUserRoles();
         } else {
           this.errorMessage = 'Authentication response missing token';
           this.isLoading = false;
@@ -152,14 +152,20 @@ export class OAuthCallbackComponent implements OnInit {
   }
 
   private redirectToProfile(): void {
-    console.log('OAuth Callback: Navigating to profile page');
+    console.log('OAuth Callback: Redirecting user to appropriate dashboard');
     // Check if token and user are in storage before redirect
     const token = this.tokenStorage.getToken();
     const user = this.tokenStorage.getUser();
     console.log('OAuth Callback: Before redirect - Token exists:', !!token);
     console.log('OAuth Callback: Before redirect - User exists:', !!user);
 
-    // Navigate to profile page
-    this.router.navigate(['/profile']);
+    // Redirect based on user roles
+    try {
+      this.authService.redirectBasedOnUserRoles();
+    } catch (e) {
+      console.error('Failed to redirect based on roles, using fallback', e);
+      // Fallback to citizen dashboard if role-based redirect fails
+      this.router.navigate(['/citizen-dashboard']);
+    }
   }
 }

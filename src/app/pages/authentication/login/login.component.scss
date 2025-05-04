@@ -371,12 +371,44 @@
           .error-message {
             background-color: rgba(220, 53, 69, 0.2);
             color: #ff6b6b;
-            padding: 10px;
+            padding: 12px;
             border-radius: 8px;
             margin-bottom: 15px;
             font-size: 14px;
             text-align: center;
             animation: fadeIn 0.3s ease;
+            font-weight: 500;
+            border: 1px solid rgba(220, 53, 69, 0.3);
+
+            .verification-actions {
+              margin-top: 10px;
+
+              p {
+                color: #a0a0a0;
+                font-size: 13px;
+                margin-bottom: 8px;
+              }
+
+              .resend-btn {
+                background-color: transparent;
+                color: #ff6b6b;
+                border: 1px solid #ff6b6b;
+                border-radius: 4px;
+                padding: 6px 12px;
+                font-size: 13px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+
+                &:hover {
+                  background-color: rgba(220, 53, 69, 0.1);
+                }
+
+                &:disabled {
+                  opacity: 0.5;
+                  cursor: not-allowed;
+                }
+              }
+            }
           }
 
           .success-message {

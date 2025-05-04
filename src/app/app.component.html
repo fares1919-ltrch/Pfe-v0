@@ -1,1 +1,6 @@
+<!-- Global loading overlay for initial app load -->
+<div *ngIf="isInitializing || isRefreshingToken" class="app-loading-overlay">
+  <div class="app-loading-spinner"></div>
+</div>
+
 <router-outlet></router-outlet>

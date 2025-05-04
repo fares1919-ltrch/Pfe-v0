@@ -21,7 +21,11 @@ export class LoginComponent implements OnInit {
   isLoading: boolean = false;
   errorMessage: string = '';
   successMessage: string = '';
-  returnUrl: string = '/profile';
+  returnUrl: string = '';
+
+  // Email verification
+  emailVerificationRequired: boolean = false;
+  unverifiedEmail: string = '';
 
   constructor(
     private authService: AuthService,
@@ -34,13 +38,19 @@ export class LoginComponent implements OnInit {
     // Always clear the logout flag when on login page
     this.tokenStorage.clearLogoutFlag();
 
-    // Get return url from route parameters or default to '/profile'
-    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/profile';
+    // Get return url from route parameters if it exists
+    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '';
 
     // Check if a token already exists
     const existingToken = this.tokenStorage.getToken();
     if (existingToken) {
-      this.router.navigate([this.returnUrl]);
+      // If we have a specific return URL, use it
+      if (this.returnUrl) {
+        this.router.navigate([this.returnUrl]);
+      } else {
+        // Otherwise redirect based on user roles
+        this.authService.redirectBasedOnUserRoles();
+      }
     }
 
     // Check for OAuth callback with token parameter
@@ -97,15 +107,54 @@ export class LoginComponent implements OnInit {
           }
           this.tokenStorage.saveUser(res);
 
-          console.log('Login successful, navigating to', this.returnUrl);
+          console.log('Login successful');
 
-          // Navigate to return URL
-          this.router.navigate([this.returnUrl]);
+          // If we have a specific return URL, use it
+          if (this.returnUrl) {
+            console.log('Navigating to return URL:', this.returnUrl);
+            this.router.navigate([this.returnUrl]);
+          } else {
+            // Otherwise redirect based on user roles
+            console.log('Redirecting based on user roles');
+            this.authService.redirectBasedOnUserRoles();
+          }
         }
       },
       error: (error) => {
         this.isLoading = false;
-        this.errorMessage = error.error?.message || 'Login failed. Please check your credentials.';
+        console.log('Login error response:', error);
+
+        // Check if this is an email verification error
+        if (error.error?.emailVerificationRequired) {
+          this.emailVerificationRequired = true;
+          this.unverifiedEmail = error.error.email;
+          this.errorMessage = error.error.message || 'Please verify your email address before logging in.';
+        } else if (error.status === 401) {
+          // Handle other authentication errors
+          this.emailVerificationRequired = false;
+          this.errorMessage = error.error?.message || 'Invalid credentials. Please check your username and password.';
+        } else if (error.status === 404) {
+          this.emailVerificationRequired = false;
+
+          // Check if this is a "User Not found" error
+          if (error.error?.message === "User Not found.") {
+            console.log('User not found during login attempt');
+            this.errorMessage = 'Username not found.';
+          } else {
+            // API endpoint not found - likely a backend configuration issue
+            console.error('API endpoint not found. Check backend configuration.');
+            this.errorMessage = 'Login service is currently unavailable. Please try again later or contact support.';
+          }
+        } else if (error.status === 429) {
+          // Rate limiting error
+          this.emailVerificationRequired = false;
+          console.log('Rate limiting triggered during login attempt');
+          this.errorMessage = error.error?.message || 'Too many login attempts. Please wait before trying again.';
+        } else {
+          // Generic error
+          this.emailVerificationRequired = false;
+          this.errorMessage = error.error?.message || 'Login failed. Please try again later.';
+        }
       }
     });
   }
@@ -122,12 +171,31 @@ export class LoginComponent implements OnInit {
         if (user && user.id) {
           this.tokenStorage.saveUser(user);
         }
-        this.router.navigate([this.returnUrl]);
+
+        // If we have a specific return URL, use it
+        if (this.returnUrl) {
+          console.log('OAuth: Navigating to return URL:', this.returnUrl);
+          this.router.navigate([this.returnUrl]);
+        } else {
+          // Otherwise redirect based on user roles
+          console.log('OAuth: Redirecting based on user roles');
+          this.authService.redirectBasedOnUserRoles();
+        }
       },
       error: (error) => {
         console.error('Error getting user info after OAuth login:', error);
         // Even with an error, we still have the token, so redirect anyway
-        this.router.navigate([this.returnUrl]);
+        if (this.returnUrl) {
+          this.router.navigate([this.returnUrl]);
+        } else {
+          // Try to redirect based on roles, or fallback to citizen dashboard
+          try {
+            this.authService.redirectBasedOnUserRoles();
+          } catch (e) {
+            console.error('Failed to redirect based on roles, using fallback', e);
+            this.router.navigate(['/citizen-dashboard']);
+          }
+        }
       }
     });
   }
@@ -145,4 +213,33 @@ export class LoginComponent implements OnInit {
     this.authService.initiateGithubAuth();
   }
   */
+
+  resendVerificationEmail() {
+    if (!this.unverifiedEmail) {
+      return;
+    }
+
+    this.isLoading = true;
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    this.authService.resendVerificationEmail(this.unverifiedEmail).subscribe({
+      next: () => {
+        this.isLoading = false;
+        this.successMessage = 'Verification email has been sent. Please check your inbox.';
+      },
+      error: (error) => {
+        this.isLoading = false;
+        console.error('Failed to resend verification email:', error);
+
+        if (error.status === 404) {
+          this.errorMessage = 'Email address not found. Please check your email or register a new account.';
+        } else if (error.status === 429) {
+          this.errorMessage = 'Too many requests. Please wait a few minutes before trying again.';
+        } else {
+          this.errorMessage = error.error?.message || 'Failed to send verification email. Please try again.';
+        }
+      }
+    });
+  }
 }

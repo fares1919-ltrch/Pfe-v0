@@ -5,17 +5,23 @@ import { AuthService } from '../services/auth.service';
 import { catchError, switchMap, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
+// API endpoints constants
+const API_BASE_URL = environment.apiUrl;
+const AUTH_API = `${API_BASE_URL}/api/auth/`;
+const PASSWORD_API = `${API_BASE_URL}/api/password/`;
+const TEST_API = `${API_BASE_URL}/api/test/`;
+
 export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, next: HttpHandlerFn) => {
   const tokenService = inject(TokenStorageService);
   const authService = inject(AuthService);
 
   // Define auth endpoints that should bypass logout checks
   const authEndpoints = [
-    `${environment.apiUrl}/api/auth/signin`,
-    `${environment.apiUrl}/api/auth/signup`,
-    `${environment.apiUrl}/api/auth/google`,
-    `${environment.apiUrl}/api/auth/github`,
-    `${environment.apiUrl}/api/auth/userinfo`
+    AUTH_API + 'signin',
+    AUTH_API + 'signup',
+    AUTH_API + 'google',
+    AUTH_API + 'github',
+    AUTH_API + 'userinfo'
   ];
 
   // Also check for login page or OAuth callback in the browser URL
@@ -53,16 +59,17 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
 
   // Check if we should skip authentication for this request
   const skipAuthPaths = [
-    `${environment.apiUrl}/api/auth/signin`,
-    `${environment.apiUrl}/api/auth/signup`,
-    `${environment.apiUrl}/api/auth/refreshtoken`,
-    `${environment.apiUrl}/api/auth/password/forgot`,
-    `${environment.apiUrl}/api/auth/password/reset`,
-    `${environment.apiUrl}/api/auth/google`,
-    `${environment.apiUrl}/api/auth/github`,
-    `${environment.apiUrl}/api/auth/session`,
-    `${environment.apiUrl}/api/auth/validate-token`,
-    `${environment.apiUrl}/api/test/all`
+    AUTH_API + 'signin',
+    AUTH_API + 'signup',
+    AUTH_API + 'refreshtoken',
+    PASSWORD_API + 'forgot',
+    PASSWORD_API + 'reset',
+    PASSWORD_API + 'verify-code',
+    AUTH_API + 'google',
+    AUTH_API + 'github',
+    AUTH_API + 'session',
+    AUTH_API + 'validate-token',
+    TEST_API + 'all'
   ];
 
   // Check if the request URL matches any of the skip paths
@@ -150,15 +157,65 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
 
   console.debug('[Auth Interceptor] Request headers after token:', authReq.headers.keys());
 
-  // Return the request with the token and handle errors
-  return next(authReq).pipe(
-    catchError((error) => {
-      if (error instanceof HttpErrorResponse && error.status === 401) {
-        // If we get a 401 error, the token might be invalid - clear everything
-        console.warn('[Auth Interceptor] Received 401 error, clearing token storage');
-        tokenService.signOut();
-      }
-      return throwError(() => error);
-    })
-  );
+  // Check if this is a profile page request
+  const isProfileRequest = typeof window !== 'undefined' &&
+    window.location.href.includes('/profile');
+
+  // For profile pages, we'll be more lenient with error handling
+  if (isProfileRequest) {
+    console.debug('[Auth Interceptor] Profile page request detected, using lenient error handling');
+
+    // Return the request with the token and handle errors more leniently
+    return next(authReq).pipe(
+      catchError((error) => {
+        if (error instanceof HttpErrorResponse && error.status === 401) {
+          // For profile pages, log the error but don't immediately sign out
+          // This helps prevent the login page flash during refresh
+          console.warn('[Auth Interceptor] Received 401 error on profile page');
+
+          // Check if this is a page refresh (no referrer)
+          const isPageRefresh = typeof document !== 'undefined' && document.referrer === '';
+
+          if (isPageRefresh) {
+            console.log('[Auth Interceptor] Profile page refresh detected, attempting recovery');
+
+            // Try to refresh the token in the background
+            const refreshToken = tokenService.getRefreshToken();
+            if (refreshToken) {
+              authService.refreshToken(refreshToken).subscribe({
+                next: (response) => {
+                  if (response.accessToken) {
+                    console.log('[Auth Interceptor] Background token refresh successful');
+                    tokenService.saveToken(response.accessToken);
+                    tokenService.saveRefreshToken(response.refreshToken);
+                    // No redirect needed - the page will use the new token on next request
+                  }
+                },
+                error: (refreshError) => {
+                  console.error('[Auth Interceptor] Background token refresh failed:', refreshError);
+                  // Still don't sign out immediately to avoid login page flash
+                }
+              });
+            }
+          } else {
+            // Not a page refresh, normal sign out
+            tokenService.signOut();
+          }
+        }
+        return throwError(() => error);
+      })
+    );
+  } else {
+    // For non-profile pages, use normal error handling
+    return next(authReq).pipe(
+      catchError((error) => {
+        if (error instanceof HttpErrorResponse && error.status === 401) {
+          // If we get a 401 error, the token might be invalid - clear everything
+          console.warn('[Auth Interceptor] Received 401 error, clearing token storage');
+          tokenService.signOut();
+        }
+        return throwError(() => error);
+      })
+    );
+  }
 };

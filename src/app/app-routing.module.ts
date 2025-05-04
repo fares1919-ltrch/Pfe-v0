@@ -39,24 +39,28 @@ export const routes: Routes = [
   {
     path: 'profile',
     canActivate: [authGuard],
+    data: { requiresAuth: true }, // Add explicit flag for auth requirement
     loadChildren: () => import('./pages/account/profile.routes')
       .then(m => m.PROFILE_ROUTES)
   },
   {
     path: 'citizen-dashboard',
     canActivate: [authGuard],
+    data: { requiresAuth: true },
     loadChildren: () => import('./features/citizen-dashboard/citizen.routes')
       .then(m => m.CITIZEN_ROUTES)
   },
   {
     path: 'officer-dashboard',
     canActivate: [authGuard],
+    data: { requiresAuth: true },
     loadChildren: () => import('./features/officer-dashboard/officer.routes')
       .then(m => m.OFFICER_ROUTES)
   },
   {
     path: 'manager-dashboard',
     canActivate: [authGuard],
+    data: { requiresAuth: true },
     loadChildren: () => import('./features/manager-dashboard/manager.routes')
       .then(m => m.MANAGER_ROUTES)
   },

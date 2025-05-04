@@ -1,12 +1,15 @@
 import { Injectable } from "@angular/core";
 import { Router } from "@angular/router";
-import { firstValueFrom, Observable, ReplaySubject, catchError, throwError, of } from 'rxjs';
-import { filter, tap, map } from 'rxjs/operators';
+import { Observable, catchError, throwError, of } from 'rxjs';
+import { tap, map } from 'rxjs/operators';
 import { TokenStorageService } from "./token-storage.service";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { environment } from "../../../environments/environment";
 
-const AUTH_API = `${environment.apiUrl}/api/`;
+// API endpoints constants
+const API_BASE_URL = environment.apiUrl;
+const AUTH_API = `${API_BASE_URL}/api/auth/`;
+const PASSWORD_API = `${API_BASE_URL}/api/password/`;
 
 const httpOptions = {
   headers: new HttpHeaders({
@@ -32,7 +35,7 @@ export class AuthService {
     this.tokenStorageService.clearLogoutFlag();
 
     return this.http.post(
-      AUTH_API + 'auth/signin',
+      AUTH_API + 'signin',
       {
         username,
         password,
@@ -53,13 +56,14 @@ export class AuthService {
       }),
       catchError(error => {
         console.error('Auth Service: Login error:', error);
-        return throwError(() => new Error(error.error?.message || 'Login failed'));
+        // Return the original error object to preserve all error information
+        return throwError(() => error);
       })
     );
   }
 
   register(username: string, email: string, password: string, roles: string[]): Observable<any> {
-    return this.http.post(AUTH_API + 'auth/signup', {
+    return this.http.post(AUTH_API + 'signup', {
       username,
       email,
       password,
@@ -67,24 +71,55 @@ export class AuthService {
     }, httpOptions).pipe(
       catchError((error) => {
         console.error('Registration error', error);
-        return throwError(() => new Error(error.error?.message || 'Registration failed'));
+        // Return the original error object to preserve all error information
+        return throwError(() => error);
       })
     );
   }
 
   forgotPassword(email: string): Observable<any> {
-    return this.http.post(AUTH_API + 'password/forgot', { email }, httpOptions);
+    return this.http.post(PASSWORD_API + 'forgot', { email }, httpOptions);
   }
 
-  resetPassword(token: string, password: string): Observable<any> {
-    return this.http.post(AUTH_API + 'password/reset', {
-      token,
-      password
+  verifyResetCode(email: string, code: string): Observable<any> {
+    console.log('Verifying reset code:', { email, code });
+    return this.http.post(PASSWORD_API + 'verify-code', {
+      email,
+      code
     }, httpOptions);
   }
 
+  resetPassword(token: string, password: string): Observable<any> {
+    console.log('Resetting password with token:', token);
+    console.log('Token length:', token ? token.length : 0);
+    console.log('Token type:', typeof token);
+
+    // For direct links from email, the token is in the URL
+    // The backend expects the token in the request body, not in the URL path
+    return this.http.post(PASSWORD_API + 'reset', {
+      token,
+      password
+    }, httpOptions).pipe(
+      tap(response => console.log('Password reset successful:', response)),
+      catchError(error => {
+        console.error('Password reset error:', error);
+        console.error('Error status:', error.status);
+        console.error('Error message:', error.error?.message || error.message);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  verifyEmail(token: string): Observable<any> {
+    return this.http.get(`${AUTH_API}verify-email?token=${token}`, httpOptions);
+  }
+
+  resendVerificationEmail(email: string): Observable<any> {
+    return this.http.post(`${AUTH_API}public-resend-verification`, { email }, httpOptions);
+  }
+
   changePassword(currentPassword: string, newPassword: string): Observable<any> {
-    return this.http.post(AUTH_API + 'password/change', {
+    return this.http.post(PASSWORD_API + 'change', {
       currentPassword,
       newPassword
     }, httpOptions);
@@ -111,8 +146,8 @@ export class AuthService {
 
     // For Google users, use the special Google logout endpoint
     const logoutEndpoint = provider === 'google'
-      ? AUTH_API + 'auth/google/signout'
-      : AUTH_API + 'auth/signout';
+      ? AUTH_API + 'google/signout'
+      : AUTH_API + 'signout';
 
     // Send the refresh token in the request body for server-side invalidation
     return this.http.post(logoutEndpoint, { refreshToken }, logoutHeaders).pipe(
@@ -132,7 +167,7 @@ export class AuthService {
 
   refreshToken(refreshToken: string): Observable<any> {
     console.log('Attempting to refresh token');
-    return this.http.post(AUTH_API + 'auth/refreshtoken', {
+    return this.http.post(AUTH_API + 'refreshtoken', {
       refreshToken
     }, httpOptions).pipe(
       tap((response: any) => {
@@ -178,7 +213,7 @@ export class AuthService {
 
   // Handle OAuth callback
   handleOAuthCallback(provider: string): Observable<any> {
-    const callbackEndpoint = `${AUTH_API}auth/${provider}/callback`;
+    const callbackEndpoint = `${AUTH_API}${provider}/callback`;
     console.log(`Completing OAuth flow for ${provider} at ${callbackEndpoint}`);
 
     // Use a custom HTTP options to explicitly allow credentials and JSON response
@@ -229,7 +264,7 @@ export class AuthService {
 
   // Check session status
   checkSession(): Observable<any> {
-    return this.http.get(`${AUTH_API}auth/session`, httpOptions).pipe(
+    return this.http.get(`${AUTH_API}session`, httpOptions).pipe(
       tap((response: any) => {
         if (response.user) {
           this.tokenStorageService.saveUser(response.user);
@@ -274,7 +309,7 @@ export class AuthService {
     const cleanToken = currentToken.replace(/^Bearer\s+/i, '');
 
     // Use token as URL parameter for better cross-platform compatibility
-    return this.http.get(`${AUTH_API}auth/userinfo?token=${cleanToken}`, httpOptions).pipe(
+    return this.http.get(`${AUTH_API}userinfo?token=${cleanToken}`, httpOptions).pipe(
       tap((user: any) => {
         console.log('Auth Service: User info received successfully');
         // Save user info to storage

@@ -24,7 +24,9 @@ export class RegisterComponent implements OnInit {
   roles: string[] = ['user'];
   isLoading: boolean = false;
   errorMessage: string = '';
+  successMessage: string = '';
   returnUrl: string = '/profile';
+  registrationComplete: boolean = false;
 
   // Password validation states
   hasMinLength: boolean = false;
@@ -45,8 +47,8 @@ export class RegisterComponent implements OnInit {
     const existingToken = this.tokenStorage.getToken();
     const user = this.tokenStorage.getUser();
     if (existingToken && user) {
-      console.log('Token found, redirecting to profile');
-      this.router.navigate(['/profile']);
+      console.log('Token found, redirecting to appropriate dashboard');
+      this.authService.redirectBasedOnUserRoles();
       return;
     }
 
@@ -111,30 +113,30 @@ export class RegisterComponent implements OnInit {
       this.roles
     ).subscribe({
       next: (res) => {
-        // Attempt to log in immediately after registration
-        this.authService.login(this.username, this.password).subscribe({
-          next: (loginRes) => {
-            this.isLoading = false;
-            if (loginRes && loginRes.accessToken) {
-              // Save tokens and user details
-              this.tokenStorage.saveToken(loginRes.accessToken);
-              if (loginRes.refreshToken) {
-                this.tokenStorage.saveRefreshToken(loginRes.refreshToken);
-              }
-              this.tokenStorage.saveUser(loginRes);
-              this.router.navigate([this.returnUrl]);
-            }
-          },
-          error: (loginErr) => {
-            this.isLoading = false;
-            this.errorMessage = 'Registration successful but automatic login failed. Please try logging in manually.';
-            this.router.navigate(['/auth/login']);
-          }
-        });
+        this.isLoading = false;
+        this.registrationComplete = true;
+        this.successMessage = res.message || 'Registration successful! Please check your email to verify your account.';
+
+        // Clear form fields
+        this.username = '';
+        this.email = '';
+        this.password = '';
+        this.confirmPassword = '';
+        this.termsAccepted = false;
+
+        // Don't automatically log in - require email verification first
       },
       error: (err) => {
         this.isLoading = false;
-        this.errorMessage = err.error?.message || 'Registration failed. Please try again.';
+
+        // Check for specific error types
+        if (err.error?.message?.includes('Email is already in use')) {
+          this.errorMessage = 'This email address is already registered. Please use a different email or try logging in.';
+        } else if (err.error?.message?.includes('Username is already taken')) {
+          this.errorMessage = 'This username is already taken. Please choose a different username.';
+        } else {
+          this.errorMessage = err.error?.message || 'Registration failed. Please try again.';
+        }
       }
     });
   }

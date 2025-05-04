@@ -44,10 +44,10 @@ export class ApprovalsService {
 
   verifyRequest(requestId: string, meetingDate: Date): Observable<any> {
     const dateTime = this.formatDateTime(meetingDate);
-    
+
     console.log(`Verifying request ${requestId} with date: ${dateTime}`);
     console.log("dateeeeeeeeeeeeeeeeeeee" , dateTime)
-    
+
     return this.http.post<any>(`${this.baseUrl}/appointments/schedule/${requestId}`, {
       date : dateTime
     }).pipe(
@@ -63,12 +63,12 @@ export class ApprovalsService {
     if (!date) {
       return '';
     }
-    
+
     // Format as YYYY-MM-DD
     const year = date.getFullYear();
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const day = date.getDate().toString().padStart(2, '0');
-    
+
     // Return only the date part
     return `${year}-${month}-${day}`;
   }

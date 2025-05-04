@@ -103,11 +103,19 @@ export class TokenStorageService {
 
     // Try to get from cookie first
     const cookieToken = this.cookieService.get(TOKEN_KEY);
-    if (cookieToken) {
+    if (cookieToken && cookieToken.length > 10) { // Ensure token is valid (not empty or malformed)
       return cookieToken;
     }
+
     // Fallback to localStorage
-    return window.localStorage.getItem(TOKEN_KEY);
+    const localToken = window.localStorage.getItem(TOKEN_KEY);
+    if (localToken && localToken.length > 10) { // Ensure token is valid
+      return localToken;
+    }
+
+    // No valid token found
+    console.log('TokenStorage: No valid token found in storage');
+    return null;
   }
 
   public getDecodedToken(): DecodedToken | null {

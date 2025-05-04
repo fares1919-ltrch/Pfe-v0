@@ -1,4 +1,10 @@
 <div class="profile-container">
+  <!-- Loading overlay -->
+  <div *ngIf="isLoading" class="loading-overlay">
+    <div class="loading-spinner"></div>
+  </div>
+
+  <!-- Profile content -->
   <app-header></app-header>
   <app-body class="profile-body"></app-body>
 </div>

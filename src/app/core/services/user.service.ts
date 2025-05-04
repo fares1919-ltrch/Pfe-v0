@@ -6,7 +6,11 @@ import { Inject, PLATFORM_ID } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { map } from 'rxjs/operators';
 
-const API_URL = `${environment.apiUrl}/api/test/`;
+// API endpoints constants
+const API_BASE_URL = environment.apiUrl;
+const TEST_API = `${API_BASE_URL}/api/test/`;
+const USERS_API = `${API_BASE_URL}/api/users/`;
+const PASSWORD_API = `${API_BASE_URL}/api/password/`;
 
 export interface User {
   _id: string;
@@ -25,7 +29,7 @@ export class UserService {
 
   getPublicContent(): Observable<any> {
     if (isPlatformBrowser(this.platformId)) {
-      return this.http.get(API_URL + 'all', { responseType: 'text' });
+      return this.http.get(TEST_API + 'all', { responseType: 'text' });
     }
     return new Observable();
   }
@@ -33,7 +37,7 @@ export class UserService {
   getUserBoard(): Observable<any> {
     // Only make HTTP request in browser
     if (isPlatformBrowser(this.platformId)) {
-      return this.http.get(API_URL + 'user', { responseType: 'text', withCredentials: true });
+      return this.http.get(TEST_API + 'user', { responseType: 'text', withCredentials: true });
     }
     // Return empty observable for server-side
     return new Observable();
@@ -42,7 +46,7 @@ export class UserService {
   getManagerBoard(): Observable<any> {
     // Only make HTTP request in browser
     if (isPlatformBrowser(this.platformId)) {
-      return this.http.get(API_URL + 'manager', { responseType: 'text', withCredentials: true });
+      return this.http.get(TEST_API + 'manager', { responseType: 'text', withCredentials: true });
     }
     // Return empty observable for server-side
     return new Observable();
@@ -51,7 +55,7 @@ export class UserService {
   getOfficerBoard(): Observable<any> {
     // Only make HTTP request in browser
     if (isPlatformBrowser(this.platformId)) {
-      return this.http.get(API_URL + 'officer', { responseType: 'text', withCredentials: true });
+      return this.http.get(TEST_API + 'officer', { responseType: 'text', withCredentials: true });
     }
     // Return empty observable for server-side
     return new Observable();
@@ -59,30 +63,30 @@ export class UserService {
 
   // Profile-related methods
   getUserProfile(): Observable<any> {
-    return this.http.get(`${environment.apiUrl}/api/profile`, { withCredentials: true });
+    return this.http.get(`${API_BASE_URL}/api/profile`, { withCredentials: true });
   }
 
   updateUserProfile(formData: FormData): Observable<any> {
-    return this.http.put(`${environment.apiUrl}/api/profile`, formData, { withCredentials: true });
+    return this.http.put(`${API_BASE_URL}/api/profile`, formData, { withCredentials: true });
   }
 
   changePassword(currentPassword: string, newPassword: string): Observable<any> {
-    return this.http.post(`${environment.apiUrl}/api/password/change`, {
+    return this.http.post(PASSWORD_API + 'change', {
       currentPassword,
       newPassword
     }, { withCredentials: true });
   }
 
   deleteAccount(): Observable<any> {
-    return this.http.delete(`${environment.apiUrl}/api/profile`, { withCredentials: true });
+    return this.http.delete(`${API_BASE_URL}/api/profile`, { withCredentials: true });
   }
 
   checkIdentityNumber(identityNumber: string): Observable<boolean> {
-    return this.http.get<{ isAvailable: boolean }>(`${environment.apiUrl}/api/users/check-identity/${identityNumber}`)
+    return this.http.get<{ isAvailable: boolean }>(USERS_API + `check-identity/${identityNumber}`)
       .pipe(map(response => response.isAvailable));
   }
 
   getUserById(userId: string): Observable<User> {
-    return this.http.get<User>(`${environment.apiUrl}/api/users/${userId}`, { withCredentials: true });
+    return this.http.get<User>(USERS_API + userId, { withCredentials: true });
   }
 }
