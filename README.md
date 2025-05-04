@@ -456,6 +456,13 @@ A robust backend API built with Node.js, Express, and MongoDB that provides auth
 - Password reset functionality
 - Session management
 - Role-based authorization (User, Manager, Officer)
+- CPF request and approval workflow
+- Appointment scheduling and management
+- Biometric data collection and verification
+- Biometric deduplication with external API integration
+- Fraud detection and prevention system
+- Document generation for verified users
+- Blocking mechanism for fraudulent users
 - Rate limiting for security
 - Secure cookie sessions
 - Error handling middleware
@@ -466,6 +473,8 @@ A robust backend API built with Node.js, Express, and MongoDB that provides auth
 - MongoDB (v4.4 or higher)
 - Google OAuth2 credentials (for Google login)
 - GitHub OAuth credentials (for GitHub login)
+- External Biometric Deduplication API access
+- Document Generation API or library
 
 ## Setup Instructions
 
@@ -517,6 +526,15 @@ CLIENT_URL=http://localhost:4200
 EMAIL_SERVICE=gmail
 EMAIL_USER=your-email@gmail.com
 EMAIL_PASSWORD=your-email-app-password
+
+# Deduplication API Configuration
+DEDUPLICATION_API_URL=https://api.deduplication-service.com
+DEDUPLICATION_API_KEY=your-api-key
+DEDUPLICATION_API_SECRET=your-api-secret
+
+# Document Generation Configuration
+DOCUMENT_TEMPLATES_PATH=./app/resources/templates
+DOCUMENT_OUTPUT_PATH=./app/resources/documents
 ```
 
 4. Create the uploads directory:
