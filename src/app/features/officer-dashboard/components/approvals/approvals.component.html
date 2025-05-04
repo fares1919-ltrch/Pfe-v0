@@ -4,7 +4,7 @@
     <h1>Pending Approvals</h1>
     <div class="actions">
       <button class="icon-button" 
-              (click)="getPendingRequests()" 
+             (click)="refreshPage()" 
               matTooltip="Refresh pending requests" 
               matTooltipClass="action-button-tooltip"
               matTooltipPosition="below">
@@ -18,78 +18,94 @@
     <div class="progress-bar-inner"></div>
   </div> -->
 
-  <div class="table-container">
-    <!-- Table is always shown, regardless of data -->
-    <table class="custom-table">
-      <!-- Table Header - Always visible -->
-      <thead>
-        <tr>
-          <th>Username</th>
-          <th>Center Name</th>
-          <th>Address</th>
-          <th>Status</th>
-          <th>Created At</th>
-          <th>Meeting Date</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-
-      <!-- Table Body -->
-      <tbody>
-        <!-- No data message inside table -->
-        <tr *ngIf="dataSource.data.length === 0">
-          <td colspan="7" class="no-data-cell">
-            <div class="no-data-container">
-              <span class="material-icon">search_off</span>
-              <p>No pending requests found</p>
-            </div>
-          </td>
-        </tr>
-
-        <!-- Data rows if data exists -->
-        <tr *ngFor="let element of dataSource.data">
-          <td>{{element.username}}</td>
-          <td>{{element.centername}}</td>
-          <td>{{element.address}}</td>
-          <td>
-            <span class="status-badge pending">
-              {{element.status}}
-            </span>
-          </td>
-          <td>{{element.createdAt | date:'medium'}}</td>
-          <td>
-            <div class="date-container">
-              <span *ngIf="element.meetingDate">{{ formatDate(element.meetingDate) }}</span>
-              <span *ngIf="!element.meetingDate" class="no-date">Not set</span>
-              <button class="icon-button calendar-icon-button" 
-                      (click)="openCalendar(element)"
-                      matTooltip="Set meeting date"
-                      matTooltipClass="action-button-tooltip"
-                      matTooltipPosition="right">
-                <span class="material-icon">calendar_today</span>
-              </button>
-            </div>
-          </td>
-          <td>
-            <div class="actions-container">
-              <button class="verify-button"
-                      [disabled]="!element.meetingDate"
-                      (click)="verifyRequest(element.requestId, element.meetingDate)"
-                      [matTooltip]="!element.meetingDate ? 'Please set a meeting date first' : 'Approve this request'"
-                      [matTooltipClass]="element.meetingDate ? 'action-button-tooltip' : 'disabled-button-tooltip'"
-                      matTooltipPosition="above">
-                <span class="button-text">Approve</span>
-                <span class="button-icon">✓</span>
-              </button>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+  <!-- Empty state when no data -->
+  <div *ngIf="dataSource.data.length === 0" class="empty-state">
+    <div class="empty-state-icon">
+      <span class="material-icon">search_off</span>
+    </div>
+    <h3>No pending requests found</h3>
+    <p>There are currently no pending approval requests to display.</p>
   </div>
 
-  <!-- Custom paginator - Always visible -->
-  <div class="custom-paginator">
+  <!-- Cards Grid Layout -->
+  <div *ngIf="dataSource.data.length > 0" class="cards-grid">
+    <div class="approval-card" *ngFor="let element of dataSource.data | slice: (currentPage-1)*pageSize : currentPage*pageSize">
+      <div class="card-header">
+        <div class="card-title">
+          <span class="username">{{element.username}}</span>
+          <span class="status-badge" [ngClass]="element.status.toLowerCase()">
+            {{element.status}}
+          </span>
+        </div>
+        <div class="card-subtitle">
+          <span class="date-label">Created:</span>
+          <span class="date-value">{{element.createdAt | date:'medium'}}</span>
+        </div>
+      </div>
+      
+      <div class="card-body">
+        <div class="info-row">
+          <div class="info-label">
+            <span class="material-icon">location_on</span>
+            Center
+          </div>
+          <div class="info-value">{{element.centername}}</div>
+        </div>
+        
+        <div class="info-row">
+          <div class="info-label">
+            <span class="material-icon">map</span>
+            Address
+          </div>
+          <div class="info-value">{{element.address}}</div>
+        </div>
+        
+        <div class="info-row meeting-date">
+          <div class="info-label">
+            <span class="material-icon">event</span>
+            Meeting Date
+          </div>
+          <div class="info-value date-container">
+            <span *ngIf="element.meetingDate" class="date-text">{{ formatDate(element.meetingDate) }}</span>
+            <span *ngIf="!element.meetingDate" class="no-date">Not set</span>
+            <button class="icon-button calendar-icon-button" 
+                    (click)="openCalendar(element)"
+                    matTooltip="Set meeting date"
+                    matTooltipClass="action-button-tooltip"
+                    matTooltipPosition="right">
+              <span class="material-icon">calendar_today</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="card-footer">
+        <button class="action-button verify-button"
+                *ngIf="element.status === 'pending'"
+                [disabled]="!element.meetingDate"
+                (click)="verifyRequest(element.requestId, element.meetingDate)"
+                [matTooltip]="!element.meetingDate ? 'Please set a meeting date first' : 'Approve this request'"
+                [matTooltipClass]="element.meetingDate ? 'action-button-tooltip' : 'disabled-button-tooltip'"
+                matTooltipPosition="above">
+          <span class="button-icon">✓</span>
+          <span class="button-text">Approve</span>
+        </button>
+        <button class="action-button reschedule-button"
+                *ngIf="element.status === 'approved'"
+                [disabled]="!element.meetingDate"
+                (click)="RescheduleRequest(element.requestId, element.meetingDate)"
+                [matTooltip]="!element.meetingDate ? 'Please set a meeting date first' : 'Reschedule this request'"
+                [matTooltipClass]="element.meetingDate ? 'action-button-tooltip' : 'disabled-button-tooltip'"
+                matTooltipPosition="above">
+          <span class="button-icon">⟳</span>
+          <span class="button-text">Reschedule</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom paginator - Always visible when there's data -->
+  <div *ngIf="dataSource.data.length > 0" class="custom-paginator">
     <div class="paginator-range-label">
       {{ dataSource.data.length === 0 ? '0-0 of 0' : 
          Math.min(dataSource.data.length, 1) === 0 ? 0 : (currentPage - 1) * pageSize + 1 + '-' +

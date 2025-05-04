@@ -373,7 +373,54 @@ export class ApprovalsComponent implements OnInit, AfterViewInit {
       });
       },
       error: (err) => {
-        const errorMsg = 'Failed to verify request';
+        
+        const errorMsg = err.error.message;
+        console.error('Verification error:', { requestId, error: err });
+        this.error = errorMsg;
+        this.snackBar.open(errorMsg, 'Close', {
+        duration: 5000,
+        panelClass: ['error-snackbar']
+      });
+      }
+    });
+  }
+  
+  
+  refreshPage() {
+    window.location.reload();
+  }
+  
+
+
+
+  RescheduleRequest(requestId: string, meetingDate: Date | null): void {
+    console.log('Verification request initiated:', {
+      requestId,
+      meetingDate: meetingDate ? this.formatDate(meetingDate) : null
+    });
+
+    if (!meetingDate) {
+      const errorMsg = 'Please set meeting date';
+      console.error('Verification failed:', errorMsg);
+      this.error = errorMsg;
+      this.snackBar.open(errorMsg, 'Close', {
+        duration: 5000,
+        panelClass: ['error-snackbar']
+      });
+      return;
+    }
+
+    this.approvalsService.rescheduleRequest(requestId, meetingDate).subscribe({
+      next: (response) => {
+        console.log('Request verified successfully:', { requestId, response });
+        this.loadRequests();
+        this.snackBar.open('Request verified successfully', 'Close', {
+        duration: 5000,
+        panelClass: ['success-snackbar']
+      });
+      },
+      error: (err) => {
+        const errorMsg = err.error.message;
         console.error('Verification error:', { requestId, error: err });
         this.error = errorMsg;
         this.snackBar.open(errorMsg, 'Close', {
@@ -384,10 +431,12 @@ export class ApprovalsComponent implements OnInit, AfterViewInit {
     });
   }
 
+
+
   private loadRequests(): void {
     console.log('Loading pending requests...');
     this.isLoading = true;
-    this.approvalsService.getPendingRequests().subscribe({
+    this.approvalsService.GetPendingAndApprovedReq().subscribe({
       next: (data) => {
         console.log('Raw requests from server:', data.requests);
         this.rawRequests = data.requests;
@@ -397,7 +446,7 @@ export class ApprovalsComponent implements OnInit, AfterViewInit {
             username: request.username || '',
             centername: request.centerName || '',
             centerId: request.centerId || '',
-            status: request.status || 'Pending',
+            status: request.status ,
             createdAt: new Date(request.createdAt) || new Date(),
             address: request.address.street + ' ' + request.address.city + ' ' + request.address.state || '',
             meetingDate: request.meetingDate ? new Date(request.meetingDate) : null
@@ -469,7 +518,7 @@ export class ApprovalsComponent implements OnInit, AfterViewInit {
   // Refresh data
   getPendingRequests(): void {
     console.log('Refreshing pending requests...');
-    this.approvalsService.getPendingRequests().subscribe({
+    this.approvalsService.GetPendingAndApprovedReq().subscribe({
       next: (response: any) => {
         console.log('Pending requests received:', response);
         this.dataSource.data = response;

@@ -51,22 +51,20 @@ export class DashboardSidebarComponent {
       { icon: 'home', label: 'Home', route: '/' },
       { icon: 'dashboard', label: 'Dashboard', route: '/citizen-dashboard/dashboard' },
       { icon: 'description', label: 'Cpf Request', route: '/citizen-dashboard/cpf-request' },
+      { icon: 'event', label: 'My Appointment', route: '/citizen-dashboard/appointment' },
       { icon: 'description', label: 'My Documents', route: '/citizen-dashboard/documents' },
-      { icon: 'event', label: 'Appointments', route: '/citizen-dashboard/appointments' },
       { icon: 'notifications', label: 'Notifications', route: '/citizen-dashboard/notifications' },
       { icon: 'history', label: 'History', route: '/citizen-dashboard/history' }
     ],
     officer: [
-      { icon: 'home', label: 'Home', route: '/' },
+      { icon: 'home', label: 'Home', route: '/home' },
       { icon: 'dashboard', label: 'Dashboard', route: '/officer-dashboard/dashboard' },
       { icon: 'description', label: 'CPF Requests', route: '/officer-dashboard/requests' },
       { icon: 'assignment_turned_in', label: 'Pending Approvals', route: '/officer-dashboard/approvals' },
       { icon: 'event_available', label: 'Appointments', route: '/officer-dashboard/appointments' },
-      { icon: 'people', label: 'Citizens', route: '/officer-dashboard/citizens' },
-      { icon: 'people', label: 'Citizens', route: '/officer-dashboard/citizens' },
-      { icon: 'calendar_today', label: 'Schedule', route: '/officer-dashboard/schedule' },
-      { icon: 'assessment', label: 'Reports', route: '/officer-dashboard/reports' }
-    ],
+      { icon: 'people', label: 'citizens', route: '/officer-dashboard/citizens' },
+      // { icon: 'people', label: 'dataSubmission', route: '/officer-dashboard/data-submission/:userId/:appointmentId' },
+      ],
     manager: [
       { icon: 'home', label: 'Home', route: '/' },
       { icon: 'dashboard', label: 'Dashboard', route: '/manager-dashboard' },

@@ -23,7 +23,13 @@ export class OfficerComponent implements OnInit {
     public userService: UserService,
     public tokenStorage: TokenStorageService,
     private router: Router
-  ) { }
+  ) {
+    // Retrieve sidebar state from localStorage
+    const savedSidebarState = localStorage.getItem('sidebarOpen');
+    if (savedSidebarState !== null) {
+      this.isSidebarOpen = savedSidebarState === 'true';
+    }
+  }
 
   ngOnInit(): void {
     // Check if user is authenticated and has officer role
@@ -50,6 +56,8 @@ export class OfficerComponent implements OnInit {
 
   toggleSidebar(): void {
     this.isSidebarOpen = !this.isSidebarOpen;
+    // Save state to localStorage
+    localStorage.setItem('sidebarOpen', this.isSidebarOpen.toString());
   }
 }
 

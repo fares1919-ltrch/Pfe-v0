@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Renderer2, ElementRef } from '@angular/core';
 import { MapsComponent } from './maps/maps.component';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
@@ -10,6 +10,7 @@ import { environment } from '../../../../../environments/environment';
 import { CpfRequestService, CpfRequest } from '../../../../core/services/cpf-request.service';
 import { CenterService } from '../../../../core/services/center.service';
 import { finalize } from 'rxjs/operators';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 interface Address {
   street: string;
@@ -44,6 +45,7 @@ interface LocationInfo {
     FormsModule,
     RouterModule,
     MapsComponent,
+    MatSnackBarModule,
   ],
   templateUrl: './cpf-request.component.html',
   styleUrls: ['./cpf-request.component.scss']
@@ -59,12 +61,13 @@ export class CpfRequestComponent {
   profileError: string = '';
   showAlert: boolean = false;
   alertMessage: string = '';
+  alertType: string = 'error'; // Default to error
+  private alertTimeout: any;
   missingFields: string[] = [];
   selectedLocation: LocationInfo | null = null;
   nearestCenter: string = '';
   centerDistance: number = 0;
   userProfile: any = null;
-  snackBar: any;
 
   constructor(
     private http: HttpClient,
@@ -72,9 +75,13 @@ export class CpfRequestComponent {
     private profileService: ProfileService,
     private cpfRequestService: CpfRequestService,
     private centerService: CenterService,
-    private router: Router
+    private router: Router,
+    private snackBar: MatSnackBar,
+    private renderer: Renderer2,
+    private elementRef: ElementRef
   ) {
     this.loadUserProfile();
+    this.checkExistingRequest();
   }
 
   loadUserProfile() {
@@ -172,10 +179,6 @@ export class CpfRequestComponent {
     });
 
     this.missingFields = [];
-
-    if (!this.userProfile.firstName) this.missingFields.push('First Name');
-    if (!this.userProfile.lastName) this.missingFields.push('Last Name');
-
     // Use component birthDate field which should be populated by loadUserProfile
     if (!this.birthDate) {
       this.missingFields.push('Birth Date');
@@ -222,22 +225,58 @@ export class CpfRequestComponent {
     }
   }
 
+  showAlertMessage(message: string, type: 'success' | 'error'): void {
+    this.alertMessage = message;
+    this.alertType = type;
+    this.showAlert = true;
+
+    // Clear any existing timeout
+    if (this.alertTimeout) {
+      clearTimeout(this.alertTimeout);
+    }
+
+    // Scroll to top
+    setTimeout(() => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+      
+      // Focus on the alert for accessibility
+      const alertElement = this.elementRef.nativeElement.querySelector('#alert-message');
+      if (alertElement) {
+        alertElement.focus();
+      }
+    }, 100);
+
+    // Auto-hide after 7 seconds
+    this.alertTimeout = setTimeout(() => {
+      this.closeAlert();
+    }, 7000);
+  }
+
+  closeAlert(): void {
+    this.showAlert = false;
+    this.alertMessage = '';
+    if (this.alertTimeout) {
+      clearTimeout(this.alertTimeout);
+    }
+  }
+
   validateRequest(): boolean {
     console.log('Validating request before submission');
 
     // Check if profile is complete
     if (this.missingFields.length > 0) {
       console.error('Profile validation failed: Missing required fields', this.missingFields);
-      this.showAlert = true;
-      this.alertMessage = `Please complete your profile. Missing fields: ${this.missingFields.join(', ')}`;
+      this.showAlertMessage(`Please complete your profile. Missing fields: ${this.missingFields.join(', ')}`, 'error');
       return false;
     }
 
     // Check if location is selected
     if (!this.selectedLocation) {
       console.error('Request validation failed: No location selected');
-      this.showAlert = true;
-      this.alertMessage = 'Please select a location on the map';
+      this.showAlertMessage('Please select a location on the map', 'error');
       return false;
     }
 
@@ -246,8 +285,7 @@ export class CpfRequestComponent {
         !this.selectedLocation.userCoords.lat ||
         !this.selectedLocation.userCoords.lon) {
       console.error('Request validation failed: Missing user coordinates');
-      this.showAlert = true;
-      this.alertMessage = 'Location information is incomplete. Please try selecting your location again.';
+      this.showAlertMessage('Location information is incomplete. Please try selecting your location again.', 'error');
       return false;
     }
 
@@ -268,8 +306,7 @@ export class CpfRequestComponent {
     // Additional validation for center ID
     if (!this.selectedLocation?.center?.id) {
       console.error('No center ID available');
-      this.showAlert = true;
-      this.alertMessage = 'Please select a valid service center';
+      this.showAlertMessage('Please select a valid service center', 'error');
       this.loading = false;
       return;
     }
@@ -307,13 +344,16 @@ export class CpfRequestComponent {
       next: (response) => {
         console.log('CPF request submitted successfully', response);
         this.status = 'submitted';
-        this.showAlert = true;
-        this.alertMessage = 'Your CPF request has been submitted successfully!';
+        
+        // Show success message with new alert method
+        this.showAlertMessage('Request submitted successfully', 'success');
 
-        // Show success message in snackbar
-        this.snackBar.open('CPF request submitted successfully!', 'Close', {
+        // Also use snackbar for immediate feedback
+        this.snackBar.open('Request submitted successfully', 'Close', {
           duration: 5000,
-          panelClass: ['success-snackbar']
+          panelClass: ['success-snackbar'],
+          horizontalPosition: 'center',
+          verticalPosition: 'bottom'
         });
 
         // Navigate to dashboard or confirmation page
@@ -321,28 +361,31 @@ export class CpfRequestComponent {
       },
       error: (error: HttpErrorResponse) => {
         console.error('Error submitting CPF request', error);
-        this.showAlert = true;
-
+        
         // Provide more specific error messages
         if (error.status === 400) {
-          if (error.error?.message) {
-            this.alertMessage = error.error.message;
+          if (error.error?.message?.includes('already exists')) {
+            this.showAlertMessage('You already have an existing CPF request', 'error');
+          } else if (error.error?.message) {
+            this.showAlertMessage(error.error.message, 'error');
           } else {
-            this.alertMessage = 'Please check your request details and try again.';
+            this.showAlertMessage('Please check your request details and try again.', 'error');
           }
         } else if (error.status === 401) {
-          this.alertMessage = 'Your session has expired. Please log in again.';
+          this.showAlertMessage('Your session has expired. Please log in again.', 'error');
           this.router.navigate(['/auth/login']);
         } else if (error.status === 404) {
-          this.alertMessage = 'The selected center is no longer available. Please choose another center.';
+          this.showAlertMessage('The selected center is no longer available. Please choose another center.', 'error');
         } else {
-          this.alertMessage = 'There was an error submitting your request. Please try again later.';
+          this.showAlertMessage('There was an error submitting your request. Please try again later.', 'error');
         }
 
-        // Show error in snackbar
+        // Also use snackbar for immediate feedback
         this.snackBar.open(this.alertMessage, 'Close', {
           duration: 5000,
-          panelClass: ['error-snackbar']
+          panelClass: ['error-snackbar'],
+          horizontalPosition: 'center',
+          verticalPosition: 'bottom'
         });
       }
     });
@@ -398,6 +441,30 @@ export class CpfRequestComponent {
       'Profile Complete': this.profileComplete,
       'Form Valid': !error,
       'Can Submit': this.profileComplete && !!this.selectedLocation && !this.loading && !error
+    });
+  }
+
+  // Add method to check for existing requests
+  checkExistingRequest() {
+    this.cpfRequestService.getCpfRequests().subscribe({
+      next: (requests) => {
+        console.log('Existing requests:', requests);
+        if (requests && requests.length > 0) {
+          // Show alert for existing request
+          this.showAlertMessage('You already have an existing CPF request', 'error');
+          
+          // Also keep snackbar for consistent user experience
+          this.snackBar.open('You already have an existing CPF request', 'Close', {
+            duration: 5000,
+            panelClass: ['error-snackbar'],
+            horizontalPosition: 'center',
+            verticalPosition: 'bottom'
+          });
+        }
+      },
+      error: (error) => {
+        console.error('Error checking existing requests:', error);
+      }
     });
   }
 }

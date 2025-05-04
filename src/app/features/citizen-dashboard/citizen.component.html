@@ -6,7 +6,7 @@
   <div class="dashboard-content" [class.sidebar-collapsed]="!isSidebarOpen">
     <app-dashboard-header
       [userRole]="'Citizen'"
-      [username]="tokenStorage.getUser()?.username || 'User'"
+      [username]="tokenStorage.getUser()?.username "
       [isSidebarCollapsed]="!isSidebarOpen"
       (toggleSidebar)="toggleSidebar()"
     ></app-dashboard-header>

@@ -1,31 +1,47 @@
 <header class="dashboard-header" [class.collapsed]="isSidebarCollapsed">
   <div class="header-left">
-    <button class="menu-toggle" (click)="onMenuClick()" *ngIf="!alwaysShowSidebar">
-      <span class="material-icons">menu</span>
+    <button class="menu-toggle" (click)="onMenuClick()" *ngIf="!alwaysShowSidebar" [class.active]="!isSidebarCollapsed">
+      <span class="material-icons">{{ isSidebarCollapsed ? 'menu_open' : 'menu' }}</span>
     </button>
     <div class="header-title">
-      <h1>{{ userRole }} Dashboard</h1>
+      <h1>{{ userRole | titlecase }} Dashboard</h1>
     </div>
   </div>
 
   <div class="header-right">
     <div class="search-bar">
-      <input type="text" placeholder="Search..." />
+      <input type="text" placeholder="Search anything..." />
       <span class="material-icons">search</span>
     </div>
 
     <div class="header-actions">
-      <button class="notification-btn">
+      <button class="notification-btn" aria-label="Notifications">
         <span class="material-icons">notifications</span>
         <span class="notification-badge">3</span>
       </button>
 
-      <div class="user-profile" style="position: relative;" (click)="toggleDropdown()">
+      <div class="user-profile" (click)="toggleDropdown()">
         <img [src]="userPhotoUrl" alt="User avatar" />
         <span class="username">{{ username }}</span>
-        <span class="material-icons">arrow_drop_down</span>
-        <div *ngIf="dropdownOpen" class="profile-dropdown" style="position:absolute;top:100%;right:0;z-index:1000;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.15);border-radius:4px;min-width:140px;">
-          <button class="dropdown-item" (click)="goToProfile()" style="width:100%;text-align:left;padding:10px 16px;background:none;border:none;cursor:pointer;">Profile</button>
+        <span class="material-icons" [style.transform]="dropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)'">expand_more</span>
+        
+        <div *ngIf="dropdownOpen" class="profile-dropdown">
+          <button class="dropdown-item" (click)="goToProfile()">
+            <span class="material-icons">person</span>
+            My Profile
+          </button>
+          <button class="dropdown-item">
+            <span class="material-icons">settings</span>
+            Settings
+          </button>
+          <button class="dropdown-item">
+            <span class="material-icons">help_outline</span>
+            Help Center
+          </button>
+          <button class="dropdown-item" style="color: #dc2626;">
+            <span class="material-icons">logout</span>
+            Logout
+          </button>
         </div>
       </div>
     </div>

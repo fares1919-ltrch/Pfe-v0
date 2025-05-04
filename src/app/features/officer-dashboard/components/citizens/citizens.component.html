@@ -1,0 +1,182 @@
+<div class="citizens-container">
+  <!-- Header Section -->
+  <div class="header-section">
+    <h1>Citizen Records</h1>
+    <div class="controls">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search Citizens</mat-label>
+        <input matInput [(ngModel)]="searchTerm" (keyup)="onSearch()" placeholder="Search by name or ID...">
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+      <button mat-icon-button (click)="toggleViewMode()" class="view-toggle">
+        <mat-icon>{{ viewMode === 'grid' ? 'view_list' : 'grid_view' }}</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Grid View -->
+    <div class="citizens-grid" *ngIf="viewMode === 'grid'">
+      <div class="citizen-item" *ngFor="let citizen of filteredCitizens" 
+           (click)="!isLoading && selectCitizen(citizen)"
+           [class.selected]="selectedCitizen?.id === citizen.id"
+           [class.loading]="isLoading">
+        <div class="citizen-avatar">
+          <img [src]="citizen.biometricData.photo" [alt]="citizen.firstName + ' ' + citizen.lastName">
+          <div class="status-indicator" *ngIf="!isLoading"></div>
+        </div>
+        <div class="citizen-info">
+          <h3>{{ citizen.firstName }} {{ citizen.lastName }}</h3>
+          <p class="id-number" *ngIf="!isLoading">ID: {{ citizen.documents.idNumber }}</p>
+          <div class="quick-stats">
+            <span class="stat" *ngIf="!isLoading">
+              <mat-icon>person</mat-icon>
+              {{ citizen.gender }}
+            </span>
+            <span class="stat" *ngIf="!isLoading">
+              <mat-icon>cake</mat-icon>
+              {{ citizen.dateOfBirth | date:'mediumDate' }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- List View -->
+    <div class="citizens-list" *ngIf="viewMode === 'list'">
+      <div class="list-item" *ngFor="let citizen of filteredCitizens"
+           (click)="!isLoading && selectCitizen(citizen)"
+           [class.selected]="selectedCitizen?.id === citizen.id"
+           [class.loading]="isLoading">
+        <div class="list-item-content">
+          <img [src]="citizen.biometricData.photo" [alt]="citizen.firstName + ' ' + citizen.lastName">
+          <div class="list-item-details">
+            <h3>{{ citizen.firstName }} {{ citizen.lastName }}</h3>
+            <p *ngIf="!isLoading">ID: {{ citizen.documents.idNumber }}</p>
+            <p *ngIf="!isLoading">{{ citizen.contactInfo.email }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Popup Detailed View -->
+  <div class="popup-overlay" *ngIf="selectedCitizen" (click)="selectedCitizen = null">
+    <div class="popup-content" (click)="$event.stopPropagation()">
+      <button class="close-button" (click)="selectedCitizen = null">
+        <mat-icon>close</mat-icon>
+      </button>
+      
+      <div class="popup-header">
+        <div class="profile-section">
+          <img [src]="selectedCitizen.biometricData.photo" [alt]="selectedCitizen.firstName + ' ' + selectedCitizen.lastName">
+          <div class="profile-info">
+            <h2>{{ selectedCitizen.firstName }} {{ selectedCitizen.lastName }}</h2>
+            <p class="id-number">ID: {{ selectedCitizen.documents.idNumber }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="popup-body">
+        <div class="info-tabs">
+          <div class="tab" [class.active]="activeTab === 'personal'" (click)="activeTab = 'personal'">
+            <mat-icon>person</mat-icon>
+            Personal
+          </div>
+          <div class="tab" [class.active]="activeTab === 'biometric'" (click)="activeTab = 'biometric'">
+            <mat-icon>fingerprint</mat-icon>
+            Biometric
+          </div>
+          <div class="tab" [class.active]="activeTab === 'documents'" (click)="activeTab = 'documents'">
+            <mat-icon>badge</mat-icon>
+            Documents
+          </div>
+          <div class="tab" [class.active]="activeTab === 'contact'" (click)="activeTab = 'contact'">
+            <mat-icon>contact_mail</mat-icon>
+            Contact
+          </div>
+        </div>
+
+        <div class="tab-content">
+          <!-- Personal Information Tab -->
+          <div class="tab-pane" *ngIf="activeTab === 'personal'">
+            <div class="info-grid">
+              <div class="info-item">
+                <mat-icon>cake</mat-icon>
+                <span>Date of Birth</span>
+                <p>{{ selectedCitizen.dateOfBirth | date:'mediumDate' }}</p>
+              </div>
+              <div class="info-item">
+                <mat-icon>person</mat-icon>
+                <span>Gender</span>
+                <p>{{ selectedCitizen.gender }}</p>
+              </div>
+              <div class="info-item">
+                <mat-icon>home</mat-icon>
+                <span>Address</span>
+                <p>{{ selectedCitizen.address }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Biometric Data Tab -->
+          <div class="tab-pane" *ngIf="activeTab === 'biometric'">
+            <div class="biometric-grid">
+              <div class="biometric-item">
+                <div class="biometric-value">{{ selectedCitizen.biometricData.height }} cm</div>
+                <span>Height</span>
+              </div>
+              <div class="biometric-item">
+                <div class="biometric-value">{{ selectedCitizen.biometricData.weight }} kg</div>
+                <span>Weight</span>
+              </div>
+              <div class="biometric-item">
+                <div class="biometric-value">{{ selectedCitizen.biometricData.eyeColor }}</div>
+                <span>Eye Color</span>
+              </div>
+              
+            </div>
+          </div>
+
+          <!-- Documents Tab -->
+          <div class="tab-pane" *ngIf="activeTab === 'documents'">
+            <div class="documents-grid">
+              <div class="document-item">
+                <mat-icon>badge</mat-icon>
+                <span>ID Number</span>
+                <p>{{ selectedCitizen.documents.idNumber }}</p>
+              </div>
+              <div class="document-item" *ngIf="selectedCitizen.documents.passportNumber">
+                <mat-icon>flight_takeoff</mat-icon>
+                <span>Passport</span>
+                <p>{{ selectedCitizen.documents.passportNumber }}</p>
+              </div>
+              <div class="document-item" *ngIf="selectedCitizen.documents.drivingLicense">
+                <mat-icon>directions_car</mat-icon>
+                <span>Driving License</span>
+                <p>{{ selectedCitizen.documents.drivingLicense }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Contact Information Tab -->
+          <div class="tab-pane" *ngIf="activeTab === 'contact'">
+            <div class="contact-grid">
+              <div class="contact-item">
+                <mat-icon>email</mat-icon>
+                <span>Email</span>
+                <p>{{ selectedCitizen.contactInfo.email }}</p>
+              </div>
+              <div class="contact-item">
+                <mat-icon>phone</mat-icon>
+                <span>Phone</span>
+                <p>{{ selectedCitizen.contactInfo.phone }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -19,6 +19,8 @@ export interface User {
   firstName?: string;
   lastName?: string;
   role: string;
+  identityNumber?: string;
+  birthDate?: string;
 }
 
 @Injectable({

@@ -105,4 +105,9 @@ export class CpfRequestService {
     console.log('Service: Submitting CPF request with data:', requestData);
     return this.http.post<CpfRequest>(`${this.API_URL}/cpf-requests`, requestData, { withCredentials: true });
   }
+
+  // Alias method for getUserCpfRequests for better naming consistency
+  getCpfRequests(): Observable<CpfRequest[]> {
+    return this.getUserCpfRequests();
+  }
 }

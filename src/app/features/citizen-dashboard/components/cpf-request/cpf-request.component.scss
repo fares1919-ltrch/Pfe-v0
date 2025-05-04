@@ -17,7 +17,19 @@
   height: 100vh;
   background-color: #f4f4f4;
 }
+.error-snackbar {
+  background-color: #ff4d4f !important;
+  color: rgb(227, 178, 178) !important;
+  border: 2px  red solid!important;
+  border-radius: 10px !important;
+}
+.success-snackbar {
+  background-color: #1ed60a !important;
+  color: rgb(179, 227, 178) !important;
+  border: 2px  rgb(20, 133, 40) solid!important;
+  border-radius: 10px !important;
 
+}
 .maps{
   background-color: red;
 }
@@ -92,9 +104,48 @@ input:focus {
   color: #DE350B;
   font-size: 0.875rem;
   line-height: 1.25rem;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 100;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  animation: alertFadeIn 0.5s ease-out forwards, alertPulse 2s ease-in-out 0.5s infinite;
 }
 
-// Custom styling for date input and identity number input with white background
+.success-alert {
+  background-color: #E6F6E6 !important;
+  border-left: 4px solid #1ED60A !important;
+  color: #1A7F12 !important;
+}
+
+.error-alert {
+  background-color: #FFEBE6 !important;
+  border-left: 4px solid #FF5630 !important;
+  color: #DE350B !important;
+}
+
+@keyframes alertFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes alertPulse {
+  0% {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  50% {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+  100% {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+}
+
 input[type="date"],
 input[type="text"]#identityNumber {
   background-color: white !important;

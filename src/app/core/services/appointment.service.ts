@@ -42,6 +42,8 @@ export interface AvailableSlotsResponse {
   slots: TimeSlot[];
 }
 
+
+
 @Injectable({
   providedIn: 'root'
 })
@@ -73,35 +75,27 @@ export class AppointmentService {
       );
   }
 
-  // Create new appointment
-  createAppointment(appointmentData: Partial<Appointment>): Observable<Appointment> {
-    return this.http.post<Appointment>(`${this.API_URL}/appointments`, appointmentData, { withCredentials: true });
+  
+  
+
+  getTodayAppointements(): Observable<any> {
+    console.log("get today appointments servicccccccccccccccccce")
+    return this.http.get<any>(`${this.API_URL}/appointments/today`, { withCredentials: true });
   }
 
-  // Update appointment status (officer only)
-  updateAppointmentStatus(id: string, status: string, notes?: string): Observable<any> {
-    return this.http.put(`${this.API_URL}/appointments/${id}/status`, { status, notes }, { withCredentials: true });
+  getUpcomingAppointements(): Observable<any> {
+    console.log("get upcoming appointments servicccccccccccccccccce")
+    return this.http.get<any>(`${this.API_URL}/appointments/upcoming`, { withCredentials: true });
   }
 
-  // Get officer's appointments
-  getOfficerAppointments(): Observable<Appointment[]> {
-    return this.http.get<Appointment[]>(`${this.API_URL}/appointments/officer`, { withCredentials: true });
+  cancelAppointment(appointmentId: string): Observable<any> {
+    console.log("cancel appointment servicccccccccccccccccce" , appointmentId)
+    return this.http.put(`${this.API_URL}/appointments/cancel/${appointmentId}`, {}, { withCredentials: true });
   }
 
-  // Get available appointment slots
-  getAvailableSlots(date: string, centerId: string): Observable<AvailableSlotsResponse> {
-    const params = new HttpParams().set('date', date).set('center', centerId);
-    return this.http.get<AvailableSlotsResponse>(`${this.API_URL}/appointments/slots`, { params, withCredentials: true });
-  }
+  markAppointmentAsMissed(appointmentId: string): Observable<any> {
+    console.log("missed appointment servicccccccccccccccccce" , appointmentId)
 
-  // Reschedule appointment
-  rescheduleAppointment(id: string, newDateTime: string, reason: string): Observable<any> {
-    return this.http.put(`${this.API_URL}/appointments/${id}/reschedule`, { newDateTime, reason }, { withCredentials: true });
-  }
-
-  // Get center's daily appointments (officer only)
-  getCenterDailyAppointments(centerId: string, date: string): Observable<Appointment[]> {
-    const params = new HttpParams().set('date', date);
-    return this.http.get<Appointment[]>(`${this.API_URL}/appointments/center/${centerId}/daily`, { params, withCredentials: true });
+    return this.http.put(`${this.API_URL}/appointments/missed/${appointmentId}`, {}, { withCredentials: true });
   }
 }

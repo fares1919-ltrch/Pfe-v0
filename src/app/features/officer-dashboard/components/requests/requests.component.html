@@ -1,26 +1,37 @@
 <div class="container">
-  <div class="header">
-    <h1>CPF Requests</h1>
-    <div class="actions">
-      <!-- Custom select dropdown instead of mat-form-field -->
-      <div class="custom-select status-filter">
-        <label for="statusFilter">Status</label>
-        <select
-          id="statusFilter"
-          [(ngModel)]="statusFilter"
-          (change)="applyStatusFilter(statusFilter)"
-        >
-          <option value="all">All</option>
-          <option value="pending">Pending</option>
-          <option value="approved">Approved</option>
-          <option value="rejected">Rejected</option>
-          <option value="completed">Completed</option>
-        </select>
-      </div>
-      <button class="icon-button" (click)="refreshRequests()" title="Refresh">
+  <div class="header" style=" display: flex; justify-content: space-between; align-items: center;">
+    <div>
+      <h1>CPF Requests</h1>
+    </div>
+    <div style="display: flex; gap: 1rem;">
+      <button class="filter-btn">
+        <span class="material-icons">filter_list</span>
+        <div class="custom-select status-filter">
+          <label for="statusFilter">Filter:</label>
+          <select
+            id="statusFilter"
+            [(ngModel)]="statusFilter"
+            (change)="applyStatusFilter(statusFilter)"
+            [ngStyle]="{'&:hover': {'background-color': '#e2e8f0'}}"
+          >
+            <option value="all">All</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+      </button>
+      
+      <button class="icon-button" 
+             (click)="refreshPage()" 
+              matTooltip="Refresh pending approvals" 
+              matTooltipClass="action-button-tooltip"
+              matTooltipPosition="below">
         <span class="material-icon">refresh</span>
       </button>
     </div>
+    
   </div>
 
   <!-- Custom progress bar -->

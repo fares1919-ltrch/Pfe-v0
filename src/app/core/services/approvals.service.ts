@@ -9,10 +9,6 @@ interface VerifyResponse {
   message: string;
 }
 
-interface VerifyRequest {
-  dateTime: string;  // Combined date and time
-}
-
 // Represents a day with its available slots as returned by the API
 interface AvailableDayItem {
   date: string;
@@ -27,8 +23,8 @@ export class ApprovalsService {
 
   constructor(private http: HttpClient) {}
 
-  getPendingRequests(): Observable<any> {
-    return this.http.get(`${this.baseUrl}/cpf-requests/getPending`);
+  GetPendingAndApprovedReq(): Observable<any> {
+    return this.http.get(`${this.baseUrl}/cpf-requests/PendingAndApprovedReq`);
   }
 
   getAvailableDays(centerId: string): Observable<AvailableDayItem[]> {
@@ -44,11 +40,11 @@ export class ApprovalsService {
 
   verifyRequest(requestId: string, meetingDate: Date): Observable<any> {
     const dateTime = this.formatDateTime(meetingDate);
-
+    
     console.log(`Verifying request ${requestId} with date: ${dateTime}`);
     console.log("dateeeeeeeeeeeeeeeeeeee" , dateTime)
-
-    return this.http.post<any>(`${this.baseUrl}/appointments/schedule/${requestId}`, {
+    
+    return this.http.post<any>(`${this.baseUrl}/appointments/createScheduleAppointment/${requestId}`, {
       date : dateTime
     }).pipe(
       tap(response => console.log('Verify response:', response)),
@@ -59,16 +55,21 @@ export class ApprovalsService {
     );
   }
 
+  rescheduleRequest(requestId: string, newDate: Date): Observable<any> {
+    const date = this.formatDateTime(newDate); // format as yyyy-mm-dd
+    return this.http.put<any>(`${this.baseUrl}/appointments/reschedule/${requestId}`, { date });
+  }
+
   private formatDateTime(date: Date): string {
     if (!date) {
       return '';
     }
-
+    
     // Format as YYYY-MM-DD
     const year = date.getFullYear();
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const day = date.getDate().toString().padStart(2, '0');
-
+    
     // Return only the date part
     return `${year}-${month}-${day}`;
   }

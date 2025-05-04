@@ -162,7 +162,7 @@ export class TokenStorageService {
       });
     }
   }
-
+ 
   public saveUser(user: any): void {
     if (this.isBrowser) {
       if (!user) {
