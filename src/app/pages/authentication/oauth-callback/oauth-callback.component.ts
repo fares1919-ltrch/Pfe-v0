@@ -73,7 +73,7 @@ export class OAuthCallbackComponent implements OnInit {
           }
           this.tokenStorage.saveUser(data);
 
-          // Redirect based on user roles
+
           this.authService.redirectBasedOnUserRoles();
         } else {
           this.errorMessage = 'Authentication response missing token';
@@ -153,6 +153,7 @@ export class OAuthCallbackComponent implements OnInit {
 
   private redirectToProfile(): void {
     console.log('OAuth Callback: Redirecting user to appropriate dashboard');
+
     // Check if token and user are in storage before redirect
     const token = this.tokenStorage.getToken();
     const user = this.tokenStorage.getUser();
@@ -167,5 +168,6 @@ export class OAuthCallbackComponent implements OnInit {
       // Fallback to citizen dashboard if role-based redirect fails
       this.router.navigate(['/citizen-dashboard']);
     }
+
   }
 }

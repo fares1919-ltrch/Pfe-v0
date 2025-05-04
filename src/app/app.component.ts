@@ -12,7 +12,8 @@ import { catchError, switchMap, of, filter } from 'rxjs';
   imports: [
     RouterModule,
     RouterOutlet,
-    CommonModule,
+    CommonModule
+    
   ],
   providers: [CookieService],
   templateUrl: './app.component.html',

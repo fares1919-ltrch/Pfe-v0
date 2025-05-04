@@ -198,8 +198,8 @@
         <!-- Login/Signup Buttons -->
         <div class="flex flex-row w-full lg:w-auto space-x-2">
           <a
-            [routerLink]="['/auth/login']"
-            class="flex items-center justify-center w-full lg:w-auto px-2 py-1.5 border border-gray-600 rounded text-white hover:bg-[#6b21a8] transition text-sm"
+            (click)="handleLoginClick()"
+            class="flex items-center justify-center w-full lg:w-auto px-2 py-1.5 border border-gray-600 rounded text-white hover:bg-[#6b21a8] transition text-sm cursor-pointer"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

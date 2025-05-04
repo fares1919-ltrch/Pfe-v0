@@ -38,9 +38,9 @@
             <span class="material-icons">help_outline</span>
             Help Center
           </button>
-          <button class="dropdown-item" style="color: #dc2626;">
+          <button class="dropdown-item" style="color: #dc2626;" (click)="logout()" [disabled]="isLoggingOut">
             <span class="material-icons">logout</span>
-            Logout
+            {{ isLoggingOut ? 'Logging out...' : 'Logout' }}
           </button>
         </div>
       </div>

@@ -118,6 +118,7 @@ export class LoginComponent implements OnInit {
             console.log('Redirecting based on user roles');
             this.authService.redirectBasedOnUserRoles();
           }
+
         }
       },
       error: (error) => {
