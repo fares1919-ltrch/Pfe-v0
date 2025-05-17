@@ -52,7 +52,7 @@ export class DashboardSidebarComponent {
   menuItems: MenuItems = {
     citizen: [
       { icon: 'home', label: 'Home', route: '/' },
-      { icon: 'dashboard', label: 'Dashboard', route: '/citizen-dashboard/dashboard' },
+      { icon: 'dashboard', label: 'Overview', route: '/citizen-dashboard/dashboard' },
       { icon: 'description', label: 'Cpf Request', route: '/citizen-dashboard/cpf-request' },
       { icon: 'event', label: 'My Appointment', route: '/citizen-dashboard/appointment' },
       { icon: 'description', label: 'My Documents', route: '/citizen-dashboard/documents' },
@@ -61,7 +61,7 @@ export class DashboardSidebarComponent {
     ],
     officer: [
       { icon: 'home', label: 'Home', route: '/home' },
-      { icon: 'dashboard', label: 'Dashboard', route: '/officer-dashboard/dashboard' },
+      { icon: 'dashboard', label: 'Overview', route: '/officer-dashboard/dashboard' },
       { icon: 'description', label: 'CPF Requests', route: '/officer-dashboard/requests' },
       { icon: 'assignment_turned_in', label: 'Pending Approvals', route: '/officer-dashboard/approvals' },
       { icon: 'event_available', label: 'Appointments', route: '/officer-dashboard/appointments' },
@@ -70,7 +70,7 @@ export class DashboardSidebarComponent {
       ],
     manager: [
       { icon: 'home', label: 'Home', route: '/' },
-      { icon: 'dashboard', label: 'Dashboard', route: '/manager-dashboard' },
+      { icon: 'dashboard', label: 'Overview', route: '/manager-dashboard' },
       { icon: 'group', label: 'Staff', route: '/manager-dashboard/staff' },
       { icon: 'analytics', label: 'Analytics', route: '/manager-dashboard/analytics' },
       { icon: 'settings', label: 'Settings', route: '/manager-dashboard/settings' },

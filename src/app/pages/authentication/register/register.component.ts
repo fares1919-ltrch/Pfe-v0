@@ -125,6 +125,26 @@ export class RegisterComponent implements OnInit {
         this.termsAccepted = false;
 
         // Don't automatically log in - require email verification first
+        // Attempt to log in immediately after registration
+        this.authService.login(this.username, this.password).subscribe({
+          next: (loginRes) => {
+            this.isLoading = false;
+            if (loginRes && loginRes.accessToken) {
+              // Save tokens and user details
+              this.tokenStorage.saveToken(loginRes.accessToken);
+              if (loginRes.refreshToken) {
+                this.tokenStorage.saveRefreshToken(loginRes.refreshToken);
+              }
+              this.tokenStorage.saveUser(loginRes);
+              this.authService.redirectBasedOnUserRoles();
+            }
+          },
+          error: (loginErr) => {
+            this.isLoading = false;
+            this.errorMessage = 'Registration successful but automatic login failed. Please try logging in manually.';
+            this.router.navigate(['/auth/login']);
+          }
+        });
       },
       error: (err) => {
         this.isLoading = false;

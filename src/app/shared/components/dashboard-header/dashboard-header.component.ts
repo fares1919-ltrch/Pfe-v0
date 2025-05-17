@@ -1,9 +1,12 @@
-import { Component, Input, Output, EventEmitter, OnInit, HostListener } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, Input, Output, EventEmitter, OnInit, HostListener, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ProfileService } from '../../../core/services/profile.service';
 import { Router } from '@angular/router';
 import { trigger, transition, style, animate } from '@angular/animations';
+import { TokenStorageService } from '../../../core/services/token-storage.service';
+import { AuthService } from '../../../core/services/auth.service';
+import { CookieService } from 'ngx-cookie-service';
 
 @Component({
   selector: 'app-dashboard-header',
@@ -32,17 +35,40 @@ export class DashboardHeaderComponent implements OnInit {
 
   userPhotoUrl: string = 'assets/images/avatar-placeholder.png';
   dropdownOpen = false;
-  alwaysShowSidebar = false; // Changed to false to show the menu toggle button
-  isToggling = false; // Added to prevent multiple rapid clicks
-  isProfileClicked = false; // Track if profile is being clicked
+  alwaysShowSidebar = false;
+  isToggling = false;
+  isProfileClicked = false;
+  isLoggingOut = false;
+  currentUser: any;
+  private isBrowser: boolean;
 
-  constructor(private profileService: ProfileService, private router: Router) {}
+  constructor(
+    private profileService: ProfileService,
+    private tokenStorage: TokenStorageService,
+    private authService: AuthService,
+    private router: Router,
+    private cookieService: CookieService,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {
+    this.isBrowser = isPlatformBrowser(this.platformId);
+  }
 
   ngOnInit(): void {
+    this.currentUser = this.tokenStorage.getUser();
+    if (this.currentUser) {
+      this.username = this.currentUser.username;
+      this.userRole = this.currentUser.roles?.[0]?.replace('ROLE_', '') || 'User';
+      if (this.currentUser.photoUrl) {
+        this.userPhotoUrl = this.currentUser.photoUrl;
+      }
+    }
+
     this.profileService.getUserProfile().subscribe({
       next: (profile) => {
-        this.username = profile?.username || this.username;
-        this.userPhotoUrl = profile?.photoUrl || this.userPhotoUrl;
+        if (profile) {
+          this.username = profile.username || this.username;
+          this.userPhotoUrl = profile.photoUrl || this.userPhotoUrl;
+        }
       },
       error: () => {
         // fallback to placeholder
@@ -50,30 +76,62 @@ export class DashboardHeaderComponent implements OnInit {
     });
   }
 
-  // Add global click listener to handle clicks outside the dropdown
+  logout(): void {
+    this.isLoggingOut = true;
+    const provider = this.currentUser?.provider;
+
+    this.authService.logout().subscribe({
+      next: () => {
+        console.log('Logout successful');
+        this.tokenStorage.signOut();
+        this.cookieService.deleteAll('/');
+
+        if (provider === 'google' && this.isBrowser) {
+          sessionStorage.setItem('google-logout', 'true');
+          window.location.href = '/auth/login?logout=true&provider=google';
+          
+          setTimeout(() => {
+            window.open('https://accounts.google.com/Logout', '_blank');
+          }, 100);
+        } else {
+          window.location.replace('/auth/login');
+        }
+      },
+      error: (err) => {
+        console.error('Logout error:', err);
+        this.tokenStorage.signOut();
+        this.cookieService.deleteAll('/');
+        
+        if (provider === 'google' && this.isBrowser) {
+          sessionStorage.setItem('google-logout', 'true');
+          window.location.href = '/auth/login?logout=true&provider=google';
+        } else {
+          window.location.replace('/auth/login');
+        }
+      },
+      complete: () => {
+        this.isLoggingOut = false;
+      }
+    });
+  }
+
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     const target = event.target as HTMLElement;
     
-    // If we're not clicking on the profile and the dropdown is open, close it
     if (!this.isProfileClicked && !target.closest('.user-profile') && this.dropdownOpen) {
       this.dropdownOpen = false;
     }
     
-    // Reset the flag after each click
     this.isProfileClicked = false;
   }
 
   toggleDropdown(event?: MouseEvent): void {
-    // Safely stop propagation if the event exists
     if (event) {
       event.stopPropagation();
     }
     
-    // Set flag to prevent the document click handler from immediately closing the dropdown
     this.isProfileClicked = true;
-    
-    // Toggle the dropdown state
     this.dropdownOpen = !this.dropdownOpen;
   }
 
@@ -83,14 +141,13 @@ export class DashboardHeaderComponent implements OnInit {
   }
 
   onMenuClick(): void {
-    if (this.isToggling) return; // Prevent rapid clicks
+    if (this.isToggling) return;
     
     this.isToggling = true;
     this.toggleSidebar.emit();
     
-    // Re-enable after animation completes
     setTimeout(() => {
       this.isToggling = false;
-    }, 400); // Match transition duration
+    }, 400);
   }
 }

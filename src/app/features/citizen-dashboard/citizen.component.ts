@@ -5,11 +5,11 @@ import { DashboardSidebarComponent } from "../../shared/components/dashboard-sid
 import { DashboardHeaderComponent } from "../../shared/components/dashboard-header/dashboard-header.component";
 import { TokenStorageService } from "../../core/services/token-storage.service";
 import { Router ,RouterOutlet} from "@angular/router";
-
+import { ChatbotComponent } from "../chatbot/chatbot.component";
 @Component({
   selector: 'app-citizen-dashboard',
   standalone: true,
-  imports: [CommonModule, DashboardSidebarComponent, DashboardHeaderComponent,RouterOutlet],
+  imports: [CommonModule, DashboardSidebarComponent, DashboardHeaderComponent,RouterOutlet,ChatbotComponent],
   templateUrl: './citizen.component.html',
   styleUrls: ['./citizen.component.scss']
 })

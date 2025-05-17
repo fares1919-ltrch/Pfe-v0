@@ -10,6 +10,8 @@ import { UserService } from '../../core/services/user.service';
 import { HeaderComponent } from './components/header/header.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { GuidesComponent } from './components/guides/guides.component';
+import { ChatbotComponent } from '../chatbot/chatbot.component';
+
 @Component({
   selector: 'app-home',
   standalone: true,
@@ -24,6 +26,7 @@ import { GuidesComponent } from './components/guides/guides.component';
     FeaturesShowcaseComponent,
     FindUsComponent,
     GuidesComponent,
+    ChatbotComponent,
   ],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],

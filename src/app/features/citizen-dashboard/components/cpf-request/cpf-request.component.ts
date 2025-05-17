@@ -348,13 +348,7 @@ export class CpfRequestComponent {
         // Show success message with new alert method
         this.showAlertMessage('Request submitted successfully', 'success');
 
-        // Also use snackbar for immediate feedback
-        this.snackBar.open('Request submitted successfully', 'Close', {
-          duration: 5000,
-          panelClass: ['success-snackbar'],
-          horizontalPosition: 'center',
-          verticalPosition: 'bottom'
-        });
+       
 
         // Navigate to dashboard or confirmation page
         this.router.navigate(['/citizen-dashboard/cpf-request']);
@@ -380,13 +374,7 @@ export class CpfRequestComponent {
           this.showAlertMessage('There was an error submitting your request. Please try again later.', 'error');
         }
 
-        // Also use snackbar for immediate feedback
-        this.snackBar.open(this.alertMessage, 'Close', {
-          duration: 5000,
-          panelClass: ['error-snackbar'],
-          horizontalPosition: 'center',
-          verticalPosition: 'bottom'
-        });
+       
       }
     });
   }
@@ -453,13 +441,7 @@ export class CpfRequestComponent {
           // Show alert for existing request
           this.showAlertMessage('You already have an existing CPF request', 'error');
           
-          // Also keep snackbar for consistent user experience
-          this.snackBar.open('You already have an existing CPF request', 'Close', {
-            duration: 5000,
-            panelClass: ['error-snackbar'],
-            horizontalPosition: 'center',
-            verticalPosition: 'bottom'
-          });
+          
         }
       },
       error: (error) => {
