@@ -78,51 +78,18 @@ export class DashboardHeaderComponent implements OnInit {
 
   logout(): void {
     this.isLoggingOut = true;
-    const provider = this.currentUser?.provider;
-
-    this.authService.logout().subscribe({
-      next: () => {
-        console.log('Logout successful');
-        this.tokenStorage.signOut();
-        this.cookieService.deleteAll('/');
-
-        if (provider === 'google' && this.isBrowser) {
-          sessionStorage.setItem('google-logout', 'true');
-          window.location.href = '/auth/login?logout=true&provider=google';
-          
-          setTimeout(() => {
-            window.open('https://accounts.google.com/Logout', '_blank');
-          }, 100);
-        } else {
-          window.location.replace('/auth/login');
-        }
-      },
-      error: (err) => {
-        console.error('Logout error:', err);
-        this.tokenStorage.signOut();
-        this.cookieService.deleteAll('/');
-        
-        if (provider === 'google' && this.isBrowser) {
-          sessionStorage.setItem('google-logout', 'true');
-          window.location.href = '/auth/login?logout=true&provider=google';
-        } else {
-          window.location.replace('/auth/login');
-        }
-      },
-      complete: () => {
-        this.isLoggingOut = false;
-      }
-    });
+    this.authService.logoutAndRedirect(this.currentUser, this.cookieService, this.isBrowser);
+    this.isLoggingOut = false;
   }
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     const target = event.target as HTMLElement;
-    
+
     if (!this.isProfileClicked && !target.closest('.user-profile') && this.dropdownOpen) {
       this.dropdownOpen = false;
     }
-    
+
     this.isProfileClicked = false;
   }
 
@@ -130,7 +97,7 @@ export class DashboardHeaderComponent implements OnInit {
     if (event) {
       event.stopPropagation();
     }
-    
+
     this.isProfileClicked = true;
     this.dropdownOpen = !this.dropdownOpen;
   }
@@ -142,10 +109,10 @@ export class DashboardHeaderComponent implements OnInit {
 
   onMenuClick(): void {
     if (this.isToggling) return;
-    
+
     this.isToggling = true;
     this.toggleSidebar.emit();
-    
+
     setTimeout(() => {
       this.isToggling = false;
     }, 400);

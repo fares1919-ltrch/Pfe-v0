@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { Router } from '@angular/router';
 import { TokenStorageService } from '../../../core/services/token-storage.service';
+import { CookieService } from 'ngx-cookie-service';
 
 type MenuItem = {
   icon: string;
@@ -32,21 +33,13 @@ export class DashboardSidebarComponent {
   constructor(
     private authService: AuthService,
     private tokenStorage: TokenStorageService,
-    private router: Router
+    private router: Router,
+    private cookieService: CookieService
   ) { }
 
   logout() {
-    this.authService.logout().subscribe({
-      next: () => {
-        this.tokenStorage.signOut(); // Always clear tokens on logout
-        this.router.navigate(['/']); // Redirect to user home
-      },
-      error: (err) => {
-        console.error('Logout failed:', err);
-        this.tokenStorage.signOut(); // Fallback: clear tokens anyway
-        this.router.navigate(['/']);
-      }
-    });
+    const currentUser = this.tokenStorage.getUser();
+    this.authService.logoutAndRedirect(currentUser, this.cookieService, true);
   }
 
   menuItems: MenuItems = {

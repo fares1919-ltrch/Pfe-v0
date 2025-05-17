@@ -5,6 +5,7 @@ import { tap, map } from 'rxjs/operators';
 import { TokenStorageService } from "./token-storage.service";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { environment } from "../../../environments/environment";
+import { CookieService } from "ngx-cookie-service";
 
 // API endpoints constants
 const API_BASE_URL = environment.apiUrl;
@@ -25,7 +26,8 @@ export class AuthService {
   constructor(
     private http: HttpClient,
     private tokenStorageService: TokenStorageService,
-    private router: Router
+    private router: Router,
+    private cookieService: CookieService
   ) { }
 
   login(username: string, password: string): Observable<any> {
@@ -341,5 +343,38 @@ export class AuthService {
         return of({ id: 'unknown', username: 'User', roles: ['ROLE_USER'] });
       })
     );
+  }
+
+  /**
+   * Centralized logout and redirect logic for all logout buttons (header, sidebar, profile, etc.)
+   * Handles Google and non-Google users, always clears tokens and cookies, and redirects appropriately.
+   */
+  logoutAndRedirect(currentUser: any, cookieService: CookieService, isBrowser: boolean): void {
+    const provider = currentUser?.provider;
+    this.logout().subscribe({
+      next: () => {
+        this.tokenStorageService.signOut();
+        cookieService.deleteAll('/');
+        if (provider === 'google' && isBrowser) {
+          sessionStorage.setItem('google-logout', 'true');
+          window.location.href = '/auth/login?logout=true&provider=google';
+          setTimeout(() => {
+            window.open('https://accounts.google.com/Logout', '_blank');
+          }, 100);
+        } else {
+          window.location.replace('/auth/login');
+        }
+      },
+      error: () => {
+        this.tokenStorageService.signOut();
+        cookieService.deleteAll('/');
+        if (provider === 'google' && isBrowser) {
+          sessionStorage.setItem('google-logout', 'true');
+          window.location.href = '/auth/login?logout=true&provider=google';
+        } else {
+          window.location.replace('/auth/login');
+        }
+      }
+    });
   }
 }
