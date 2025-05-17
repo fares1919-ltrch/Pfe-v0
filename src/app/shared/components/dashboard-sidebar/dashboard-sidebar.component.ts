@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { Router } from '@angular/router';
+import { TokenStorageService } from '../../../core/services/token-storage.service';
 
 type MenuItem = {
   icon: string;
@@ -28,19 +29,21 @@ export class DashboardSidebarComponent {
   @Input() userRole: string = '';
   @Input() isCollapsed: boolean = false;
 
-  constructor(private authService: AuthService, private router: Router) { }
+  constructor(
+    private authService: AuthService,
+    private tokenStorage: TokenStorageService,
+    private router: Router
+  ) { }
 
   logout() {
     this.authService.logout().subscribe({
       next: () => {
-        // Optionally show a notification here
+        this.tokenStorage.signOut(); // Always clear tokens on logout
         this.router.navigate(['/']); // Redirect to user home
       },
       error: (err) => {
-        // Optionally show an error notification here
         console.error('Logout failed:', err);
-        // Fallback: still clear tokens and redirect
-        this.authService['tokenStorageService'].signOut();
+        this.tokenStorage.signOut(); // Fallback: clear tokens anyway
         this.router.navigate(['/']);
       }
     });

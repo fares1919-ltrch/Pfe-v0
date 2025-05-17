@@ -7,7 +7,7 @@ export const HOME_ROUTES: Routes = [
     path: '',
     component: HomeComponent,
     children: [
-      // Add child routes
+      // No more child routes here
     ]
   }
 ];

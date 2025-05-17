@@ -1,1 +1,71 @@
 // Styles for guides component
+
+// Guides Section Styling
+.guides-section {
+  position: relative;
+  width: 100%;
+  min-height: 420px;
+  padding: 5rem 1rem 5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(ellipse at center, rgba(255,255,255,0.18) 0%, rgba(107,33,168,0.10) 40%, rgba(30,30,42,1) 80%),
+    linear-gradient(120deg, #23233a 60%, #1e1e2a 100%);
+  overflow: hidden;
+}
+
+.guides-title {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.01em;
+  margin-bottom: 0.5rem;
+  z-index: 1;
+  text-shadow: 0 2px 16px rgba(107,33,168,0.12);
+}
+
+.guides-divider {
+  width: 4rem;
+  height: 0.25rem;
+  margin: 0 auto 1.5rem auto;
+  border-radius: 1rem;
+  background: linear-gradient(90deg, #6b21a8 0%, #a78bfa 100%);
+  box-shadow: 0 2px 12px 0 rgba(167,139,250,0.18);
+}
+
+.guides-desc {
+  font-size: 1.25rem;
+  color: #fff;
+  max-width: 32rem;
+  margin: 0 auto 2.5rem auto;
+  font-weight: 400;
+  z-index: 1;
+  text-shadow: 0 2px 12px rgba(30,30,42,0.18);
+}
+
+.guides-accent {
+  color: #a78bfa;
+  font-weight: 600;
+}
+
+.guides-btn {
+  margin-top: 0.5rem;
+  padding: 0.75rem 2.5rem;
+  border-radius: 0.75rem;
+  background: linear-gradient(90deg, #6b21a8 0%, #a78bfa 100%);
+  color: #fff;
+  font-weight: 600;
+  font-size: 1.125rem;
+  box-shadow: 0 4px 24px 0 rgba(107,33,168,0.18);
+  border: none;
+  outline: none;
+  cursor: pointer;
+  transition: transform 0.18s cubic-bezier(.4,2,.6,1), box-shadow 0.18s;
+  z-index: 1;
+}
+.guides-btn:hover, .guides-btn:focus {
+  transform: scale(1.06) translateY(-2px);
+  box-shadow: 0 8px 32px 0 rgba(167,139,250,0.22);
+}
