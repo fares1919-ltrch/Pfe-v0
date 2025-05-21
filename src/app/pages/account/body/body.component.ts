@@ -398,53 +398,51 @@ export class BodyComponent implements OnInit, AfterViewInit {
 
     // Check which fields have been modified
     Object.keys(formValue).forEach(key => {
-      if (key !== 'username' && key !== 'email') {
-        let currentValue = formValue[key as keyof UserProfile];
-        const existingValue = this.currentUser?.[key as keyof UserProfile];
-        const control = this.profileForm.get(key);
+      let currentValue = formValue[key as keyof UserProfile];
+      const existingValue = this.currentUser?.[key as keyof UserProfile];
+      const control = this.profileForm.get(key);
 
-        // Special handling for birthDate to ensure it's in the correct format
-        if (key === 'birthDate' && currentValue) {
-          try {
-            // Ensure birthDate is in ISO format for backend
-            const dateObj = new Date(currentValue);
-            if (!isNaN(dateObj.getTime())) {
-              currentValue = dateObj.toISOString().split('T')[0]; // Convert to YYYY-MM-DD format
+      // Special handling for birthDate to ensure it's in the correct format
+      if (key === 'birthDate' && currentValue) {
+        try {
+          // Ensure birthDate is in ISO format for backend
+          const dateObj = new Date(currentValue);
+          if (!isNaN(dateObj.getTime())) {
+            currentValue = dateObj.toISOString().split('T')[0]; // Convert to YYYY-MM-DD format
+          }
+        } catch (e) {
+          console.error('Error formatting birth date:', e);
+        }
+      }
+
+      // Convert values to strings for consistent comparison
+      const currentValueStr = currentValue !== null && currentValue !== undefined ? String(currentValue).trim() : '';
+      const existingValueStr = existingValue !== null && existingValue !== undefined ? String(existingValue).trim() : '';
+
+      // For debugging
+      console.log(`Field: ${key}, Current: "${currentValueStr}", Existing: "${existingValueStr}", Changed: ${currentValueStr !== existingValueStr}`);
+
+      // Only include fields that have been modified and are valid
+      if (currentValueStr !== existingValueStr && (!control || !control.errors)) {
+        // Special handling for sensitive fields
+        if (sensitiveFields.includes(key)) {
+          // Check if the field already has a value in the database
+          if (existingValueStr !== '') {
+            this.showAlert(`${key === 'birthDate' ? 'Birth date' : 'Identity number'} can only be set once`, 'error');
+            // Reset the form value to the original value
+            if (control) {
+              const patch: any = {};
+              patch[key] = existingValue;
+              this.profileForm.patchValue(patch);
             }
-          } catch (e) {
-            console.error('Error formatting birth date:', e);
+
+            // Important: Skip adding this field to changedFields but continue with others
+            return; // This return only exits the current iteration of forEach
           }
         }
 
-        // Convert values to strings for consistent comparison
-        const currentValueStr = currentValue !== null && currentValue !== undefined ? String(currentValue).trim() : '';
-        const existingValueStr = existingValue !== null && existingValue !== undefined ? String(existingValue).trim() : '';
-
-        // For debugging
-        console.log(`Field: ${key}, Current: "${currentValueStr}", Existing: "${existingValueStr}", Changed: ${currentValueStr !== existingValueStr}`);
-
-        // Only include fields that have been modified and are valid
-        if (currentValueStr !== existingValueStr && (!control || !control.errors)) {
-          // Special handling for sensitive fields
-          if (sensitiveFields.includes(key)) {
-            // Check if the field already has a value in the database
-            if (existingValueStr !== '') {
-              this.showAlert(`${key === 'birthDate' ? 'Birth date' : 'Identity number'} can only be set once`, 'error');
-              // Reset the form value to the original value
-              if (control) {
-                const patch: any = {};
-                patch[key] = existingValue;
-                this.profileForm.patchValue(patch);
-              }
-
-              // Important: Skip adding this field to changedFields but continue with others
-              return; // This return only exits the current iteration of forEach
-            }
-          }
-
-          // Add the original (non-string) value to changedFields
-          changedFields[key as keyof UserProfile] = currentValue;
-        }
+        // Add the original (non-string) value to changedFields
+        changedFields[key as keyof UserProfile] = currentValue;
       }
     });
 
@@ -458,45 +456,49 @@ export class BodyComponent implements OnInit, AfterViewInit {
 
     // Check for identity number uniqueness if it's being changed
     if (changedFields.identityNumber) {
-      this.isSubmitting = true;
-      this.profileService.checkIdentityNumberUnique(changedFields.identityNumber.toString())
-        .pipe(
-          catchError(() => {
-            this.isSubmitting = false;
-            return of(true); // Assume it's unique on error to allow the user to try
-          })
-        )
-        .subscribe(isUnique => {
-          if (!isUnique) {
-            this.isSubmitting = false;
-            this.showAlert('Identity number is already in use', 'error');
-            // Reset the form value
-            if (this.currentUser && this.currentUser.identityNumber) {
-              this.profileForm.patchValue({
-                identityNumber: this.currentUser.identityNumber
-              });
-            } else {
-              this.profileForm.patchValue({
-                identityNumber: ''
-              });
-            }
-
-            // Remove the identity number from changed fields
-            delete changedFields.identityNumber;
-
-            // If we still have other changes, proceed with saving those
-            if (Object.keys(changedFields).length > 0) {
-              this.proceedWithProfileSave(changedFields);
-            }
-          } else {
-            // Continue with saving the profile
-            this.proceedWithProfileSave(changedFields);
-          }
-        });
+      this.checkIdentityNumberAndSave(changedFields);
     } else {
       // No identity number change, proceed normally
       this.proceedWithProfileSave(changedFields);
     }
+  }
+
+  private checkIdentityNumberAndSave(changedFields: Partial<UserProfile>) {
+    this.isSubmitting = true;
+    this.profileService.checkIdentityNumberUnique(changedFields.identityNumber!.toString())
+      .pipe(
+        catchError(() => {
+          this.isSubmitting = false;
+          return of(true); // Assume it's unique on error to allow the user to try
+        })
+      )
+      .subscribe(isUnique => {
+        if (!isUnique) {
+          this.isSubmitting = false;
+          this.showAlert('Identity number is already in use', 'error');
+          // Reset the form value
+          if (this.currentUser && this.currentUser.identityNumber) {
+            this.profileForm.patchValue({
+              identityNumber: this.currentUser.identityNumber
+            });
+          } else {
+            this.profileForm.patchValue({
+              identityNumber: ''
+            });
+          }
+
+          // Remove the identity number from changed fields
+          delete changedFields.identityNumber;
+
+          // If we still have other changes, proceed with saving those
+          if (Object.keys(changedFields).length > 0) {
+            this.proceedWithProfileSave(changedFields);
+          }
+        } else {
+          // Continue with saving the profile
+          this.proceedWithProfileSave(changedFields);
+        }
+      });
   }
 
   private proceedWithProfileSave(changedFields: Partial<UserProfile>) {
@@ -520,8 +522,29 @@ export class BodyComponent implements OnInit, AfterViewInit {
       .pipe(
         catchError((error: HttpErrorResponse) => {
           this.isSubmitting = false;
-          const errorMessage = error.error?.message || 'Failed to update profile';
-          this.showAlert(errorMessage, 'error');
+
+          // Check for specific error types
+          if (error.error?.message?.includes('Username is already taken')) {
+            this.showAlert('Username is already taken. Please choose a different username.', 'error');
+            // Reset the username field to its original value
+            if (this.currentUser && this.currentUser.username) {
+              this.profileForm.patchValue({
+                username: this.currentUser.username
+              });
+            }
+          } else if (error.error?.message?.includes('Email is already in use')) {
+            this.showAlert('Email is already in use. Please use a different email address.', 'error');
+            // Reset the email field to its original value
+            if (this.currentUser && this.currentUser.email) {
+              this.profileForm.patchValue({
+                email: this.currentUser.email
+              });
+            }
+          } else {
+            const errorMessage = error.error?.message || 'Failed to update profile';
+            this.showAlert(errorMessage, 'error');
+          }
+
           return of(null);
         })
       )
@@ -535,6 +558,7 @@ export class BodyComponent implements OnInit, AfterViewInit {
         const updatedFieldNames = Object.keys(changedFields)
           .map(key => {
             switch(key) {
+              case 'username': return 'username';
               case 'firstName': return 'first name';
               case 'lastName': return 'last name';
               case 'birthDate': return 'birth date';

@@ -1,8 +1,8 @@
-import { Component, Renderer2, ElementRef } from '@angular/core';
+import { Component, Renderer2, ElementRef, OnInit } from '@angular/core';
 import { MapsComponent } from './maps/maps.component';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
-import { FormsModule, NgForm } from '@angular/forms';
+import { FormsModule, NgForm, ReactiveFormsModule, FormControl } from '@angular/forms';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { TokenStorageService } from '../../../../core/services/token-storage.service';
 import { ProfileService } from '../../../../core/services/profile.service';
@@ -11,7 +11,7 @@ import { CpfRequestService, CpfRequest } from '../../../../core/services/cpf-req
 import { CenterService } from '../../../../core/services/center.service';
 import { finalize } from 'rxjs/operators';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatDatepickerModule, DateFilterFn } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -50,6 +50,7 @@ interface LocationInfo {
   imports: [
     CommonModule,
     FormsModule,
+    ReactiveFormsModule,
     RouterModule,
     MapsComponent,
     MatSnackBarModule,
@@ -64,7 +65,7 @@ interface LocationInfo {
   templateUrl: './cpf-request.component.html',
   styleUrls: ['./cpf-request.component.scss']
 })
-export class CpfRequestComponent {
+export class CpfRequestComponent implements OnInit {
   identityNumber: string = '';
   address: string = '';
   loading: boolean = false;
@@ -83,6 +84,7 @@ export class CpfRequestComponent {
   minDate: Date;
   maxDate: Date;
   selectedTime: string | null = null;
+  dateControl = new FormControl<Date | null>(null);
   availableTimeSlots: string[] = [
     '09:00 AM', '09:30 AM', '10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM',
     '02:00 PM', '02:30 PM', '03:00 PM', '03:30 PM', '04:00 PM', '04:30 PM'
@@ -110,11 +112,11 @@ export class CpfRequestComponent {
   ) {
     this.loadUserProfile();
     this.checkExistingRequest();
-    
+
     // Set min date to tomorrow
     this.minDate = new Date();
     this.minDate.setDate(this.minDate.getDate() + 1);
-    
+
     // Set max date to 3 months from now
     this.maxDate = new Date();
     this.maxDate.setMonth(this.maxDate.getMonth() + 3);
@@ -285,7 +287,7 @@ export class CpfRequestComponent {
 
   onDateSelected(event: any): void {
     const dateStr = event.value ? event.value.toISOString().split('T')[0] : '';
-    
+
     if (dateStr && this.validateDateInput(dateStr)) {
       if (this.isDateAvailable(event.value)) {
         this.selectedDate = event.value;
@@ -304,7 +306,7 @@ export class CpfRequestComponent {
     const today = new Date();
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
-    
+
     this.bookedTimeSlots = {
       [tomorrow.toISOString().split('T')[0]]: ['09:00 AM', '10:30 AM', '02:00 PM']
     };
@@ -312,16 +314,16 @@ export class CpfRequestComponent {
 
   isTimeSlotAvailable(timeSlot: string): boolean {
     if (!this.selectedDate) return false;
-    
+
     const dateKey = this.selectedDate.toISOString().split('T')[0];
     const bookedSlots = this.bookedTimeSlots[dateKey] || [];
-    
+
     // Convert time slot to 24-hour format for comparison
     const timeRegex = /^(0?[1-9]|1[0-2]):[0-5][0-9] (AM|PM)$/i;
     if (timeRegex.test(timeSlot)) {
       const [timeStr, period] = timeSlot.split(' ');
       let [hours, minutes] = timeStr.split(':').map(Number);
-      
+
       if (period.toUpperCase() === 'PM' && hours !== 12) {
         hours += 12;
       } else if (period.toUpperCase() === 'AM' && hours === 12) {
@@ -331,7 +333,7 @@ export class CpfRequestComponent {
       const time24Hour = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
       return !bookedSlots.includes(time24Hour);
     }
-    
+
     return false;
   }
 
@@ -341,7 +343,7 @@ export class CpfRequestComponent {
     if (timeRegex.test(time)) {
       const [timeStr, period] = time.split(' ');
       let [hours, minutes] = timeStr.split(':').map(Number);
-      
+
       // Convert to 24-hour format
       if (period.toUpperCase() === 'PM' && hours !== 12) {
         hours += 12;
@@ -350,7 +352,7 @@ export class CpfRequestComponent {
       }
 
       const time24Hour = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-      
+
       if (this.validateTimeInput(time24Hour)) {
         this.selectedTime = time;
       } else {
@@ -453,7 +455,7 @@ export class CpfRequestComponent {
       },
       error: (error: HttpErrorResponse) => {
         console.error('Error submitting CPF request', error);
-        
+
         if (error.status === 400) {
           if (error.error?.message?.includes('already exists')) {
             this.showSnackBar('You already have an existing CPF request', 'error');
@@ -592,7 +594,7 @@ export class CpfRequestComponent {
     }
 
     const [hours, minutes] = time.split(':').map(Number);
-    
+
     // Check if time is within working hours (8 AM to 5 PM)
     if (hours < 8 || hours > 17 || (hours === 17 && minutes > 0)) {
       this.showSnackBar('Please select a time between 8:00 AM and 5:00 PM', 'error');
@@ -610,7 +612,7 @@ export class CpfRequestComponent {
       const dateKey = this.selectedDate.toISOString().split('T')[0];
       const bookedSlots = this.bookedTimeSlots[dateKey] || [];
       const timeFormatted = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-      
+
       if (bookedSlots.includes(timeFormatted)) {
         this.showSnackBar('This time slot is already booked', 'error');
         return false;
@@ -642,9 +644,12 @@ export class CpfRequestComponent {
     }
   }
 
-  isDateAvailable(date: Date): boolean {
+  isDateAvailable: DateFilterFn<Date | null> = (date: Date | null): boolean => {
+    // Return false if date is null
+    if (!date) return false;
+
     // Check if the date is in the unavailable dates array
-    return !this.unavailableDates.some(unavailableDate => 
+    return !this.unavailableDates.some(unavailableDate =>
       unavailableDate.getDate() === date.getDate() &&
       unavailableDate.getMonth() === date.getMonth() &&
       unavailableDate.getFullYear() === date.getFullYear()
@@ -656,5 +661,14 @@ export class CpfRequestComponent {
       return 'unavailable-date';
     }
     return 'available-date';
+  }
+
+  ngOnInit(): void {
+    // Initialize the dateControl and subscribe to changes
+    this.dateControl.valueChanges.subscribe(date => {
+      if (date) {
+        this.onDateSelected({ value: date });
+      }
+    });
   }
 }

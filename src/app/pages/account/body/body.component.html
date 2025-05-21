@@ -35,14 +35,13 @@
             </div>
           </div>
 
-          <div class="identity-details">
+          <div class="identity-details" [formGroup]="profileForm">
             <div class="form-group">
               <label for="username">Username</label>
               <input
                 type="text"
                 id="username"
-                [value]="profileForm.get('username')?.value"
-                readonly
+                formControlName="username"
                 class="form-control"
               />
             </div>
@@ -52,9 +51,9 @@
               <input
                 type="email"
                 id="email"
-                [value]="profileForm.get('email')?.value"
-                readonly
+                formControlName="email"
                 class="form-control"
+                readonly
               />
             </div>
           </div>
@@ -351,6 +350,7 @@
               </div>
             </div>
             <button
+              type="button"
               *ngIf="!session.current"
               (click)="revokeSession(session.token)"
               class="danger-btn"
@@ -370,7 +370,7 @@
         <div class="section-glow danger-glow"></div>
         <h2 class="section-title danger-title">Danger Zone</h2>
         <div class="danger-actions">
-          <button (click)="deleteAccount()" class="delete-btn">
+          <button type="button" (click)="deleteAccount()" class="delete-btn">
             <span class="btn-icon">⚠️</span>
             <span>Delete Account</span>
           </button>
@@ -383,5 +383,7 @@
 <!-- Alert Message -->
 <div *ngIf="alertMessage" [class]="'alert ' + alertType">
   {{ alertMessage }}
-  <button (click)="closeAlert()" class="close-alert">&times;</button>
+  <button type="button" (click)="closeAlert()" class="close-alert">
+    &times;
+  </button>
 </div>

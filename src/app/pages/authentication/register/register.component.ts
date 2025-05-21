@@ -62,21 +62,28 @@ export class RegisterComponent implements OnInit {
   onPasswordChange(password: string) {
     this.hasMinLength = password.length >= 8;
     // Commenting out complex rules for development
-    // this.hasUpperCase = /[A-Z]/.test(password);
-    // this.hasLowerCase = /[a-z]/.test(password);
-    // this.hasNumber = /\d/.test(password);
-    // this.hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+    this.hasUpperCase = /[A-Z]/.test(password);
+    this.hasLowerCase = /[a-z]/.test(password);
+    this.hasNumber = /\d/.test(password);
+    this.hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
 
     // Simplified rules for development
-    this.hasUpperCase = true;
-    this.hasLowerCase = true;
-    this.hasNumber = true;
-    this.hasSpecialChar = true;
+    // this.hasUpperCase = true;
+    // this.hasLowerCase = true;
+    // this.hasNumber = true;
+    // this.hasSpecialChar = true;
   }
 
   onSubmit(form: NgForm) {
     this.errorMessage = '';
     this.isLoading = true;
+
+    // Check for missing required fields
+    if (!this.username || !this.email || !this.password || !this.confirmPassword || !this.termsAccepted) {
+      this.errorMessage = 'Please fill in all required fields.';
+      this.isLoading = false;
+      return;
+    }
 
     // Check form validity
     if (form.invalid) {
@@ -183,19 +190,12 @@ export class RegisterComponent implements OnInit {
     this.authService.initiateGoogleAuth();
   }
 
-  /* Commenting out GitHub authentication as requested
-  initiateGithubAuth() {
-    this.authService.initiateGithubAuth();
-  }
-  */
 
   private isPasswordStrong(password: string): boolean {
-    return this.hasMinLength;
-    // Commenting out complex rules for development
-    // return this.hasMinLength &&
-    //        this.hasUpperCase &&
-    //        this.hasLowerCase &&
-    //        this.hasNumber &&
-    //        this.hasSpecialChar;
+    return this.hasMinLength &&
+      this.hasUpperCase &&
+      this.hasLowerCase &&
+      this.hasNumber &&
+      this.hasSpecialChar;
   }
 }

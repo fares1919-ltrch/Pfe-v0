@@ -98,19 +98,19 @@ export class TokenStorageService {
   public getToken(): string | null {
     if (!this.isBrowser) return null;
 
-    // Always check and clear logout flag when getting token from auth pages
-    this.checkAndClearLogoutFlagForAuthPages();
+    // Do NOT clear logout flag or tokens automatically on auth pages
+    // Only clear on explicit logout
 
-    // Try to get from cookie first
-    const cookieToken = this.cookieService.get(TOKEN_KEY);
-    if (cookieToken && cookieToken.length > 10) { // Ensure token is valid (not empty or malformed)
-      return cookieToken;
+    // Always use localStorage as the primary source
+    const localToken = window.localStorage.getItem(TOKEN_KEY);
+    if (localToken && localToken.length > 10) {
+      return localToken;
     }
 
-    // Fallback to localStorage
-    const localToken = window.localStorage.getItem(TOKEN_KEY);
-    if (localToken && localToken.length > 10) { // Ensure token is valid
-      return localToken;
+    // Fallback to cookie if localStorage is empty
+    const cookieToken = this.cookieService.get(TOKEN_KEY);
+    if (cookieToken && cookieToken.length > 10) {
+      return cookieToken;
     }
 
     // No valid token found
@@ -140,13 +140,17 @@ export class TokenStorageService {
 
   public getRefreshToken(): string | null {
     if (!this.isBrowser) return null;
-    // Try to get from cookie first
+    // Always use localStorage as the primary source
+    const localToken = window.localStorage.getItem(REFRESH_TOKEN_KEY);
+    if (localToken) {
+      return localToken;
+    }
+    // Fallback to cookie if localStorage is empty
     const cookieToken = this.cookieService.get(REFRESH_TOKEN_KEY);
     if (cookieToken) {
       return cookieToken;
     }
-    // Fallback to localStorage
-    return window.localStorage.getItem(REFRESH_TOKEN_KEY);
+    return null;
   }
 
   public saveRefreshToken(token: string): void {
@@ -162,7 +166,7 @@ export class TokenStorageService {
       });
     }
   }
- 
+
   public saveUser(user: any): void {
     if (this.isBrowser) {
       if (!user) {

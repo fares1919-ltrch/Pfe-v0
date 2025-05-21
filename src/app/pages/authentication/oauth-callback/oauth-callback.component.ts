@@ -73,8 +73,7 @@ export class OAuthCallbackComponent implements OnInit {
           }
           this.tokenStorage.saveUser(data);
 
-
-          this.authService.redirectBasedOnUserRoles();
+          this.redirectAfterLogin();
         } else {
           this.errorMessage = 'Authentication response missing token';
           this.isLoading = false;
@@ -118,12 +117,11 @@ export class OAuthCallbackComponent implements OnInit {
 
             // Wait a moment to ensure storage is updated
             setTimeout(() => {
-              console.log('OAuth Callback: Redirecting to profile');
-              this.redirectToProfile();
+              this.redirectAfterLogin();
             }, 500);
           } else {
             console.warn('OAuth Callback: Valid user data not found in response');
-            this.redirectToProfile();
+            this.redirectAfterLogin();
           }
         },
         error: (error) => {
@@ -140,34 +138,35 @@ export class OAuthCallbackComponent implements OnInit {
 
           this.tokenStorage.saveUser(minimalUser);
 
-          // So redirect to profile anyway
-          this.redirectToProfile();
+          // So redirect anyway
+          this.redirectAfterLogin();
         }
       });
     } catch (error) {
       console.error('OAuth Callback: Exception during user info fetch:', error);
-      // If any exception occurs, still redirect to profile
-      this.redirectToProfile();
+      // If any exception occurs, still redirect
+      this.redirectAfterLogin();
     }
   }
 
-  private redirectToProfile(): void {
-    console.log('OAuth Callback: Redirecting user to appropriate dashboard');
-
-    // Check if token and user are in storage before redirect
-    const token = this.tokenStorage.getToken();
-    const user = this.tokenStorage.getUser();
-    console.log('OAuth Callback: Before redirect - Token exists:', !!token);
-    console.log('OAuth Callback: Before redirect - User exists:', !!user);
-
-    // Redirect based on user roles
-    try {
-      this.authService.redirectBasedOnUserRoles();
-    } catch (e) {
-      console.error('Failed to redirect based on roles, using fallback', e);
-      // Fallback to citizen dashboard if role-based redirect fails
+  /**
+   * Redirect after login, using returnUrl if present, otherwise always dashboard
+   */
+  private redirectAfterLogin(): void {
+    // 1. Check for returnUrl in query params
+    let returnUrl = this.route.snapshot.queryParams['returnUrl'];
+    // 2. If not in query params, check sessionStorage (for cases where it was set before redirect)
+    if (!returnUrl && this.isBrowser) {
+      returnUrl = window.sessionStorage.getItem('returnUrl') || undefined;
+      if (returnUrl) {
+        window.sessionStorage.removeItem('returnUrl');
+      }
+    }
+    if (returnUrl) {
+      this.router.navigateByUrl(returnUrl);
+    } else {
+      // Always go to dashboard after login
       this.router.navigate(['/citizen-dashboard']);
     }
-
   }
 }
