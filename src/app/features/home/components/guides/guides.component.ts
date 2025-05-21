@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-guides',
@@ -7,5 +8,9 @@ import { Component } from '@angular/core';
   standalone: true
 })
 export class GuidesComponent {
-  constructor() {}
+  constructor(private router: Router) {}
+
+  goToFullGuide() {
+    this.router.navigate(['/guide']);
+  }
 }

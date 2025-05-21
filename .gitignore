@@ -40,5 +40,8 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
-/backend
 /Chapitre 1 v4.pdf
+/chap_00.tex
+/chap_01.tex
+/backend
+/backend/Docs/besoins_non_fonctionnels.md

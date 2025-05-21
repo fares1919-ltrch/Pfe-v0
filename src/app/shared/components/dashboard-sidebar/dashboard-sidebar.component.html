@@ -7,7 +7,12 @@
   <nav class="sidebar-nav">
     <ul>
       <li *ngFor="let item of currentMenuItems">
-        <a [routerLink]="item.route" [queryParams]="item.queryParams" routerLinkActive="active" [routerLinkActiveOptions]="{exact: item.route === '/'}">
+        <a
+          [routerLink]="item.route"
+          [queryParams]="item.queryParams"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: item.route === '/' }"
+        >
           <span class="material-icons">{{ item.icon }}</span>
           <span class="menu-label">{{ item.label }}</span>
         </a>
@@ -15,7 +20,7 @@
     </ul>
   </nav>
 
-  <div class="sidebar-footer" style="position: absolute; bottom: 0;">
+  <div class="sidebar-footer">
     <button class="logout-btn" (click)="logout()" data-tooltip="Logout">
       <span class="material-icons">logout</span>
       <span>Logout</span>

@@ -35,6 +35,9 @@ export class LoginComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    // Defensive: ensure all tokens are cleared
+    this.tokenStorage.signOut();
+
     // Always clear the logout flag when on login page
     this.tokenStorage.clearLogoutFlag();
 
