@@ -59,8 +59,8 @@ export class DashboardSidebarComponent {
     officer: [
       { icon: 'home', label: 'Home', route: '/home' },
       { icon: 'dashboard', label: 'Overview', route: '/officer-dashboard/dashboard' },
-      { icon: 'description', label: 'CPF Requests', route: '/officer-dashboard/requests' },
-      { icon: 'assignment_turned_in', label: 'Pending Approvals', route: '/officer-dashboard/approvals' },
+      // { icon: 'description', label: 'Requests', route: '/officer-dashboard/requests' },
+      { icon: 'assignment_turned_in', label: 'Requests', route: '/officer-dashboard/approvals' },
       { icon: 'event_available', label: 'Appointments', route: '/officer-dashboard/appointments' },
       { icon: 'people', label: 'citizens', route: '/officer-dashboard/citizens' },
       // { icon: 'people', label: 'dataSubmission', route: '/officer-dashboard/data-submission/:userId/:appointmentId' },

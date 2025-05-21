@@ -11,6 +11,13 @@ import { CpfRequestService, CpfRequest } from '../../../../core/services/cpf-req
 import { CenterService } from '../../../../core/services/center.service';
 import { finalize } from 'rxjs/operators';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTimepickerModule } from '@angular/material/timepicker';
 
 interface Address {
   street: string;
@@ -46,6 +53,13 @@ interface LocationInfo {
     RouterModule,
     MapsComponent,
     MatSnackBarModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatIconModule,
+    MatTimepickerModule
   ],
   templateUrl: './cpf-request.component.html',
   styleUrls: ['./cpf-request.component.scss']
@@ -59,15 +73,29 @@ export class CpfRequestComponent {
   status: string = 'pending';
   profileComplete: boolean = true;
   profileError: string = '';
-  showAlert: boolean = false;
-  alertMessage: string = '';
-  alertType: string = 'error'; // Default to error
-  private alertTimeout: any;
   missingFields: string[] = [];
   selectedLocation: LocationInfo | null = null;
   nearestCenter: string = '';
   centerDistance: number = 0;
   userProfile: any = null;
+  showCalendar: boolean = false;
+  selectedDate: Date | null = null;
+  minDate: Date;
+  maxDate: Date;
+  selectedTime: string | null = null;
+  availableTimeSlots: string[] = [
+    '09:00 AM', '09:30 AM', '10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM',
+    '02:00 PM', '02:30 PM', '03:00 PM', '03:30 PM', '04:00 PM', '04:30 PM'
+  ];
+  bookedTimeSlots: { [key: string]: string[] } = {};
+
+  // Add validation patterns
+  private readonly TIME_PATTERN = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
+  private readonly DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+
+  // Add arrays to track available and unavailable dates
+  availableDates: Date[] = [];
+  unavailableDates: Date[] = [];
 
   constructor(
     private http: HttpClient,
@@ -82,6 +110,18 @@ export class CpfRequestComponent {
   ) {
     this.loadUserProfile();
     this.checkExistingRequest();
+    
+    // Set min date to tomorrow
+    this.minDate = new Date();
+    this.minDate.setDate(this.minDate.getDate() + 1);
+    
+    // Set max date to 3 months from now
+    this.maxDate = new Date();
+    this.maxDate.setMonth(this.maxDate.getMonth() + 3);
+
+    // Load booked time slots (this would typically come from your backend)
+    this.loadBookedTimeSlots();
+    this.loadAvailableDates();
   }
 
   loadUserProfile() {
@@ -225,67 +265,129 @@ export class CpfRequestComponent {
     }
   }
 
-  showAlertMessage(message: string, type: 'success' | 'error'): void {
-    this.alertMessage = message;
-    this.alertType = type;
-    this.showAlert = true;
-
-    // Clear any existing timeout
-    if (this.alertTimeout) {
-      clearTimeout(this.alertTimeout);
-    }
-
-    // Scroll to top
-    setTimeout(() => {
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-      });
-      
-      // Focus on the alert for accessibility
-      const alertElement = this.elementRef.nativeElement.querySelector('#alert-message');
-      if (alertElement) {
-        alertElement.focus();
-      }
-    }, 100);
-
-    // Auto-hide after 7 seconds
-    this.alertTimeout = setTimeout(() => {
-      this.closeAlert();
-    }, 7000);
+  showSnackBar(message: string, type: 'success' | 'error'): void {
+    this.snackBar.open(message, 'Close', {
+      duration: 5000,
+      horizontalPosition: 'center',
+      verticalPosition: 'top',
+      panelClass: type === 'success' ? 'success-snackbar' : 'error-snackbar'
+    });
   }
 
-  closeAlert(): void {
-    this.showAlert = false;
-    this.alertMessage = '';
-    if (this.alertTimeout) {
-      clearTimeout(this.alertTimeout);
+  toggleCalendar(): void {
+    this.showCalendar = !this.showCalendar;
+    if (this.showCalendar) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+  }
+
+  onDateSelected(event: any): void {
+    const dateStr = event.value ? event.value.toISOString().split('T')[0] : '';
+    
+    if (dateStr && this.validateDateInput(dateStr)) {
+      if (this.isDateAvailable(event.value)) {
+        this.selectedDate = event.value;
+        this.selectedTime = null; // Reset selected time when date changes
+      } else {
+        this.showSnackBar('This date is not available. Please select another date.', 'error');
+        this.selectedDate = null;
+      }
+    } else {
+      this.selectedDate = null;
+    }
+  }
+
+  loadBookedTimeSlots() {
+    // This is a mock implementation. In a real application, you would fetch this from your backend
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    this.bookedTimeSlots = {
+      [tomorrow.toISOString().split('T')[0]]: ['09:00 AM', '10:30 AM', '02:00 PM']
+    };
+  }
+
+  isTimeSlotAvailable(timeSlot: string): boolean {
+    if (!this.selectedDate) return false;
+    
+    const dateKey = this.selectedDate.toISOString().split('T')[0];
+    const bookedSlots = this.bookedTimeSlots[dateKey] || [];
+    
+    // Convert time slot to 24-hour format for comparison
+    const timeRegex = /^(0?[1-9]|1[0-2]):[0-5][0-9] (AM|PM)$/i;
+    if (timeRegex.test(timeSlot)) {
+      const [timeStr, period] = timeSlot.split(' ');
+      let [hours, minutes] = timeStr.split(':').map(Number);
+      
+      if (period.toUpperCase() === 'PM' && hours !== 12) {
+        hours += 12;
+      } else if (period.toUpperCase() === 'AM' && hours === 12) {
+        hours = 0;
+      }
+
+      const time24Hour = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+      return !bookedSlots.includes(time24Hour);
+    }
+    
+    return false;
+  }
+
+  selectTimeSlot(time: string) {
+    // Convert 12-hour format to 24-hour format
+    const timeRegex = /^(0?[1-9]|1[0-2]):[0-5][0-9] (AM|PM)$/i;
+    if (timeRegex.test(time)) {
+      const [timeStr, period] = time.split(' ');
+      let [hours, minutes] = timeStr.split(':').map(Number);
+      
+      // Convert to 24-hour format
+      if (period.toUpperCase() === 'PM' && hours !== 12) {
+        hours += 12;
+      } else if (period.toUpperCase() === 'AM' && hours === 12) {
+        hours = 0;
+      }
+
+      const time24Hour = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+      
+      if (this.validateTimeInput(time24Hour)) {
+        this.selectedTime = time;
+      } else {
+        this.selectedTime = null;
+      }
+    } else {
+      this.showSnackBar('Please enter time in format HH:MM AM/PM (e.g., 09:30 AM)', 'error');
+      this.selectedTime = null;
     }
   }
 
   validateRequest(): boolean {
     console.log('Validating request before submission');
 
-    // Check if profile is complete
     if (this.missingFields.length > 0) {
       console.error('Profile validation failed: Missing required fields', this.missingFields);
-      this.showAlertMessage(`Please complete your profile. Missing fields: ${this.missingFields.join(', ')}`, 'error');
+      this.showSnackBar(`Please complete your profile. Missing fields: ${this.missingFields.join(', ')}`, 'error');
       return false;
     }
 
-    // Check if location is selected
     if (!this.selectedLocation) {
       console.error('Request validation failed: No location selected');
-      this.showAlertMessage('Please select a location on the map', 'error');
+      this.showSnackBar('Please select a location on the map', 'error');
       return false;
     }
 
-    // Check if we have valid user coordinates (even if no center is available)
+    if (!this.selectedDate || !this.selectedTime) {
+      console.error('Request validation failed: No date or time selected');
+      this.showSnackBar('Please select both date and time for your appointment', 'error');
+      return false;
+    }
+
     if (!this.selectedLocation.userCoords ||
         !this.selectedLocation.userCoords.lat ||
         !this.selectedLocation.userCoords.lon) {
       console.error('Request validation failed: Missing user coordinates');
-      this.showAlertMessage('Location information is incomplete. Please try selecting your location again.', 'error');
+      this.showSnackBar('Location information is incomplete. Please try selecting your location again.', 'error');
       return false;
     }
 
@@ -297,16 +399,14 @@ export class CpfRequestComponent {
     console.log('Submit button clicked');
     this.loading = true;
 
-    // Validate request before submitting
     if (!this.validateRequest()) {
       this.loading = false;
       return;
     }
 
-    // Additional validation for center ID
     if (!this.selectedLocation?.center?.id) {
       console.error('No center ID available');
-      this.showAlertMessage('Please select a valid service center', 'error');
+      this.showSnackBar('Please select a valid service center', 'error');
       this.loading = false;
       return;
     }
@@ -314,7 +414,9 @@ export class CpfRequestComponent {
     console.log('Preparing request data', {
       identityNumber: this.identityNumber,
       location: this.selectedLocation,
-      centerId: this.selectedLocation.center.id
+      centerId: this.selectedLocation.center.id,
+      appointmentDate: this.selectedDate,
+      appointmentTime: this.selectedTime
     });
 
     // Prepare request data with complete information
@@ -330,7 +432,9 @@ export class CpfRequestComponent {
         lon: this.selectedLocation?.userCoords?.lon || 0
       },
       centerId: this.selectedLocation.center.id,
-      cost: this.cost.split(' ')[0] // Extract numeric value from "7.09 BRL"
+      cost: this.cost.split(' ')[0],
+      appointmentDate: this.selectedDate,
+      appointmentTime: this.selectedTime
     };
 
     console.log('Submitting CPF request with data:', requestData);
@@ -344,37 +448,28 @@ export class CpfRequestComponent {
       next: (response) => {
         console.log('CPF request submitted successfully', response);
         this.status = 'submitted';
-        
-        // Show success message with new alert method
-        this.showAlertMessage('Request submitted successfully', 'success');
-
-       
-
-        // Navigate to dashboard or confirmation page
+        this.showSnackBar('Request submitted successfully', 'success');
         this.router.navigate(['/citizen-dashboard/cpf-request']);
       },
       error: (error: HttpErrorResponse) => {
         console.error('Error submitting CPF request', error);
         
-        // Provide more specific error messages
         if (error.status === 400) {
           if (error.error?.message?.includes('already exists')) {
-            this.showAlertMessage('You already have an existing CPF request', 'error');
+            this.showSnackBar('You already have an existing CPF request', 'error');
           } else if (error.error?.message) {
-            this.showAlertMessage(error.error.message, 'error');
+            this.showSnackBar(error.error.message, 'error');
           } else {
-            this.showAlertMessage('Please check your request details and try again.', 'error');
+            this.showSnackBar('Please check your request details and try again.', 'error');
           }
         } else if (error.status === 401) {
-          this.showAlertMessage('Your session has expired. Please log in again.', 'error');
+          this.showSnackBar('Your session has expired. Please log in again.', 'error');
           this.router.navigate(['/auth/login']);
         } else if (error.status === 404) {
-          this.showAlertMessage('The selected center is no longer available. Please choose another center.', 'error');
+          this.showSnackBar('The selected center is no longer available. Please choose another center.', 'error');
         } else {
-          this.showAlertMessage('There was an error submitting your request. Please try again later.', 'error');
+          this.showSnackBar('There was an error submitting your request. Please try again later.', 'error');
         }
-
-       
       }
     });
   }
@@ -438,15 +533,128 @@ export class CpfRequestComponent {
       next: (requests) => {
         console.log('Existing requests:', requests);
         if (requests && requests.length > 0) {
-          // Show alert for existing request
-          this.showAlertMessage('You already have an existing CPF request', 'error');
-          
-          
+          this.showSnackBar('You already have an existing CPF request', 'error');
         }
       },
       error: (error) => {
         console.error('Error checking existing requests:', error);
       }
     });
+  }
+
+  editDate(): void {
+    this.selectedDate = null;
+    this.selectedTime = null;
+  }
+
+  editTime(): void {
+    this.selectedTime = null;
+  }
+
+  // Add validation methods
+  validateDateInput(date: string): boolean {
+    if (!this.DATE_PATTERN.test(date)) {
+      this.showSnackBar('Invalid date format. Please use YYYY-MM-DD', 'error');
+      return false;
+    }
+
+    const selectedDate = new Date(date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (selectedDate < today) {
+      this.showSnackBar('Cannot select a date in the past', 'error');
+      return false;
+    }
+
+    const maxDate = new Date();
+    maxDate.setMonth(maxDate.getMonth() + 3);
+
+    if (selectedDate > maxDate) {
+      this.showSnackBar('Cannot select a date more than 3 months in advance', 'error');
+      return false;
+    }
+
+    // Check if it's a weekend
+    const day = selectedDate.getDay();
+    if (day === 0 || day === 6) {
+      this.showSnackBar('Cannot select weekends', 'error');
+      return false;
+    }
+
+    return true;
+  }
+
+  validateTimeInput(time: string): boolean {
+    if (!this.TIME_PATTERN.test(time)) {
+      this.showSnackBar('Invalid time format. Please use HH:MM (24-hour format)', 'error');
+      return false;
+    }
+
+    const [hours, minutes] = time.split(':').map(Number);
+    
+    // Check if time is within working hours (8 AM to 5 PM)
+    if (hours < 8 || hours > 17 || (hours === 17 && minutes > 0)) {
+      this.showSnackBar('Please select a time between 8:00 AM and 5:00 PM', 'error');
+      return false;
+    }
+
+    // Check if minutes are in 30-minute intervals
+    if (minutes !== 0 && minutes !== 30) {
+      this.showSnackBar('Please select a time in 30-minute intervals', 'error');
+      return false;
+    }
+
+    // Check if the time slot is already booked
+    if (this.selectedDate) {
+      const dateKey = this.selectedDate.toISOString().split('T')[0];
+      const bookedSlots = this.bookedTimeSlots[dateKey] || [];
+      const timeFormatted = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+      
+      if (bookedSlots.includes(timeFormatted)) {
+        this.showSnackBar('This time slot is already booked', 'error');
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  loadAvailableDates() {
+    // This is a mock implementation. In a real application, you would fetch this from your backend
+    const today = new Date();
+    const endDate = new Date();
+    endDate.setMonth(endDate.getMonth() + 3);
+
+    // Mark weekends as unavailable
+    for (let d = new Date(today); d <= endDate; d.setDate(d.getDate() + 1)) {
+      const day = d.getDay();
+      if (day === 0 || day === 6) { // Weekend
+        this.unavailableDates.push(new Date(d));
+      } else {
+        // Randomly mark some weekdays as unavailable for demonstration
+        if (Math.random() < 0.2) { // 20% chance of being unavailable
+          this.unavailableDates.push(new Date(d));
+        } else {
+          this.availableDates.push(new Date(d));
+        }
+      }
+    }
+  }
+
+  isDateAvailable(date: Date): boolean {
+    // Check if the date is in the unavailable dates array
+    return !this.unavailableDates.some(unavailableDate => 
+      unavailableDate.getDate() === date.getDate() &&
+      unavailableDate.getMonth() === date.getMonth() &&
+      unavailableDate.getFullYear() === date.getFullYear()
+    );
+  }
+
+  dateClass(date: Date): string {
+    if (!this.isDateAvailable(date)) {
+      return 'unavailable-date';
+    }
+    return 'available-date';
   }
 }

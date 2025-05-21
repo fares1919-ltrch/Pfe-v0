@@ -1,11 +1,19 @@
 <!-- approvals.component.html -->
 <div class="container">
   <div class="header">
-    <h1>Pending Approvals</h1>
+    <h1>Requests</h1>
     <div class="actions">
+      <div class="filter-controls">
+        <select [(ngModel)]="selectedStatus" (change)="applyFilter()" class="status-filter">
+          <option value="all">All Requests</option>
+          <option value="pending">Pending</option>
+          <option value="validated">Validated</option>
+          <option value="rejected">Rejected</option>
+        </select>
+      </div>
       <button class="icon-button" 
              (click)="refreshPage()" 
-              matTooltip="Refresh pending requests" 
+              matTooltip="Refresh requests" 
               matTooltipClass="action-button-tooltip"
               matTooltipPosition="below">
         <span class="material-icon">refresh</span>
@@ -19,27 +27,27 @@
   </div> -->
 
   <!-- Empty state when no data -->
-  <div *ngIf="dataSource.data.length === 0" class="empty-state">
+  <div *ngIf="!filteredDataSource.data || filteredDataSource.data.length === 0" class="empty-state">
     <div class="empty-state-icon">
       <span class="material-icon">search_off</span>
     </div>
-    <h3>No pending requests found</h3>
-    <p>There are currently no pending approval requests to display.</p>
+    <h3>No requests found</h3>
+    <p>There are currently no requests to display for the selected filter.</p>
   </div>
 
   <!-- Cards Grid Layout -->
-  <div *ngIf="dataSource.data.length > 0" class="cards-grid">
-    <div class="approval-card" *ngFor="let element of dataSource.data | slice: (currentPage-1)*pageSize : currentPage*pageSize">
+  <div *ngIf="filteredDataSource.data && filteredDataSource.data.length > 0" class="cards-grid">
+    <div class="approval-card" *ngFor="let element of filteredDataSource.data">
       <div class="card-header">
         <div class="card-title">
           <span class="username">{{element.username}}</span>
-          <span class="status-badge" [ngClass]="element.status.toLowerCase()">
+          <span class="status-badge" [ngClass]="element.status">
             {{element.status}}
           </span>
         </div>
         <div class="card-subtitle">
           <span class="date-label">Created:</span>
-          <span class="date-value">{{element.createdAt | date:'medium'}}</span>
+          <span class="date-value">{{formatDate(element.createdAt)}}</span>
         </div>
       </div>
       
@@ -60,62 +68,52 @@
           <div class="info-value">{{element.address}}</div>
         </div>
         
-        <div class="info-row meeting-date">
+        <div class="info-row">
           <div class="info-label">
             <span class="material-icon">event</span>
             Meeting Date
           </div>
-          <div class="info-value date-container">
-            <span *ngIf="element.meetingDate" class="date-text">{{ formatDate(element.meetingDate) }}</span>
-            <span *ngIf="!element.meetingDate" class="no-date">Not set</span>
-            <button class="icon-button calendar-icon-button" 
-                    (click)="openCalendar(element)"
-                    matTooltip="Set meeting date"
-                    matTooltipClass="action-button-tooltip"
-                    matTooltipPosition="right">
-              <span class="material-icon">calendar_today</span>
-            </button>
-          </div>
+          <div class="info-value">{{formatDate(element.meetingDate)}}</div>
         </div>
       </div>
       
       <div class="card-footer">
-        <button class="action-button verify-button"
-                *ngIf="element.status === 'pending'"
-                [disabled]="!element.meetingDate"
-                (click)="verifyRequest(element.requestId, element.meetingDate)"
-                [matTooltip]="!element.meetingDate ? 'Please set a meeting date first' : 'Approve this request'"
-                [matTooltipClass]="element.meetingDate ? 'action-button-tooltip' : 'disabled-button-tooltip'"
-                matTooltipPosition="above">
-          <span class="button-icon">✓</span>
-          <span class="button-text">Approve</span>
-        </button>
-        <button class="action-button reschedule-button"
-                *ngIf="element.status === 'approved'"
-                [disabled]="!element.meetingDate"
-                (click)="RescheduleRequest(element.requestId, element.meetingDate)"
-                [matTooltip]="!element.meetingDate ? 'Please set a meeting date first' : 'Reschedule this request'"
-                [matTooltipClass]="element.meetingDate ? 'action-button-tooltip' : 'disabled-button-tooltip'"
-                matTooltipPosition="above">
-          <span class="button-icon">⟳</span>
-          <span class="button-text">Reschedule</span>
-        </button>
+        <div class="action-buttons">
+          <button class="action-button validate" 
+                  *ngIf="element.status === 'pending'"
+                  (click)="handleAction(element, 'approve')"
+                  matTooltip="Validate this request"
+                  matTooltipClass="action-button-tooltip"
+                  matTooltipPosition="above">
+            <span class="button-icon">✓</span>
+            <span class="button-text">Validate</span>
+          </button>
+          <button class="action-button reject" 
+                  *ngIf="element.status === 'pending'"
+                  (click)="handleAction(element, 'reject')"
+                  matTooltip="Reject this request"
+                  matTooltipClass="action-button-tooltip"
+                  matTooltipPosition="above">
+            <span class="button-icon">✗</span>
+            <span class="button-text">Reject</span>
+          </button>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Custom paginator - Always visible when there's data -->
-  <div *ngIf="dataSource.data.length > 0" class="custom-paginator">
+  <!-- Custom paginator -->
+  <div *ngIf="filteredDataSource.data && filteredDataSource.data.length > 0" class="custom-paginator">
     <div class="paginator-range-label">
-      {{ dataSource.data.length === 0 ? '0-0 of 0' : 
-         Math.min(dataSource.data.length, 1) === 0 ? 0 : (currentPage - 1) * pageSize + 1 + '-' +
-         Math.min(currentPage * pageSize, dataSource.data.length) + ' of ' + dataSource.data.length }}
+      {{ filteredDataSource.data.length === 0 ? '0-0 of 0' : 
+         Math.min(filteredDataSource.data.length, 1) === 0 ? 0 : (currentPage - 1) * pageSize + 1 + '-' +
+         Math.min(currentPage * pageSize, filteredDataSource.data.length) + ' of ' + filteredDataSource.data.length }}
     </div>
 
     <div class="paginator-controls">
       <button
         class="icon-button"
-        [disabled]="currentPage === 1 || dataSource.data.length === 0"
+        [disabled]="currentPage === 1 || filteredDataSource.data.length === 0"
         (click)="onPageChange(currentPage - 1)"
       >
         <span class="material-icon">chevron_left</span>
@@ -125,7 +123,7 @@
 
       <button
         class="icon-button"
-        [disabled]="currentPage * pageSize >= dataSource.data.length || dataSource.data.length === 0"
+        [disabled]="currentPage * pageSize >= filteredDataSource.data.length || filteredDataSource.data.length === 0"
         (click)="onPageChange(currentPage + 1)"
       >
         <span class="material-icon">chevron_right</span>
@@ -134,42 +132,12 @@
 
     <div class="paginator-page-size">
       <label for="pageSize">Items per page:</label>
-      <select id="pageSize" [(ngModel)]="pageSize" (change)="updatePageSize()" [disabled]="dataSource.data.length === 0">
+      <select id="pageSize" [(ngModel)]="pageSize" (change)="updatePageSize()" [disabled]="filteredDataSource.data.length === 0">
         <option [value]="5">5</option>
         <option [value]="10">10</option>
         <option [value]="25">25</option>
         <option [value]="100">100</option>
       </select>
-    </div>
-  </div>
-  
-  <div class="calendar-overlay" *ngIf="showCalendar" (click)="closeCalendar($event)">
-    <div class="calendar-popup" (click)="$event.stopPropagation()">
-      <div class="calendar-header">
-        <button class="calendar-nav-button" (click)="prevMonth()"><</button>
-        <div class="calendar-title">{{ currentMonthName }} {{ currentYear }}</div>
-        <button class="calendar-nav-button" (click)="nextMonth()">></button>
-      </div>
-  
-      <div class="calendar-weekdays">
-        <div class="weekday" *ngFor="let day of weekdays">{{ day }}</div>
-      </div>
-  
-      <div class="calendar-days">
-        <div *ngFor="let day of calendarDays"
-             [class]="getDayClass(day)"
-             (click)="selectDate(day)"
-             [matTooltip]="getDayTooltip(day)"
-             [matTooltipClass]="getTooltipClass(day)"
-             matTooltipPosition="above">
-          {{ day.date }}
-        </div>
-      </div>
-  
-      <div class="calendar-actions">
-        <button class="calendar-button cancel" (click)="closeCalendar($event)">Cancel</button>
-        <button class="calendar-button apply" (click)="applyDate()">Apply</button>
-      </div>
     </div>
   </div>
 </div>
