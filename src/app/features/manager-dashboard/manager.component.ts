@@ -1,5 +1,6 @@
 import { Component, OnInit } from "@angular/core";
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { UserService } from "../../core/services/user.service";
 import { DashboardHeaderComponent } from "../../shared/components/dashboard-header/dashboard-header.component";
 import { DashboardSidebarComponent } from "../../shared/components/dashboard-sidebar/dashboard-sidebar.component";
@@ -9,7 +10,7 @@ import { Router } from "@angular/router";
 @Component({
   selector: 'app-manager-dashboard',
   standalone: true,
-  imports: [CommonModule, DashboardHeaderComponent, DashboardSidebarComponent],
+  imports: [CommonModule, RouterModule, DashboardHeaderComponent, DashboardSidebarComponent],
   templateUrl: './manager.component.html',
   styleUrls: ['./manager.component.scss']
 })

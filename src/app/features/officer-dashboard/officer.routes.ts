@@ -1,7 +1,6 @@
 import { Routes } from '@angular/router';
 import { OfficerComponent } from './officer.component';
 import { OfficerRequestsComponent } from './components/requests/requests.component';
-import { OfficerDashboardOverviewComponent } from './components/overview/officer-dashboard-overview.component';
 import { ApprovalsComponent } from './components/approvals/approvals.component';
 import { DataSubmissionComponent } from './components/data-submission/data-submission.component';
 import { AppointmentsComponent } from './components/appointments/appointments.component';

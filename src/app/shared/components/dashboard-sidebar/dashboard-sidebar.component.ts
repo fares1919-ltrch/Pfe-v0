@@ -44,7 +44,7 @@ export class DashboardSidebarComponent {
 
   menuItems: MenuItems = {
     citizen: [
-      { icon: 'home', label: 'Home', route: '/' },
+      { icon: 'home', label: 'Home', route: '/home' },
       { icon: 'dashboard', label: 'Overview', route: '/citizen-dashboard/dashboard' },
       { icon: 'description', label: 'Cpf Request', route: '/citizen-dashboard/cpf-request' },
       { icon: 'event', label: 'My Appointment', route: '/citizen-dashboard/appointment' },
@@ -62,12 +62,12 @@ export class DashboardSidebarComponent {
       // { icon: 'people', label: 'dataSubmission', route: '/officer-dashboard/data-submission/:userId/:appointmentId' },
       ],
     manager: [
-      { icon: 'home', label: 'Home', route: '/' },
-      { icon: 'dashboard', label: 'Overview', route: '/manager-dashboard' },
-      { icon: 'group', label: 'Staff', route: '/manager-dashboard/staff' },
-      { icon: 'analytics', label: 'Analytics', route: '/manager-dashboard/analytics' },
-      { icon: 'settings', label: 'Settings', route: '/manager-dashboard/settings' },
-      { icon: 'summarize', label: 'Reports', route: '/manager-dashboard/reports' }
+      { icon: 'home', label: 'Home', route: '/home' },
+      { icon: 'dashboard', label: 'Overview', route: '/manager-dashboard/dashboard' },
+      { icon: 'group', label: 'Deduplications', route: '/manager-dashboard/deduplications' },
+      { icon: 'analytics', label: 'Complaints', route: '/manager-dashboard/complaints' },
+      { icon: 'settings', label: 'Frauds', route: '/manager-dashboard/frauds' },
+      { icon: 'summarize', label: 'Citizens', route: '/manager-dashboard/citizens' }
     ]
   };
 

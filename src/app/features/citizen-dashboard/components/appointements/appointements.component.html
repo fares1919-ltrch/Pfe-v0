@@ -2,20 +2,7 @@
   <!-- Header -->
   <div class="header">
     <h1>My Appointments</h1>
-    <div class="search-filters">
-      <div class="search-box">
-        <input type="text" 
-               [(ngModel)]="searchQuery" 
-               (input)="searchAppointments(searchQuery)" 
-               placeholder="Search appointments...">
-        <button class="search-button">
-          <i class="fas fa-search"></i>
-        </button>
-      </div>
-      <button class="refresh-button" (click)="fetchAppointments()">
-        <i class="fas fa-sync-alt"></i> Refresh
-      </button>
-    </div>
+   
   </div>
 
   <!-- Loading State -->
@@ -47,10 +34,10 @@
   </div>
 
   <!-- Appointments List -->
-  <div class="appointments-list" *ngIf="!loading && !error && filteredAppointments.length > 0 && !selectedAppointment">
+  <div class="appointments-list" *ngIf="!loading && !error && filteredAppointments.length > 0">
     <!-- Cards View -->
     <div class="appointment-cards">
-      <div class="appointment-card" *ngFor="let appointment of filteredAppointments" (click)="viewAppointmentDetails(appointment)">
+      <div class="appointment-card" *ngFor="let appointment of filteredAppointments">
         <div class="appointment-status" [ngClass]="appointment.status">
           <span class="status-indicator"></span>
           {{appointment.status}}
@@ -71,12 +58,23 @@
               <i class="fas fa-map-marker-alt"></i>
               <span>{{appointment.location || 'Location not specified'}}</span>
             </div>
+
+            <div class="detail" *ngIf="appointment.notes">
+              <i class="fas fa-info-circle"></i>
+              <span>{{appointment.notes}}</span>
+            </div>
           </div>
 
-          <div class="appointment-footer">
-            <span class="created-date">Created: {{formatDate(appointment.createdAt)}}</span>
-            <button class="view-details-button">
-              View Details
+          <div class="appointment-actions">
+            <button class="action-button change-date" 
+                    (click)="changeDate(appointment)"
+                    *ngIf="canChangeDate(appointment)">
+              <i class="fas fa-calendar-alt"></i>
+              Change Date
+            </button>
+            <button class="action-button delete" (click)="deleteAppointment(appointment)">
+              <i class="fas fa-trash-alt"></i>
+              Delete
             </button>
           </div>
         </div>
@@ -84,56 +82,70 @@
     </div>
   </div>
 
-  <!-- Appointment Details Modal -->
+  <!-- Date and Time Picker Dialog -->
   <div class="modal-overlay" *ngIf="selectedAppointment" (click)="closeDetails()">
-    <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-content date-time-picker" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <h2>Appointment Details</h2>
+        <h2>Change Appointment Date & Time</h2>
         <button class="close-button" (click)="closeDetails()">×</button>
       </div>
       
       <div class="modal-body">
-        <div class="detail-row">
-          <div class="detail-label">ID</div>
-          <div class="detail-value">{{selectedAppointment._id}}</div>
-        </div>
-        
-        <div class="detail-row">
-          <div class="detail-label">Service</div>
-          <div class="detail-value">{{selectedAppointment.service}}</div>
-        </div>
-        
-        <div class="detail-row">
-          <div class="detail-label">Date & Time</div>
-          <div class="detail-value">{{formatDate(selectedAppointment.appointmentDate)}}</div>
-        </div>
-        
-        <div class="detail-row">
-          <div class="detail-label">Status</div>
-          <div class="detail-value">
-            <span class="status-badge" [ngClass]="selectedAppointment.status">
-              {{selectedAppointment.status}}
-            </span>
+        <div class="selected-datetime">
+          <div class="datetime-display">
+            <div class="datetime-item">
+              <i class="far fa-calendar"></i>
+              <mat-form-field appearance="fill">
+                <mat-label>Select Date</mat-label>
+                <input matInput [matDatepicker]="picker" [value]="selectedDate" (dateChange)="onDateSelected($event.value)">
+                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+              </mat-form-field>
+            </div>
+            <div class="datetime-item">
+              <i class="far fa-clock"></i>
+              <mat-form-field appearance="fill">
+                <mat-label>Enter time (HH:mm)</mat-label>
+                <input matInput 
+                       type="text" 
+                       [(ngModel)]="selectedTime" 
+                       placeholder="e.g., 14:30"
+                       (input)="validateTime($event)"
+                       maxlength="5">
+                <mat-hint style="color: rgb(147, 145, 145);">Use 24-hour format</mat-hint>
+              </mat-form-field>
+            </div>
           </div>
         </div>
-        
-        <div class="detail-row">
-          <div class="detail-label">Location</div>
-          <div class="detail-value">{{selectedAppointment.location || 'Location not specified'}}</div>
-        </div>
-        
-        <div class="detail-row" *ngIf="selectedAppointment.notes">
-          <div class="detail-label">Notes</div>
-          <div class="detail-value">{{selectedAppointment.notes}}</div>
-        </div>
-        
-        <div class="detail-row">
-          <div class="detail-label">Created</div>
-          <div class="detail-value">{{formatDate(selectedAppointment.createdAt)}}</div>
-        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="secondary-button" (click)="closeDetails()">Cancel</button>
+        <button class="primary-button" 
+                (click)="saveNewDateTime()" 
+                [disabled]="!selectedDate || !selectedTime || !isValidTime">
+          Save Changes
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Dialog -->
+  <div class="modal-overlay" *ngIf="showDeleteConfirm" (click)="cancelDelete()">
+    <div class="modal-content delete-confirm" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Confirm Delete</h2>
+        <button class="close-button" (click)="cancelDelete()">×</button>
       </div>
       
-      
+      <div class="modal-body">
+        <p>Are you sure you want to delete this appointment?</p>
+      </div>
+
+      <div class="modal-footer">
+        <button class="secondary-button" (click)="cancelDelete()">Cancel</button>
+        <button class="delete-button" (click)="confirmDelete()">Delete</button>
+      </div>
     </div>
   </div>
 </div>

@@ -1,0 +1,124 @@
+<div class="cpf-dashboard">
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="brand">
+      <mat-icon class="brand-icon">fingerprint</mat-icon>
+      <h1>CPF Dashboard</h1>
+    </div>
+    <button mat-raised-button class="download-btn" (click)="downloadCPF()">
+      <mat-icon>download</mat-icon>
+      Download CPF Information
+    </button>
+  </div>
+
+  <!-- Main Content -->
+  <div class="dashboard-content">
+    <!-- Left Column -->
+    <div class="left-column">
+      <!-- CPF Status Card -->
+      <div class="glass-card status-card">
+        <div class="card-header">
+          <h2>CPF Status</h2>
+          <span class="last-update">Updated: {{formatDate(cpfStatus.lastUpdate)}}</span>
+        </div>
+        
+        <div class="cpf-display">
+          <div class="cpf-number">
+            <span class="label">CPF Number</span>
+            <span class="value">{{cpfStatus.number}}</span>
+          </div>
+          
+          <div class="status-badge" [ngClass]="cpfStatus.status">
+            <mat-icon>{{cpfStatus.status === 'active' ? 'verified' : 
+                       cpfStatus.status === 'blocked' ? 'gpp_bad' : 'pending'}}</mat-icon>
+            <span>{{cpfStatus.status | titlecase}}</span>
+          </div>
+
+          <div>
+            <button mat-raised-button 
+            class="block-btn"
+            (click)="requestBlock()"
+            *ngIf="cpfStatus.status === 'active'">
+          <mat-icon>security</mat-icon>
+          Request Block
+          </button>
+          </div>
+        </div>
+
+       
+      </div>
+    </div>
+
+    <!-- Right Column -->
+    <div class="right-column">
+      <!-- Transactions Card -->
+      <div class="glass-card transactions-card">
+        <div class="card-header">
+          <h2>Recent Transactions</h2>
+          
+        </div>
+        
+        <div class="transactions-list">
+          <div class="transaction-item" *ngFor="let transaction of recentTransactions">
+            <div class="transaction-icon" [ngClass]="transaction.type">
+              <mat-icon>{{transaction.type === 'credit' ? 'add_circle' : 'remove_circle'}}</mat-icon>
+            </div>
+            <div class="transaction-info">
+              <div class="transaction-header">
+                <span class="description">{{transaction.description}}</span>
+                <span class="amount" [ngClass]="transaction.type">
+                  {{transaction.type === 'credit' ? '+' : '-'}}{{formatCurrency(transaction.amount)}}
+                </span>
+              </div>
+              <div class="transaction-footer">
+                <span class="date">{{formatDate(transaction.date)}}</span>
+                <span class="status-badge" [ngClass]="transaction.status">
+                  {{transaction.status | titlecase}}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Block Confirmation Dialog -->
+  <div class="modal-overlay" *ngIf="showBlockDialog" (click)="cancelBlock()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Confirm CPF Block</h2>
+        <button class="close-btn" (click)="cancelBlock()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="warning-icon">
+          <mat-icon>warning</mat-icon>
+        </div>
+        <p>Are you sure you want to block your CPF?</p>
+        <p class="warning-text">This action will prevent any new transactions from being processed.</p>
+        
+        <div class="comment-section">
+          <label for="blockComment">Reason for blocking (optional)</label>
+          <textarea 
+            id="blockComment"
+            [(ngModel)]="blockComment"
+            placeholder="Please provide a reason for blocking your CPF..."
+            rows="3"
+            class="comment-input"
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button mat-button class="cancel-btn" (click)="cancelBlock()">Cancel</button>
+        <button mat-raised-button class="confirm-btn" (click)="confirmBlock()">
+          <mat-icon>security</mat-icon>
+          Confirm Block
+        </button>
+      </div>
+    </div>
+  </div>
+</div> 

@@ -277,6 +277,16 @@
   color: #ff8f00;
 }
 
+.appointment-status.rejected {
+  background-color: #ffebee;
+  color: #d32f2f;
+}
+
+.appointment-status.pending {
+  background-color: #fff3e0;
+  color: #f57c00;
+}
+
 .status-indicator {
   display: inline-block;
   width: 8px;
@@ -298,6 +308,14 @@
 
 .missed .status-indicator {
   background-color: #ff8f00;
+}
+
+.rejected .status-indicator {
+  background-color: #d32f2f;
+}
+
+.pending .status-indicator {
+  background-color: #f57c00;
 }
 
 .appointment-content {
@@ -460,6 +478,16 @@
   color: #ff8f00;
 }
 
+.status-badge.rejected {
+  background-color: #ffebee;
+  color: #d32f2f;
+}
+
+.status-badge.pending {
+  background-color: #fff3e0;
+  color: #f57c00;
+}
+
 .modal-footer {
   display: flex;
   justify-content: flex-end;
@@ -502,6 +530,49 @@
   cursor: not-allowed;
 }
 
+.appointment-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #eeeeee;
+}
+
+.action-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.action-button i {
+  font-size: 16px;
+}
+
+.action-button.change-date {
+  background-color: #e3f2fd;
+  color: #1976d2;
+}
+
+.action-button.change-date:hover {
+  background-color: #bbdefb;
+}
+
+.action-button.delete {
+  background-color: #ffebee;
+  color: #d32f2f;
+}
+
+.action-button.delete:hover {
+  background-color: #ffcdd2;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .header {
@@ -531,4 +602,179 @@
   .modal-content {
     width: 100%;
   }
+}
+
+.date-time-picker {
+  max-width: 400px !important;
+  background-color: white !important;
+}
+
+.picker-section {
+  margin-bottom: 24px;
+}
+
+.picker-section h3 {
+  margin: 0 0 12px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #424242;
+}
+
+.picker-section mat-form-field {
+  width: 100%;
+}
+
+::ng-deep .mat-form-field-appearance-fill .mat-form-field-flex {
+  background-color: #f5f5f5;
+}
+
+::ng-deep .mat-form-field-appearance-fill .mat-form-field-flex:hover {
+  background-color: #eeeeee;
+}
+
+::ng-deep .mat-form-field-appearance-fill .mat-form-field-underline {
+  display: none;
+}
+
+::ng-deep .mat-form-field-appearance-fill .mat-form-field-infix {
+  padding: 12px 0;
+}
+
+::ng-deep .mat-select-value {
+  color: #424242;
+}
+
+::ng-deep .mat-select-arrow {
+  color: #757575;
+}
+
+::ng-deep .mat-datepicker-toggle {
+  color: #757575;
+}
+
+::ng-deep .mat-calendar {
+  background-color: white !important;
+}
+
+::ng-deep .mat-calendar-content {
+  background-color: white !important;
+}
+
+::ng-deep .mat-calendar-body-cell:not(.mat-calendar-body-disabled):hover > .mat-calendar-body-cell-content:not(.mat-calendar-body-selected):not(.mat-calendar-body-comparison-identical) {
+  background-color: #e3f2fd;
+}
+
+::ng-deep .mat-calendar-body-selected {
+  background-color: #1976d2 !important;
+  color: white !important;
+}
+
+::ng-deep .mat-form-field-hint {
+  color: #757575;
+  font-size: 12px;
+}
+
+::ng-deep .mat-form-field-invalid .mat-form-field-hint {
+  color: #f44336;
+}
+
+.selected-datetime {
+  padding: 16px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.datetime-display {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.datetime-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: white;
+  border-radius: 6px;
+  padding: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.datetime-item i {
+  color: #1976d2;
+  font-size: 20px;
+  margin-left: 8px;
+}
+
+.datetime-item mat-form-field {
+  flex: 1;
+  margin: 0;
+}
+
+::ng-deep .datetime-item .mat-form-field-wrapper {
+  margin: 0;
+  padding: 0;
+}
+
+::ng-deep .datetime-item .mat-form-field-flex {
+  background-color: transparent;
+}
+
+::ng-deep .datetime-item .mat-form-field-flex:hover {
+  background-color: transparent;
+}
+
+::ng-deep .datetime-item .mat-form-field-underline {
+  display: none;
+}
+
+::ng-deep .datetime-item .mat-form-field-infix {
+  padding: 8px 0;
+}
+
+::ng-deep .datetime-item .mat-form-field-hint {
+  color: #757575;
+  font-size: 12px;
+}
+
+::ng-deep .datetime-item .mat-form-field-invalid .mat-form-field-hint {
+  color: #f44336;
+}
+
+.delete-confirm {
+  max-width: 400px !important;
+}
+
+.delete-confirm .modal-body {
+  text-align: center;
+  padding: 24px 20px;
+}
+
+.delete-confirm .modal-body p {
+  margin: 0;
+  color: #424242;
+  font-size: 16px;
+}
+
+.delete-confirm .modal-body .warning-text {
+  margin-top: 8px;
+  color: #d32f2f;
+  font-size: 14px;
+}
+
+.delete-button {
+  background-color: #d32f2f;
+  color: white;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.delete-button:hover {
+  background-color: #b71c1c;
 }

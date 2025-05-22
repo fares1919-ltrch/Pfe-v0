@@ -2,12 +2,21 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { MatDialog } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
 
 interface Appointment {
   _id: string;
   userId: string;
   appointmentDate: string;
-  status: 'scheduled' | 'completed' | 'cancelled' | 'missed';
+  status: 'scheduled' | 'completed' | 'cancelled' | 'missed' | 'rejected' | 'pending';
   location: string;
   service: string;
   notes?: string;
@@ -18,7 +27,18 @@ interface Appointment {
 @Component({
   selector: 'app-appointements',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [
+    CommonModule, 
+    FormsModule,
+    MatButtonModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatDialogModule,
+    MatIconModule
+  ],
   templateUrl: './appointements.component.html',
   styleUrl: './appointements.component.css'
 })
@@ -29,8 +49,16 @@ export class AppointementsComponent implements OnInit {
   error = false;
   selectedAppointment: Appointment | null = null;
   searchQuery = '';
+  selectedDate: Date | null = null;
+  selectedTime: string = '';
+  isValidTime: boolean = false;
+  showDeleteConfirm: boolean = false;
+  appointmentToDelete: Appointment | null = null;
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private dialog: MatDialog
+  ) {}
 
   ngOnInit(): void {
     this.fetchAppointments();
@@ -40,39 +68,18 @@ export class AppointementsComponent implements OnInit {
     this.loading = true;
     this.error = false;
     
-    // Mocking appointment data for now
+    // Mocking appointment data with one rejected appointment
     setTimeout(() => {
       this.appointments = [
         {
           _id: 'app001',
           userId: 'user123',
-          appointmentDate: '2023-12-30T10:00:00Z',
-          status: 'scheduled',
+          appointmentDate: '2024-03-20T10:00:00Z',
+          status: 'rejected',
           location: 'Main Office',
           service: 'Passport Renewal',
-          notes: 'Bring identification documents',
-          createdAt: '2023-12-10T08:30:00Z'
-        },
-        {
-          _id: 'app002',
-          userId: 'user123',
-          appointmentDate: '2023-11-15T14:30:00Z',
-          status: 'completed',
-          location: 'City Branch',
-          service: 'ID Card Application',
-          createdAt: '2023-11-01T09:15:00Z',
-          updatedAt: '2023-11-15T15:45:00Z'
-        },
-        {
-          _id: 'app003',
-          userId: 'user123',
-          appointmentDate: '2023-10-05T11:00:00Z',
-          status: 'cancelled',
-          location: 'Regional Center',
-          service: 'License Renewal',
-          notes: 'Cancelled due to holiday',
-          createdAt: '2023-09-20T13:20:00Z',
-          updatedAt: '2023-10-01T10:10:00Z'
+          notes: 'Application rejected due to incomplete documentation',
+          createdAt: '2024-03-10T08:30:00Z'
         }
       ];
       this.filteredAppointments = [...this.appointments];
@@ -81,25 +88,22 @@ export class AppointementsComponent implements OnInit {
   }
 
   searchAppointments(query: string): void {
-    this.searchQuery = query;
-    if (!query) {
+    if (!query.trim()) {
       this.filteredAppointments = [...this.appointments];
       return;
     }
     
-    const lowerQuery = query.toLowerCase();
-    this.filteredAppointments = this.appointments.filter(appointment => {
-      return (
-        appointment.service.toLowerCase().includes(lowerQuery) ||
-        appointment.location.toLowerCase().includes(lowerQuery) ||
-        appointment.status.toLowerCase().includes(lowerQuery) ||
-        (appointment.notes && appointment.notes.toLowerCase().includes(lowerQuery))
-      );
-    });
+    const searchTerm = query.toLowerCase();
+    this.filteredAppointments = this.appointments.filter(appointment => 
+      appointment.service.toLowerCase().includes(searchTerm) ||
+      appointment.location.toLowerCase().includes(searchTerm) ||
+      appointment.status.toLowerCase().includes(searchTerm)
+    );
   }
 
-  formatDate(date: string): string {
-    return new Date(date).toLocaleDateString('en-US', {
+  formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
@@ -115,5 +119,81 @@ export class AppointementsComponent implements OnInit {
 
   closeDetails(): void {
     this.selectedAppointment = null;
+    this.selectedDate = null;
+    this.selectedTime = '';
+    this.isValidTime = false;
+  }
+
+  changeDate(appointment: Appointment): void {
+    this.selectedAppointment = appointment;
+    this.selectedDate = new Date(appointment.appointmentDate);
+    this.selectedTime = this.formatTimeFromDate(new Date(appointment.appointmentDate));
+    this.validateTime({ target: { value: this.selectedTime } } as any);
+  }
+
+  formatTimeFromDate(date: Date): string {
+    return date.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
+  }
+
+  validateTime(event: any): void {
+    const timeValue = event.target.value;
+    const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
+    this.isValidTime = timeRegex.test(timeValue);
+  }
+
+  onDateSelected(date: Date): void {
+    this.selectedDate = date;
+  }
+
+  saveNewDateTime(): void {
+    if (this.selectedDate && this.selectedTime && this.isValidTime && this.selectedAppointment) {
+      const [hours, minutes] = this.selectedTime.split(':');
+      const newDate = new Date(this.selectedDate);
+      newDate.setHours(parseInt(hours), parseInt(minutes));
+      
+      // TODO: Call API to update appointment
+      console.log('New date and time:', newDate);
+      
+      // Update the appointment in the local array
+      const index = this.appointments.findIndex(a => a._id === this.selectedAppointment?._id);
+      if (index !== -1) {
+        this.appointments[index].appointmentDate = newDate.toISOString();
+        this.appointments[index].status = 'pending';
+        this.filteredAppointments = [...this.appointments];
+      }
+      
+      this.closeDetails();
+    }
+  }
+
+  deleteAppointment(appointment: Appointment): void {
+    this.appointmentToDelete = appointment;
+    this.showDeleteConfirm = true;
+  }
+
+  confirmDelete(): void {
+    if (this.appointmentToDelete) {
+      // TODO: Call API to delete appointment
+      console.log('Deleting appointment:', this.appointmentToDelete._id);
+      
+      // Remove the appointment from the local array
+      this.appointments = this.appointments.filter(a => a._id !== this.appointmentToDelete?._id);
+      this.filteredAppointments = [...this.appointments];
+      
+      this.cancelDelete();
+    }
+  }
+
+  cancelDelete(): void {
+    this.showDeleteConfirm = false;
+    this.appointmentToDelete = null;
+  }
+
+  canChangeDate(appointment: Appointment): boolean {
+    return appointment.status === 'rejected';
   }
 }

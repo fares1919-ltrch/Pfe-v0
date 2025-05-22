@@ -1,0 +1,499 @@
+.cpf-dashboard {
+  height: 80vh;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  color: #1e293b;
+  padding: 2rem;
+  border-radius: 18px;
+}
+
+/* Top Bar */
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 1rem 1.5rem;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.brand-icon {
+  font-size: 2rem;
+  color: #3b82f6;
+}
+
+.brand h1 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+  color: #1e293b;
+}
+
+.download-btn {
+  background: #3b82f6;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+}
+
+.download-btn:hover {
+  background: #2563eb;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3);
+}
+
+.download-btn mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+/* Dashboard Content */
+.dashboard-content {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 2rem;
+}
+
+/* Glass Card */
+.glass-card {
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  height: 100%;
+}
+
+.glass-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.card-header h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+  color: #1e293b;
+}
+
+.last-update {
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+/* CPF Status Card */
+.cpf-display {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.cpf-number {
+  background: #f8fafc;
+  padding: 1.5rem;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border: 1px solid #e2e8f0;
+}
+
+.cpf-number .label {
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.cpf-number .value {
+  font-family: 'Courier New', monospace;
+  font-size: 1.5rem;
+  color: #1e293b;
+  letter-spacing: 1px;
+}
+
+.status-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.status-badge.active {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.status-badge.blocked {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.status-badge.pending {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.block-btn {
+  width: 100%;
+  background: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  padding: 1rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.block-btn:hover {
+  background: #fecaca;
+  transform: translateY(-2px);
+}
+
+/* Notifications Card */
+.notifications-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.notification-item {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.notification-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.notification-item.unread {
+  background: rgba(96, 165, 250, 0.1);
+  border-left: 3px solid #60a5fa;
+}
+
+.notification-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notification-icon.transaction {
+  background: rgba(72, 187, 120, 0.2);
+  color: #48bb78;
+}
+
+.notification-icon.status {
+  background: rgba(96, 165, 250, 0.2);
+  color: #60a5fa;
+}
+
+.notification-icon.alert {
+  background: rgba(245, 101, 101, 0.2);
+  color: #f56565;
+}
+
+.notification-content {
+  flex: 1;
+}
+
+.notification-content p {
+  margin: 0 0 0.5rem;
+  color: #e2e8f0;
+}
+
+.notification-content .time {
+  font-size: 0.875rem;
+  color: #a0aec0;
+}
+
+/* Transactions Card */
+.transactions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.transaction-item {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
+}
+
+.transaction-item:hover {
+  background: #f1f5f9;
+}
+
+.transaction-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.transaction-icon.credit {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.transaction-icon.debit {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.transaction-info {
+  flex: 1;
+}
+
+.transaction-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.description {
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.amount {
+  font-weight: 600;
+}
+
+.amount.credit {
+  color: #16a34a;
+}
+
+.amount.debit {
+  color: #dc2626;
+}
+
+.transaction-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+}
+
+.date {
+  color: #64748b;
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.status-badge.completed {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.status-badge.pending {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.status-badge.failed {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #1e293b;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.close-btn:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.modal-body {
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.warning-icon {
+  font-size: 3rem;
+  color: #dc2626;
+  margin-bottom: 1rem;
+}
+
+.modal-body p {
+  margin: 0 0 1rem;
+  color: #1e293b;
+}
+
+.warning-text {
+  color: #dc2626 !important;
+  font-size: 0.875rem;
+}
+
+.modal-footer {
+  padding: 1.5rem;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.cancel-btn {
+  color: #64748b;
+}
+
+.confirm-btn {
+  background: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.confirm-btn:hover {
+  background: #fecaca;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .dashboard-content {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .cpf-dashboard {
+    padding: 1rem;
+  }
+
+  .top-bar {
+    padding: 0.75rem;
+  }
+
+  .brand h1 {
+    font-size: 1.25rem;
+  }
+
+  .glass-card {
+    padding: 1rem;
+  }
+}
+
+.comment-section {
+  margin-top: 1.5rem;
+  text-align: left;
+}
+
+.comment-section label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #1e293b;
+  font-weight: 500;
+}
+
+.comment-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #1e293b;
+  font-size: 0.875rem;
+  resize: vertical;
+  transition: all 0.3s ease;
+}
+
+.comment-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.comment-input::placeholder {
+  color: #94a3b8;
+} 
