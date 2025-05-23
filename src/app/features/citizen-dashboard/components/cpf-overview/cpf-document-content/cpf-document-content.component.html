@@ -1,0 +1,83 @@
+<div class="cpf-document-container">
+  <div class="header">
+    <img src="{{ documentData?.header?.logo }}" alt="Logo" class="logo" />
+    <div class="title">
+      <h1>RÉPUBLIQUE FÉDÉRATIVE DU BRÉSIL</h1>
+      <h2>CERTIFICAT DE PERSONNE PHYSIQUE (CPF)</h2>
+    </div>
+    <div class="document-info">
+      <p>Document #: {{ documentData?.header?.documentId }}</p>
+      <p>Date: {{ documentData?.header?.generationDate | date }}</p>
+    </div>
+  </div>
+
+  <div class="section personal-info">
+    <img
+      src="{{ documentData?.personalInfo?.photo }}"
+      alt="Photo"
+      class="photo"
+    />
+    <div class="details">
+      <p>NOM: {{ documentData?.personalInfo?.fullName | uppercase }}</p>
+      <p>IDENTITÉ: {{ documentData?.personalInfo?.identityNumber }}</p>
+      <p>
+        DATE DE NAISSANCE: {{ documentData?.personalInfo?.birthDate | date }}
+      </p>
+      <p>
+        NATIONALITÉ: {{ documentData?.personalInfo?.nationality | uppercase }}
+      </p>
+    </div>
+  </div>
+
+  <div class="section cpf-info">
+    <h4>INFORMATIONS CPF</h4>
+    <p>NUMÉRO CPF: {{ documentData?.cpfInfo?.number }}</p>
+    <p>DATE D'ÉMISSION: {{ documentData?.cpfInfo?.issueDate | date }}</p>
+    <p>DATE D'EXPIRATION: {{ documentData?.cpfInfo?.expiryDate | date }}</p>
+    <p>STATUT: {{ documentData?.cpfInfo?.status | uppercase }}</p>
+    <img
+      src="{{ documentData?.cpfInfo?.qrCode }}"
+      alt="QR Code"
+      class="qr-code"
+    />
+  </div>
+
+  <div class="section collection-info">
+    <h4>INFORMATIONS DE COLLECTE</h4>
+    <p>
+      DATE DU RENDEZ-VOUS:
+      {{ documentData?.collectionInfo?.appointmentDate | date }}
+    </p>
+    <p>LIEU: {{ documentData?.collectionInfo?.appointmentLocation }}</p>
+    <p>
+      OFFICIER: {{ documentData?.collectionInfo?.officerName }} (BADGE:
+      {{ documentData?.collectionInfo?.officerBadge }})
+    </p>
+  </div>
+
+  <div class="section biometric-info">
+    <h4>INFORMATIONS BIOMÉTRIQUES</h4>
+    <p>
+      DATE DE COLLECTE: {{ documentData?.biometricInfo?.collectionDate | date }}
+    </p>
+    <p>
+      DATE DE VÉRIFICATION:
+      {{ documentData?.biometricInfo?.verificationDate | date }}
+    </p>
+    <p>
+      TYPES COLLECTÉS:
+      {{ documentData?.biometricInfo?.collectedTypes?.join(", ") | uppercase }}
+    </p>
+  </div>
+
+  <div class="footer">
+    <p>{{ documentData?.footer?.legalText }}</p>
+    <p>
+      Vérifiez l'authenticité:
+      <a href="{{ documentData?.footer?.verificationUrl }}">{{
+        documentData?.footer?.verificationUrl
+      }}</a>
+    </p>
+    <p>Contact: {{ documentData?.footer?.contactInfo }}</p>
+  </div>
+</div>

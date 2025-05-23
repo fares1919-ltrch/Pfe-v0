@@ -1,0 +1,1039 @@
+\chapter{Release 1 : Gérer utilisateurs et Rôles}
+\label{chap_sprint1}
+\addcontentsline{toc}{section}{Introduction}
+\section*{Introduction}
+\label{sec_introduction}
+Ce module revêt une importance cruciale dans la gestion des comptes ainsi
+que de leurs droits d'accès, en plus de superviser l'ensemble des projets et de leurs
+participations. Dans ce chapitre, notre objectif principal est de définir les exigences de
+ce module et d'explorer les moyens de sa mise en œuvre.
+
+
+\section{Sprint 1 : « Gérer utilisateur »}
+ Dans cette partie, nous traitons les points suivants : tout d'abord, l'organisation et le sprint backlog. Ensuite, nous décrivons le contenu du premier sprint, intitulé "Gérer Compte". Nous entamons ensuite la phase d'analyse et nous explorons les solutions conceptuelles. Enfin, nous présentons les différentes réalisations obtenues.
+\subsection{Organisation}
+Le tableau 3.1 ci-dessous donne un aperçu détaillé sur le Backlog du premier sprint qui prend en
+charge les fonctionnalités « s'inscrire », « s'authentifier », « récupérer mot de passe » et « Gérer profil ».
+
+\begin{longtable}
+{|>{\centering\arraybackslash}p{0.7cm}
+ |>{\arraybackslash}p{5cm}
+ |>{\centering\arraybackslash}p{1.2cm}
+ |>{\arraybackslash}p{7cm}
+ |>{\centering\arraybackslash}p{1.5cm}|}
+
+\caption{\centering Backlog du sprint 1 : « Gérer utilisateurs »}
+\label{tab:backlog:ch2:1} \\
+
+\hline
+\rowcolor{gray!30}
+ID & User Story & ID & Tâche & Durée/j \\
+\hline
+\endfirsthead
+\endhead
+
+\hline
+\endfoot
+
+\hline
+\endlastfoot
+
+\multirow{3}{0.7cm}{2.1}
+& \multirow{3}{5cm}{En tant qu'internaute, je souhaite pouvoir m'inscrire.}
+& 2.1.1 & Créer les interfaces d'inscription. & 1 \\
+\cline{3-5}
+& & 2.1.2 & Développer une API pour vérifier la cohérence des données fournies. & 1 \\
+\cline{1-5}
+& & 2.1.3 & Tester la fonctionnalité d'inscription. & 1 \\
+\hline
+
+\multirow{3}{0.7cm}{2.2}
+& \multirow{3}{5cm}{En tant que manager, citoyen ou officier, je dois m'authentifier.}
+& 2.2.1 & Développer les interfaces d'authentification. & 1 \\
+\cline{3-5}
+& & 2.2.2 & Créer une API pour valider les données d'authentification. & 1 \\
+\cline{3-5}
+& & 2.2.3 & Tester la fonctionnalité d'authentification. & 1 \\
+\hline
+
+\multirow{4}{0.7cm}{3.1}
+& \multirow{4}{5cm}{En tant que manager, citoyen ou officier, je peux récupérer mon mot de passe.}
+& 3.1.1 & Créer les interfaces de récupération du mot de passe. & 1 \\
+\cline{3-5}
+& & 3.1.2 & Développer une API pour valider les données lors de la récupération et envoyer un email de réinitialisation. & 1 \\
+\cline{3-5}
+& & 3.1.3 & Mettre en place l'envoi automatique d'un e-mail de récupération. & 1 \\
+\cline{3-5}
+& & 3.1.4 & Tester la fonctionnalité de récupération de mot de passe. & 1 \\
+\hline
+
+\multirow{4}{0.7cm}{4.1}
+& \multirow{4}{5cm}{En tant que manager, citoyen ou officier, je peux consulter et modifier mes informations.}
+& 4.1.1 & Créer les interfaces de modification des données. & 1 \\
+\cline{3-5}
+& & 4.1.2 & Développer une API de modification des données. & 1 \\
+\cline{3-5}
+& & 4.1.3 & Développer une API pour la suppression de compte. & 1 \\
+\cline{3-5}
+& & 4.1.4 & Tester « UpdateProfile ». & 1 \\
+\hline
+
+\end{longtable}
+
+
+\subsection{Analyse}
+
+Durant cette phase d'analyse, nous approfondissons les diverses fonctionnalités en les accompagnant de leurs cas d'utilisation respectifs.
+\subsubsection{Diagrammes de cas d'utilisation}
+Nous présentons dans cette partie les différents cas d'utilisation raffinés.\\
+\\
+\textbf{ – Raffinement de cas d'utilisation « S'inscrire »}\\
+La \hyperref[fig:3.1]{figure 3.1} montre le raffinement de cas d'utilisation « S'inscrire ».  qui permet à un internaute de s'inscrire afin de tirer profit des fonctionnalités offertes par \textbf{Identity Secure}.
+\begin{figure}[H]
+\centering
+\fbox{\includegraphics [width=0.5\textwidth]{chapitre2/SignupUseCase.drawio.png}}
+\caption{ Sprint 1 -Diagramme de cas d'utilisation « s'inscrire »}
+\label{fig:3.1}
+\end{figure}
+
+Le Tableau 3.2 représente une description textuelle du cas d'utilisation « S'inscrire ». Il détaille le scénario nominal ainsi que les enchaînements alternatifs.
+\begin{longtable}{|>{\arraybackslash}p{4.2cm}|>{\arraybackslash}p{12.5cm}|}
+\caption{\centering Description textuelle du sous cas d'utilisation «S'inscrire»}
+\label{tab:backlog:ch2:inscription} \\
+\hline
+\rowcolor{gray!20}
+\textbf{Cas d'utilisation} & S'inscrire \\
+\hline
+\textbf{Acteur} & Internaute \\
+\hline
+\textbf{Résumé} &
+\begin{itemize}[label=]
+    \item \textbf{Scénario 1: S'inscrire via le formulaire}
+    \item L'internaute s'inscrit via le formulaire d'inscription et valide son adresse email pour tirer profit des fonctionnalités de «Identity-Secure».
+
+\end{itemize} \\
+\hline
+\textbf{} &
+\begin{itemize}[label=]
+    \item \textbf{Scénario 2: S'inscrire avec Google}
+    \item L'internaute s'inscrit en utilisant son compte Google pour accéder rapidement aux fonctionnalités de «Identity-Secure».
+\end{itemize}\\
+\hline
+\textbf{Pré-conditions} &
+\begin{itemize}[label=]
+    \item \textbf{Scénario 1: S'inscrire via le formulaire}
+    \item 1- L'internaute accède à la page « accueil ».
+    \item 2- L'internaute clique sur le bouton « S'inscrire ».
+    \item 3- Le système affiche le formulaire «Create Account».
+    \item \textbf{Scénario 2: S'inscrire avec Google}
+    \item 1- L'internaute accède à la page « accueil ».
+    \item 2- L'internaute clique sur le bouton « S'inscrire avec google ».
+    \item 3- Le système affiche le formulaire «Create Account».
+\end{itemize} \\
+\hline
+\textbf{Description de scénario nominal} &
+\begin{itemize}[label=]
+    \item \textbf{Scénario 1: S'inscrire via le formulaire}
+    \item 1- L'internaute remplit le formulaire avec : nom d'utilisateur, adresse e-mail, mot de passe.
+    \item 2- Il accepte les conditions d'utilisation et la politique de confidentialité.
+    \item 3- Il clique sur « Create Account ».
+    \item 4- Le système vérifie les données.
+    \item 5- Vérification d'unicité du nom d'utilisateur.
+    \item 6- Vérification d'unicité de l'adresse e-mail.
+    \item 7- Enregistrement des données avec rôle "utilisateur" et statut "non vérifié".
+    \item 8- Génération d'un token de vérification et envoi d'un email.
+
+\end{itemize} \\
+\hline
+\textbf{}&
+\begin{itemize}[label=]
+    \item 9- Message informant l'envoi de l'email.
+    \item 10- L'internaute ouvre l'email de validation.
+    \item 11- Il clique sur "Valider mon compte".
+    \item 12- Vérification du token.
+    \item 13- Mise à jour du compte en "vérifié".
+    \item 14- L'internaute peut désormais se connecter.
+    \item \textbf{Scénario 2: S'inscrire avec Google}
+    \item 1- L'internaute clique sur « Sign Up With Google ».
+    \item 2- Redirection vers la page d'authentification Google.
+    \item 3- Choix ou saisie des identifiants Google.
+    \item 4- Vérification de l'existence de l'email dans la base.
+    \item 5- Authentification Google et réception des infos.
+    \item 6- Création d'un compte avec rôle "Citoyen" et statut "vérifié".
+    \item 7- Génération d'un token d'accès.
+    \item 8- Redirection vers le tableau de bord selon rôle.
+\end{itemize}\\
+\hline
+\textbf{Enchaînements alternatifs} &
+\begin{itemize}[label=]
+    \item \textbf{Scénario 1: S'inscrire via le formulaire}
+    \item 4.1- Données invalides : message « Please fill in all required fields correctly. » — retour au point 1 du scénario nominal.
+    \item 4.2- Mots de passe non correspondants : message « Passwords do not match. » — retour au point 1.
+    \item 4.3- Mot de passe trop faible : message « Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character. » —> retour au point 1.
+
+\end{itemize} \\
+\hline
+\textbf{}&
+\begin{itemize}[label=]
+    \item 5.1- Nom d'utilisateur déjà pris : message « Username is already taken. » —> retour au point 1.
+    \item 6.1- E-mail déjà utilisé : message « This email is already in use. » — retour au point 1.
+    \item 10.1- E-mail de validation non reçu : possibilité de renvoi depuis la page de connexion.
+    \item 12.1- Token expiré après 48h : message d'erreur et proposition d'un nouveau lien.
+    \item 15.1- Tentative de connexion sans validation email : message « Please verify your email address before logging in. » avec option de renvoi.
+    \item \textbf{Scénario 2: S'inscrire avec Google}
+    \item 5.1- E-mail Google déjà associé : connexion au compte existant.
+    \item 6.1- Erreur lors de la création du compte : message « Failed to complete authentication. Please try again. » et redirection vers la page d'inscription.
+\end{itemize}\\
+\hline
+\textbf{Post-conditions} & Un nouveau compte utilisateur est créé, vérifié par email, et l'internaute peut se connecter au système. \\
+\hline
+\end{longtable}
+
+
+
+
+
+
+
+\textbf{ – Raffinement de cas d'utilisation « S'authentifier »}
+\\
+La \hyperref[fig:3.2]{figure 3.2} montre le raffinement de cas d'utilisation « S'authentifier». L'acteur doit
+s'authentifier afin de tirer profit des fonctionnalités offertes par « Identity-Secure ».
+\begin{figure}[H]
+\centering
+\fbox{\includegraphics [width=0.5\textwidth]{chapitre2/signin-use-case.png}}
+\caption{ Sprint 1 -Diagramme de cas d'utilisation « s'authentifier » }
+\label{fig:3.2}
+\end{figure}
+
+Le Tableau 3.3 représente une description textuelle du cas d'utilisation « S'authentifier ». Il détaille le scénario nominal ainsi que les enchaînements alternatifs.
+
+
+\begin{longtable}{|>{\arraybackslash}p{4.2cm}|>{\arraybackslash}p{12.5cm}|}
+\caption{\centering Description textuelle du sous-cas d'utilisation « S'authentifier »}
+\label{tab:backlog:ch2:3} \\
+\hline
+\rowcolor{gray!20}
+\textbf{Cas d'utilisation} & S'authentifier \\
+\hline
+\endfirsthead
+
+\hline
+\endhead
+
+\hline
+\endfoot
+
+\hline \hline
+\endlastfoot
+
+\textbf{Acteurs} & Citoyen, Manager, Officer \\
+\hline
+
+\textbf{Résumé} &
+\begin{itemize}[label=]
+  \item \textbf{Scénario 1 :} S'authentifier avec formulaire.
+  \item L'acteur se connecte à la plateforme Identity-Secure via un formulaire classique.
+  \item \textbf{Scénario 2 :} S'authentifier avec Google.
+  \item L'acteur se connecte à la plateforme en utilisant son compte Google.
+\end{itemize} \\
+\hline
+
+\textbf{Pré-conditions} &
+\begin{itemize}[label=]
+  \item \textbf{Scénario 1 :}
+  \item 1.1 L'acteur accède à la page « accueil ».
+    \item 1.2 L'acteur a déjà créé un compte.
+    \item 1.3 L'acteur a vérifié son compte.
+    \item 1.4 L'acteur clique sur le bouton « Sign In ».
+    \item 1.5 Le système affiche le formulaire d'authentification.
+
+  \item \textbf{Scénario 2 :}
+    \item 2.1 L'acteur accède à la page « accueil ».
+    \item 2.2 L'acteur a déjà un compte ou possède un compte Google.
+    \item 2.3 L'acteur clique sur le bouton « Sign In ».
+    \item 2.4 Le système affiche le formulaire d'authentification.
+\end{itemize} \\
+\hline
+
+\textbf{Description de scénario nominal} &
+\begin{itemize}[label=]
+  \item \textbf{Scénario 1 :}
+    \item 1.1 L'acteur saisit son nom d'utilisateur.
+    \item 1.2 L'acteur saisit son mot de passe.
+    \item 1.3 L'acteur peut cocher l'option « Remember me ».
+    \item 1.4 L'acteur clique sur le bouton « Sign In ».
+    \item 1.5 Le système vérifie l'existence du compte.
+    \item 1.6 Le système vérifie les coordonnées.
+    \item 1.7 Le système vérifie la validation de l'email.
+    \item 1.8 Le système génère un jeton d'accès (token).
+    \item 1.9 Le système redirige l'acteur selon son rôle
+  \item \textbf{Scénario 2 :}
+        \item 2.1 L'acteur clique sur le bouton «Sign In With Google».
+
+\end{itemize} \\
+\hline
+
+
+
+\textbf{} &
+\begin{itemize}
+    \item 2.2 Le système redirige vers la page d'authentification Google.
+    \item 2.3 L'acteur sélectionne ou saisit son compte Google.
+    \item 2.4 Google authentifie l'acteur et transmet les infos au système.
+    \item 2.5 Le système vérifie l'association de l'email Google.
+    \item 2.6 Le système génère un jeton d'accès (token).
+    \item 2.7 Le système redirige l'acteur selon son rôle.
+\end{itemize} \\
+\hline
+
+
+
+
+
+\textbf{Enchaînements alternatifs} &
+\begin{itemize}[label=]
+  \item \textbf{Scénario 1 :}
+    \item 1.1 Champ nom d'utilisateur vide → message : « Username is required » → retour à 1.1
+    \item 1.2 Champ mot de passe vide → le système affiche un message : « Password is required » → retour à 1.2
+    \item 1.5 Nom d'utilisateur inexistant → le système affiche le message : « Login failed. Please check your credentials. » → retour à 1.1
+    \item 1.6 Mot de passe incorrect → même message → retour à 1.2
+    \item 1.7 E-mail non vérifié → message : « Please verify your email address before logging in. » avec options :
+    \begin{itemize}[label=]
+      \item Bouton « Resend verification email »
+      \item Lien vers la page de connexion
+    \end{itemize}
+    \item 1.7 L'acteur clique sur « Resend verification email » → un nouvel email est envoyé → le système affiche un message de confirmation.
+
+\end{itemize} \\
+\hline
+\textbf{}{}&
+\begin{itemize}[label=]
+\item \textbf{Scénario 2 :}
+    \item 2.5 E-mail Google non associé à un compte → le système crée un compte avec le rôle « utilisateur » et redirige vers « citizen-dashboard ».
+    \item 2.6 Erreur d'authentification Google → message : « Failed to complete authentication. Please try again. » → redirection vers la page de connexion.
+\end{itemize}\\
+\hline
+\textbf{Post-conditions} & L'acteur est authentifié et accède aux fonctionnalités correspondant à son rôle. \\
+\hline
+\end{longtable}
+
+
+\vspace{1 cm}
+
+
+\textbf{ – Raffinement de cas d'utilisation « Récupérer mot de passe »}
+\\
+La \hyperref[fig:3.3]{figure 3.3} montre le raffinement de cas d'utilisation « Récupérer mot de passe ». Si l'acteur oublie son mot de
+passe, « Identity-Secure » fournit un service de récupération sécurisé.
+\begin{figure}[H]
+\centering
+\fbox{\includegraphics[width=0.5\textwidth] {chapitre2/Récupérer mot de passe.drawio.png}}
+\caption{ Sprint 1 -Diagramme de cas d'utilisation « Récupérer mot de passe »
+}
+\label{fig:3.3}
+\end{figure}
+
+Le Tableau 3.4 représente une description textuelle du cas d'utilisation « Récupérer Mot de Passe ». Il détaille le scénario nominal ainsi que les enchaînements alternatifs.
+\begin{longtable}{|>{\arraybackslash}p{4.2cm}|>{\arraybackslash}p{12.5cm}|}
+\caption{\centering Description textuelle du cas d'utilisation « Récupérer Mot de Passe »}
+\label{tab:backlog} \\
+\hline
+\rowcolor{gray!20}
+\textbf{Cas d'utilisation} &  Récupérer Mot de Passe \\
+\hline
+\endfirsthead
+
+\hline
+\endhead
+
+\hline
+\endfoot
+
+\hline \hline
+\endlastfoot
+\textbf{Acteur} & Citoyen, Manager, Officer \\
+\hline
+\textbf{Résumé} &  L'acteur peut récupérer son mot de passe pour s'authentifier \\
+\hline
+\textbf{Pré-conditions} &
+
+\begin{itemize}[label=]
+\item{1-} L'utilisateur accède à la page « accueil ».
+\item{2-} L'utilisateur a déjà créé un compte.
+\item{3-} L'acteur a vérifié son compte.
+\item{4-} L'acteur accède à l'interface de « Sign In ».
+\item{5-} L'acteur clique sur « Forgot Password? ».
+\end{itemize}
+
+\\
+\hline
+\textbf{Description de scénario nominal }  &
+\begin{itemize}[label=]
+\item{1-} Le système affiche l'interface « Reset Password ».
+\item{2-} L'acteur saisit son adresse e-mail.
+\item{3-} L'acteur clique sur le bouton « Send Reset Link ».
+\item{4-} Le système vérifie la validité de l'adresse e-mail saisie.
+\item{5-} Le système vérifie l'existence de l'adresse e-mail dans la base de données.
+\item{6-} Le système génère un token de réinitialisation et l'envoie à l'adresse e-mail de l'acteur.
+\item{7-} Le système redirige l'acteur vers l'interface de vérification du code.
+\item{8-} L'acteur accède à sa boîte de réception et clique sur le lien de réinitialisation ou copie le code de vérification.
+\item{9-} Si l'acteur a cliqué sur le lien, le système le redirige directement vers l'interface « New Password ».
+
+
+\end{itemize}\\
+\hline
+\textbf{} &
+
+\begin{itemize}[label=]
+    \item{10-} Si l'acteur a copié le code, il le saisit dans l'interface de vérification et clique sur « Verify Code ».
+    \item{11-} Le système vérifie la validité du code et redirige l'acteur vers l'interface « New Password ».
+    \item{12-} L'acteur saisit son nouveau mot de passe, le confirme et clique sur « Reset Password ».
+    \item{13-} Le système vérifie la validité et la cohérence du nouveau mot de passe.
+    \item{14-} Le système met à jour le mot de passe de l'acteur dans la base de données.
+    \item{15-} Le système affiche un message « Your password has been reset successfully. You can now login with your new password. » et redirige l'acteur vers la page de connexion.
+\end{itemize} \\
+\hline
+
+\textbf{enchaînements Alternatifs} &
+\begin{itemize}[label=]
+  \item{4.1-} L'adresse email est vide ou non valide : le système affiche un message d'erreur et l'acteur reste sur la même page.
+    \item{5.1-} L'adresse email n'existe pas dans la base de données : le système envoie quand même une confirmation pour des raisons de sécurité, mais aucun email n'est réellement envoyé.
+    \item{8.1-} L'acteur ne reçoit pas le code ou le lien : l'acteur peut cliquer sur « Resend Code » après un délai de 30 secondes.
+    \item{10.1-} Le code saisi est invalide : le système affiche un message d'erreur « Invalid verification code » et l'acteur reste sur la même page.
+    \item{11.1-} Le token a expiré (délai de 1 heure) : le système affiche un message d'erreur « Reset token has expired. Please request a new one. »
+ \end{itemize}
+
+
+\\
+\hline
+\textbf{} &
+
+\begin{itemize}[label=]
+    \item et redirige l'acteur vers la page de demande de réinitialisation.
+    \item{13.1-} Les mots de passe ne correspondent pas : le système affiche un message d'erreur « Passwords do not match. » et l'acteur reste sur la même page.
+      \item{13.2-} Le nouveau mot de passe ne respecte pas les critères de sécurité : le système affiche un message d'erreur « Please enter and confirm your new password. » et l'acteur reste sur la même page.
+      \item{13.3-} Le token est manquant : le système affiche un message d'erreur « Reset token is missing. Please use the link from your email. » et l'acteur est redirigé vers la page de demande de réinitialisation.
+
+\end{itemize} \\
+\hline
+\textbf{Post-conditions } & Le mot de passe a été bien modifié et l'acteur peut se connecter avec son nouveau mot de passe.
+
+\end{longtable}
+
+
+
+\textbf{ – Raffinement de cas d'utilisation « Gérer Profil »}\\
+La \hyperref[fig:3.4]{figure 3.4} montre le raffinement de cas d'utilisation « Gérer Profil ». L'acteur est capable de mettre à jour ses informations.
+\begin{figure}[H]
+\centering
+\fbox{\includegraphics[width=0.5\textwidth] {chapitre2/Gérer-Profil-use-case.png}}
+\caption{ Sprint 1 -Diagramme de cas d'utilisation « Gérer Profil »
+}
+\label{fig:3.4}
+\end{figure}
+
+Le Tableau 3.5 représente une description textuelle du cas d'utilisation « Gérer Profil ». Il détaille le scénario nominal ainsi que les enchaînements alternatifs.
+\begin{longtable}{|>{\arraybackslash}p{4.2cm}|>{\arraybackslash}p{12.5cm}|}
+\caption{\centering Description textuelle du sous cas d'utilisation «Gérer Profil»}
+\label{tab:backlog:ch2:5} \\
+\hline
+\rowcolor{gray!20}
+\textbf{Cas d'utilisation} & Gérer Profil \\
+\hline
+\endfirsthead
+
+\hline
+\endhead
+
+\hline
+\endfoot
+
+\hline \hline
+\endlastfoot
+
+\textbf{Acteur}  & Citoyen, Manager, Officer \\
+\hline
+\textbf{Résumé} &
+\begin{itemize}[label=]
+  \item\textbf{Scénario 1: Consulter Profil}
+  \item L'acteur peut consulter son profil complet avec toutes les informations personnelles et professionnelles.
+  \item\textbf{Scénario 2: Modifier informations personnelles}
+  \item L'acteur peut modifier ses informations personnelles (nom, prénom, adresse, etc.).
+  \item\textbf{Scénario 3: Modifier informations professionnelles}
+  \item L'acteur peut modifier ses informations professionnelles (titre du poste, lieu de travail).
+
+\end{itemize}\\
+
+ \hline
+ \textbf{}&
+\begin{itemize}[label=]
+    \item\textbf{Scénario 4: Changer la photo de profil}
+  \item L'acteur peut télécharger ou modifier sa photo de profil.
+  \item\textbf{Scénario 5: Changer le mot de passe}
+  \item L'acteur peut changer son mot de passe en fournissant son mot de passe actuel.
+  \item\textbf{Scénario 6: Gérer les sessions actives}
+  \item L'acteur peut consulter et révoquer ses sessions actives sur différents appareils.
+   \item\textbf{Scénario 7: Supprimer le compte}
+  \item L'acteur peut supprimer définitivement son compte.
+
+\end{itemize}\\
+
+\hline
+\textbf{Pré-conditions} &
+\begin{itemize}[label=]
+  \item\textbf{Scénario 1: Consulter Profil}
+  \item L'acteur doit être authentifié et doit cliquer sur le bouton "Profil".
+  \item\textbf{Scénario 2: Modifier informations personnelles}
+  \item Le scénario 1 « Consulter Profil » est bien exécuté.
+  \item\textbf{Scénario 3: Modifier informations professionnelles}
+   \item Le scénario 1 « Consulter Profil » est bien exécuté.
+  \item\textbf{Scénario 4: Changer la photo de profil}
+  \item Le scénario 1 « Consulter Profil » est bien exécuté.
+  \item\textbf{Scénario 5: Changer le mot de passe}
+   \item Le scénario 1 « Consulter Profil » est bien exécuté.
+  \item\textbf{Scénario 6: Gérer les sessions actives}
+   \item Le scénario 1 « Consulter Profil » est bien exécuté.
+   \item\textbf{Scénario 7: Supprimer le compte}
+
+\end{itemize}\\
+
+\hline
+\textbf{}&
+\begin{itemize}
+    \item Le scénario 1 « Consulter Profil » est bien exécuté.
+\end{itemize}\\
+\hline
+\textbf{Description de scénario nominal }  &
+\begin{itemize}[label=]
+
+  \item\textbf{Scénario 1: Consulter Profil}
+    \item{1-} Le système affiche l'interface « Profil » avec les sections suivantes:
+    \begin{itemize}
+      \item Identité du profil (avec photo)
+      \item Informations personnelles (nom, prénom, date de naissance, numéro d'identité)
+      \item Informations professionnelles (titre du poste, lieu de travail)
+      \item Informations de contact (adresse, ville, pays, code postal)
+      \item Paramètres de sécurité (option de changement de mot de passe)
+      \item Sessions actives (liste des appareils connectés)
+      \item Zone de danger (option de suppression de compte)
+    \end{itemize}
+    \item{2-} Le système affiche les informations actuelles de l'acteur dans chaque section.
+   \item\textbf{Scénario 2: Modifier informations personnelles}
+   \item{1-} L'acteur modifie les champs souhaités dans la section "Informations personnelles" (nom, prénom, date de naissance, numéro d'identité, à propos de moi).
+ \item{2-} L'acteur clique sur le bouton « Enregistrer les modifications ».
+    \item{3-} Le système vérifie la validité des informations fournies.
+
+     \item{4-} Si le numéro d'identité est modifié, le système vérifie son unicité dans la base de données.
+    \item{5-} Le système sauvegarde les modifications.
+    \item{6-} Le système affiche un message de confirmation "Profil mis à
+
+
+\end{itemize} \\
+\hline
+\textbf{}&
+\begin{itemize}[label=]
+
+   \item jour avec succès".
+\item{7-} Le système met à jour l'affichage avec les nouvelles informations.
+\item\textbf{Scénario 3: Modifier informations professionnelles}
+   \item{1-} L'acteur modifie les champs souhaités dans la section "Informations professionnelles" (titre du poste, lieu de travail).
+    \item{2-} L'acteur clique sur le bouton « Enregistrer les modifications ».
+    \item{3-} Le système vérifie la validité des informations fournies.
+    \item{4-} Le système sauvegarde les modifications.
+    \item{5-} Le système affiche un message de confirmation "Profil mis à jour avec succès".
+    \item{6-} Le système met à jour l'affichage avec les nouvelles informations.
+    \item\textbf{Scénario 4: Changer la photo de profil}
+   \item{1-} L'acteur clique sur l'icône de caméra sous sa photo de profil actuelle.
+   \item{2-} Le système ouvre une boîte de dialogue pour sélectionner une image.
+    \item{3-} L'acteur sélectionne une nouvelle image et clique sur 'ouvrir'.
+    \item{4-} Le système traite l'image et l'enregistre.
+    \item{5-} Le système affiche un message de confirmation "Photo de profil mise à jour avec succès" et  met à jour l'affichage avec la nouvelle photo.
+    \item\textbf{Scénario 5: Changer le mot de passe}
+   \item{1-} L'acteur clique sur le bouton "Changer le mot de passe" dans la section "Paramètres de sécurité".
+   \item{2-} Le système affiche un formulaire avec les champs: mot de
+\end{itemize}\\
+\hline
+\textbf{}&
+\begin{itemize}[label=]
+\item passe actuel, nouveau mot de passe, confirmer le nouveau mot de passe.
+    \item{3-} L'acteur remplit les champs et clique sur "Changer le mot de passe".
+    \item{4-} Le système vérifie que le mot de passe actuel est correct.
+    \item{5-} Le système vérifie que le nouveau mot de passe respecte les critères de sécurité.
+    \item{6-} Le système vérifie que les deux champs de nouveau mot de passe correspondent.
+    \item{7-} Le système met à jour le mot de passe.
+    \item{8-} Le système affiche un message de confirmation "Mot de passe changé avec succès".
+
+  \item\textbf{Scénario 6: Gérer les sessions actives}
+   \item{1-} Le système affiche la liste des sessions actives avec les informations suivantes: appareil, type d'appareil, adresse IP, localisation, dernière activité.
+    \item{2-} L'acteur peut identifier sa session actuelle (marquée comme "Session actuelle").
+    \item{3-} Pour les autres sessions, l'acteur peut cliquer sur "Terminer la session".
+    \item{4-} Le système révoque la session sélectionnée.
+    \item{5-} Le système met à jour la liste des sessions actives.
+
+    \item{6-} Le système affiche un message de confirmation "Session terminée avec succès".
+    \item\textbf{Scénario 7: Supprimer le compte}
+    \item{1-} L'acteur clique sur le bouton "Supprimer le compte" dans la section "Zone de danger".
+    \item{2-} Le système affiche une boîte de dialogue de confirmation avec
+
+\end{itemize}\\
+\hline
+\textbf{}&
+\begin{itemize}[label=]
+\item  un avertissement sur la nature irréversible de cette action.
+\item{3-} L'acteur confirme la suppression.
+    \item{4-} Le système supprime le compte de l'utilisateur.
+    \item{5-} Le système déconnecte l'utilisateur.
+    \item{6-} Le système redirige l'utilisateur vers la page d'accueil avec un message "Votre compte a été supprimé avec succès".
+\end{itemize}\\
+\hline
+\textbf{enchaînements Alternatifs} &
+\begin{itemize}[label=]
+  \item\textbf{Scénario 2: Modifier informations personnelles}
+    \item{3.1.} Les données saisies sont vides ou non valides: le système affiche un message d'erreur spécifique et ne sauvegarde pas les modifications.
+    \item{4.1.} Le numéro d'identité existe déjà: le système affiche un message d'erreur "Ce numéro d'identité est déjà utilisé" et ne sauvegarde pas les modifications.
+
+  \item\textbf{Scénario 3: Modifier informations professionnelles}
+    \item{3.1.} Les données saisies sont non valides: le système affiche un message d'erreur spécifique et ne sauvegarde pas les modifications.
+
+  \item\textbf{Scénario 4: Changer la photo de profil}
+    \item{4.1.} Le fichier sélectionné n'est pas une image valide: le système affiche un message d'erreur "Veuillez sélectionner une image valide".
+    \item{4.2.} L'image dépasse la taille maximale autorisée: le système affiche un message d'erreur "L'image est trop volumineuse. Taille maximale: 5 MB".
+
+  \item\textbf{Scénario 5: Changer le mot de passe}
+
+
+
+\end{itemize}\\
+
+\hline
+\textbf{}&
+\begin{itemize}[label=]
+\item
+
+    \item{4.1.} Le "Mot de passe actuel incorrect" et ne change pas le mot de passe.
+    \item{5.1.} Le nouveau mot de passe ne respecte pas les critères de sécurité: le système affiche un message d'erreur détaillant les exigences de sécurité.
+    \item{6.1.} Les deux champs de nouveau mot de passe ne correspondent pas: le système affiche un message d'erreur "Les mots de passe ne correspondent pas".
+    \item\textbf{Scénario 7: Supprimer le compte}
+    \item{3.1.} L'acteur annule la suppression: le système ferme la boîte de dialogue et aucune action n'est effectuée.
+\end{itemize}\\
+\hline
+\textbf{Post-conditions } &
+\begin{itemize}[label=]
+  \item\textbf{Scénario 1: Consulter Profil}
+  \item L'acteur visualise toutes ses informations de profil.
+
+  \item\textbf{Scénario 2: Modifier informations personnelles}
+  \item Les informations personnelles de l'acteur sont mises à jour dans le système.
+
+  \item\textbf{Scénario 3: Modifier informations professionnelles}
+  \item Les informations professionnelles de l'acteur sont mises à jour dans le système.
+
+  \item\textbf{Scénario 4: Changer la photo de profil}
+  \item La photo de profil de l'acteur est mise à jour dans le système.
+
+  \item\textbf{Scénario 5: Changer le mot de passe}
+  \item Le mot de passe de l'acteur est mis à jour dans le système.
+  \item\textbf{Scénario 6: Gérer les sessions actives}
+\end{itemize} \\
+\hline
+\textbf{}&
+\begin{itemize}[label=]
+
+  \item Les sessions révoquées ne sont plus actives et l'utilisateur devra se reconnecter sur ces appareils.
+
+  \item\textbf{Scénario 7: Supprimer le compte}
+  \item Le compte de l'acteur est définitivement supprimé du système.
+\end{itemize}\\
+\hline
+\end{longtable}
+
+
+\subsubsection{Diagrammes de séquence système}
+
+Dans cette section, nous présentons le diagramme de séquence système relatif au cas d'utilisation \og Consulter Profil \fg{} (voir la \hyperref[fig:3.5]{Figure~3.5}).
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.9]{chapitre2/Diagramme de Sequence Consulter Profil.drawio.png}
+    \caption{Sprint 1~: Diagramme de séquence système du cas d'utilisation \og Consulter Profil \fg{}}
+    \label{fig:3.5}
+\end{figure}
+
+\subsection{Conception}
+
+Dans cette section, nous proposons une étude conceptuelle des données à travers la présentation du diagramme de classes et des diagrammes d'interactions.
+
+\subsubsection{Diagramme de classes}
+
+Le \textit{diagramme de classes} est un outil fondamental permettant de représenter la structure interne d'un système, en exposant les différentes classes, leurs attributs, ainsi que les relations structurelles qui les lient.
+
+La \hyperref[fig:3.6]{Figure~3.6} illustre le diagramme de classes utilisé pour le développement du premier sprint de la Release~1.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.7]{chapitre2/diagrame de classe.png}
+    \caption{Sprint 1~: Diagramme de classes \og Gérer Compte \fg{}}
+    \label{fig:3.6}
+\end{figure}
+
+\subsubsection{Diagrammes d'interaction détaillés}
+
+Dans cette sous-section, nous présentons plusieurs diagrammes de séquence détaillant l'interaction entre la partie \textit{front-end} et la partie \textit{back-end}.
+
+\medskip
+
+\noindent\textbf{\textendash{} Diagramme d'interaction \og S'inscrire \fg{}}\\
+\hspace{1em}La fonctionnalité \og S'inscrire \fg{} permet à un internaute de créer un compte sur la plateforme \textbf{Identity-Secure} en fournissant les informations requises~: nom d'utilisateur, adresse e-mail et mot de passe. L'inscription peut s'effectuer soit via le formulaire standard, soit en utilisant un compte Google. Une fois l'inscription validée, l'utilisateur reçoit un e-mail de vérification contenant un lien d'activation. Après validation, le rôle \og utilisateur \fg{} lui est automatiquement attribué, lui donnant accès aux fonctionnalités de base de la plateforme. Les rôles de \og manager \fg{} et \og officer \fg{} sont réservés aux comptes prédéfinis et ne sont pas accessibles lors de l'inscription standard (voir la \hyperref[fig:3.7]{Figure~3.7}).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.77]{chapitre2/Diagramme seaquence s'inscrire.png}
+    \caption{Sprint 1~: Diagramme d'interaction MVC \og S'inscrire \fg{}}
+    \label{fig:3.7}
+\end{figure}
+
+\medskip
+
+\noindent\textbf{\textendash{} Diagramme d'interaction \og Vérifier mail \fg{}}\\
+\hspace{1em}La fonctionnalité \og Vérifier mail \fg{} permet à l'internaute de confirmer son inscription et d'activer son compte sur la plateforme \textbf{Identity-Secure}. Après avoir complété le processus d'inscription, un e-mail de vérification est automatiquement envoyé à l'adresse fournie. Cet e-mail contient un lien d'activation sur lequel l'internaute doit cliquer pour valider son adresse e-mail et finaliser son inscription.
+
+\hspace{1em}En cliquant sur ce lien, l'internaute est redirigé vers une page de confirmation où son compte est marqué comme \og vérifié \fg{}. Un message de succès est alors affiché, et l'internaute peut désormais se connecter à la plateforme. Sans cette vérification, toute tentative de connexion est bloquée par un message invitant à vérifier l'adresse e-mail.
+
+\hspace{1em}Si l'internaute ne reçoit pas l'e-mail de vérification ou si le lien d'activation expire (après 48~heures), il peut demander l'envoi d'un nouveau lien depuis la page de connexion en cliquant sur l'option \og Resend verification email \fg{}. Cette fonctionnalité garantit que seuls les utilisateurs disposant d'une adresse e-mail valide peuvent accéder aux services de la plateforme (voir la \hyperref[fig:3.8]{Figure~3.8}).
+
+\medskip
+
+\noindent\textbf{\textendash{} Diagramme d'interaction \og S'authentifier \fg{}}\\
+\hspace{1em}La fonctionnalité \og S'authentifier \fg{} permet à un utilisateur existant de se connecter à la plateforme \textbf{Identity-Secure} en saisissant son nom d'utilisateur et son mot de passe, ou en utilisant son compte Google. Le système vérifie l'identité de l'utilisateur en consultant la base de données et s'assure que l'adresse e-mail a bien été validée.
+
+\hspace{1em}Si l'utilisateur tente de se connecter sans avoir vérifié son adresse e-mail, le système affiche un message d'erreur et propose de renvoyer l'e-mail de validation. Une fois l'authentification réussie, un jeton d'authentification (JWT) est généré, contenant les informations sur le rôle de l'utilisateur (Utilisateur, Manager ou Officer) et ses permissions associées.
+
+\hspace{1em}Ce jeton permet un accès sécurisé aux fonctionnalités correspondant au rôle de l'utilisateur, avec une redirection automatique vers le tableau de bord approprié~: \textit{citizen-dashboard} pour les utilisateurs standard, \textit{manager-dashboard} pour les managers, et \textit{officer-dashboard} pour les officers. L'option \og Remember me \fg{} permet également à l'utilisateur de rester connecté sur son appareil pour une période prolongée (voir la \hyperref[fig:3.9]{Figure~3.9}).
+
+\medskip
+
+\noindent\textbf{\textendash{} Diagramme d'interaction \og Récupérer mot de passe \fg{}}\\
+\hspace{1em}La fonctionnalité \og Récupérer mot de passe \fg{} permet aux utilisateurs de demander la réinitialisation de leur mot de passe en cas d'oubli. Lorsqu'un utilisateur soumet son adresse e-mail sur la page \og Reset Password \fg{}, le système vérifie l'existence de cette adresse dans la base de données, puis génère un jeton de réinitialisation unique et l'envoie par e-mail.
+
+\hspace{1em}Ce jeton est intégré dans un lien de réinitialisation sécurisé qui expire après une heure. Lorsque l'utilisateur clique sur ce lien, il est redirigé vers la page \og New Password \fg{} où il peut saisir et confirmer son nouveau mot de passe. Le système vérifie alors la correspondance des mots de passe et le respect des critères de sécurité requis (longueur minimale de 8~caractères, présence de lettres majuscules, minuscules, chiffres et caractères spéciaux).
+
+\hspace{1em}Une fois validé, le système hache le nouveau mot de passe pour garantir sa sécurité et met à jour les informations de l'utilisateur dans la base de données. Un message de confirmation \og Your password has been reset successfully. You can now login with your new password. \fg{} est alors affiché, et l'utilisateur est redirigé vers la page de connexion.
+
+\hspace{1em}Cette approche sécurisée garantit que seuls les utilisateurs ayant accès à l'adresse e-mail associée au compte peuvent réinitialiser leur mot de passe, et que le processus est protégé contre les tentatives d'accès non autorisées grâce à l'expiration du jeton et au hachage du mot de passe (voir la \hyperref[fig:3.10]{Figure~3.10}).
+
+\medskip
+
+\noindent\textbf{\textendash{} Diagramme d'interaction \og Gérer Profil \fg{}}\\
+\hspace{1em}La fonctionnalité \og Gérer Profil \fg{} est au cœur du système \textbf{Identity-Secure}, permettant aux utilisateurs (Citoyen, Manager, Officer) de gérer l'ensemble de leurs informations personnelles et paramètres de sécurité. Cette fonctionnalité englobe plusieurs sous-fonctionnalités essentielles : la consultation du profil, la modification des informations personnelles et professionnelles, le changement de photo de profil, la modification du mot de passe, la gestion des sessions actives, et la suppression du compte.
+
+\hspace{1em}Lorsqu'un utilisateur accède à son profil, le système récupère toutes ses informations depuis la base de données et les affiche dans une interface organisée en sections distinctes : identité du profil (avec photo), informations personnelles, informations professionnelles, informations de contact, paramètres de sécurité, sessions actives, et zone de danger pour la suppression de compte.
+
+\hspace{1em}Dans le scénario de modification des informations, l'acteur saisit les nouvelles données dans le formulaire et clique sur le bouton \og Save Changes \fg{}. Le système procède alors à plusieurs vérifications~:
+\begin{itemize}[label=]
+    \item la validité du format des données saisies (par exemple, format correct pour la date de naissance et le numéro d'identité)
+    \item l'unicité du numéro d'identité si celui-ci a été modifié
+    \item la cohérence des informations entre elles
+\end{itemize}
+
+\hspace{1em}Pour les modifications sensibles comme le numéro d'identité, le système vérifie que cette information n'a pas déjà été définie précédemment, certains champs ne pouvant être modifiés qu'une seule fois pour des raisons de sécurité.
+
+\hspace{1em}Si l'acteur souhaite modifier son mot de passe, il doit cliquer sur l'option dédiée qui ouvre une fenêtre modale. Dans cette fenêtre, il saisit son mot de passe actuel pour authentifier l'opération, puis entre et confirme son nouveau mot de passe. Le système vérifie alors la correspondance avec le mot de passe stocké et le respect des critères de sécurité.
+
+\hspace{1em}Pour la gestion des sessions actives, le système affiche la liste des appareils connectés avec leurs informations (type d'appareil, adresse IP, localisation, dernière activité). L'utilisateur peut révoquer n'importe quelle session à distance, à l'exception de sa session actuelle.
+
+\hspace{1em}Cette fonctionnalité offre ainsi une expérience utilisateur complète et sécurisée pour la gestion de l'identité numérique, avec des retours visuels immédiats (messages de confirmation ou d'erreur) pour chaque action effectuée. La figure 3.11 illustre le diagramme d'interaction MVC pour cette fonctionnalité centrale.
+
+% --- Figures ---
+
+\begin{figure}[H]
+    \centering
+    \fbox{\includegraphics[width=0.5\textwidth]{chapitre2/Diagramme de sequence Vérifier mail.png}}
+    \caption{Sprint 1~: Diagramme d'interaction MVC \og Vérifier mail \fg{}}
+    \label{fig:3.8}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \fbox{\includegraphics[width=0.5\textwidth]{chapitre2/Diagramme de sequence S'authentifier.png}}
+    \caption{Sprint 1~: Diagramme d'interaction MVC \og S'authentifier \fg{}}
+    \label{fig:3.9}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \fbox{\includegraphics[width=0.5\textwidth]{chapitre2/Diagramme de Sequence reset pwd.png}}
+    \caption{Sprint 1~: Diagramme d'interaction MVC \og Récupérer mot de passe \fg{}}
+    \label{fig:3.10}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \fbox{\includegraphics[width=0.5\textwidth]{chapitre2/Diagramme de sequence modifier infos.png}}
+    \caption{Sprint 1~: Diagramme d'interaction MVC \og Gérer Profil \fg{}}
+    \label{fig:3.11}
+\end{figure}
+% --- End Enhanced Academic Style ---
+
+\clearpage
+\subsection{Réalisation}
+
+Dans cette section, nous présentons les interfaces homme-machine développées à l'issue des phases d'analyse et de conception du premier sprint.
+\section*{\textbf{Interface de « la page d'accueil »}}
+La page d'accueil constitue le point d'entrée principal de la plateforme Identity Secure. Elle offre à l'utilisateur une vue d'ensemble des fonctionnalités, un accès direct à l'inscription et à la connexion.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{chapitre2/home page.jpeg}
+\caption{Sprint 1 – Interface de la page d'accueil}
+\end{figure}
+
+\section*{\textbf{Interfaces du cas d'utilisation « S'inscrire »}}
+
+Pour créer un compte sur Identity Secure, vous disposez de deux méthodes principales d'inscription. La \hyperref[fig:3.13]{figure 3.13} présente l'interface d'inscription standard, où vous devez saisir votre nom d'utilisateur, votre adresse e-mail et un mot de passe. Lors de la saisie, la figure 3.17 illustre l'indicateur de force du mot de passe, vous guidant vers la création d'un mot de passe robuste. Si vos mots de passe ne correspondent pas, la figure 3.18 vous alerte immédiatement.
+
+En cas de tentative d'utilisation d'un nom d'utilisateur déjà existant, la figure 3.19 vous en informe clairement. De même, si votre adresse e-mail est déjà associée à un compte, la \hyperref[fig:3.16]{figure 3.16} vous en avertit. Une fois vos informations validées, la figure 3.20 vous guide vers la vérification de votre adresse e-mail. L'alternative d'inscription via Google est également disponible, comme le montre la \hyperref[fig:3.21]{figure 3.21}, offrant une méthode d'authentification rapide et sécurisée.
+
+\begin{figure}[h!]
+\vspace*{0pt}
+  \centering
+
+  % Left: tall image
+  \begin{minipage}[t]{0.45\textwidth}
+    \vspace*{0pt} % ← Forces top alignment
+    \centering
+    \includegraphics[width=8cm, height=16cm]{chapitre2/Signup/signup-attempt.png}
+    \caption{Interface de formulaire d'inscription}
+  \end{minipage}%
+  \hspace{1cm}
+  % Right: shorter image, also top aligned
+  \begin{minipage}[t]{0.45\textwidth}
+    \vspace*{0pt} % ← Forces top alignment
+    \centering
+    \includegraphics[width=8cm, height=9cm]{chapitre2/Signup/sign-up-done-wait-for-validation.png}
+    \caption{Envoi de l'e-mail de vérification}
+    \includegraphics[width=8cm, height=6cm]{chapitre2/Signup/sign-up-email-validatation-done.png}
+    \caption{Vérification réussie}
+  \end{minipage}
+\end{figure}
+\begin{figure}[H]
+  \centering
+
+  % First row
+  \begin{minipage}[t]{0.45\textwidth}
+    \centering
+    \includegraphics[width=8cm, height=6cm]{chapitre2/Signup/Email used.png}
+    \caption{Figure 3.16 : Adresse e-mail déjà utilisée}
+  \end{minipage}
+  \hspace{1cm}
+  \begin{minipage}[t]{0.45\textwidth}
+    \centering
+    \includegraphics[width=8cm, height=6cm]{chapitre2/Signup/Password Indecator.png}
+    \caption{Indicateur de force du mot de passe}
+  \end{minipage}
+
+\vspace{0.5cm} % force vertical space
+\end{figure}
+
+
+
+\clearpage
+\begin{figure}[H]
+  \centering
+  % Second row
+  \begin{minipage}[t]{0.45\textwidth}
+    \centering
+    \includegraphics[width=8cm, height=6cm]{chapitre2/Signup/passwords not match.png}
+    \caption{Mots de passe non correspondants}
+  \end{minipage}
+  \hspace{1cm}
+  \begin{minipage}[t]{0.45\textwidth}
+    \centering
+    \includegraphics[width=8cm, height=6cm]{chapitre2/Signup/username used.png}
+    \caption{Nom d'utilisateur déjà utilisé}
+  \end{minipage}
+\end{figure}
+
+
+% Bloc 3 : Options supplémentaires
+\begin{figure}[H]
+  \centering
+  \begin{minipage}[b]{0.9\textwidth}
+    \centering
+    \includegraphics[width=\linewidth, height=6cm]{chapitre2/Signup/email-signup-verify.jpg}
+    \caption{Boite e-mail}
+  \end{minipage}
+\end{figure}
+
+\FloatBarrier
+\begin{figure}[H]
+  \centering
+  \begin{minipage}[b]{0.9\textwidth}
+    \centering
+    \includegraphics[width=\linewidth, height=6cm]{chapitre2/Signup/google auth-interface.jpg}
+    \caption{Figure 3.21 : Interface d'inscription via Google}
+  \end{minipage}
+\end{figure}
+
+\FloatBarrier
+
+\clearpage
+\textbf{Interfaces du cas d'utilisation « S'authentifier »}
+
+Pour accéder à votre compte Identity Secure, la \hyperref[fig:3.22]{figure 3.22} présente l'interface de connexion. Vous pouvez vous authentifier en saisissant votre nom d'utilisateur et votre mot de passe, ou utiliser la connexion rapide via Google (voir figure 3.21) . Si votre compte n'est pas encore vérifié, la figure 3.23 vous indique les étapes à suivre, avec l'option de renvoyer un e-mail de vérification comme illustré dans la figure 3.24.
+
+En cas d'erreur lors de la connexion, la figure 3.25 montre le message d'échec lié à des identifiants incorrects. Le système vous guide à chaque étape, assurant une expérience de connexion sécurisée et intuitive.
+
+\begin{figure}[h!]
+  \centering
+
+  % Left: tall image
+  \begin{minipage}[t]{0.45\textwidth}
+    \vspace*{0pt} % ← Forces top alignment
+    \centering
+    \includegraphics[width=8cm, height=16cm]{chapitre2/Signin/signin-attempt.png}
+    \caption{Interface d'authentification}
+  \end{minipage}%
+  \hfill
+  % Right:  top aligned
+  \begin{minipage}[t]{0.45\textwidth}
+    \vspace*{0pt} % ← Forces top alignment
+    \centering
+    \includegraphics[width=8cm, height=16cm]{chapitre2/Signin/signin not verified.png}
+    \caption{Compte non vérifié lors de la connexion}
+  \end{minipage}
+\end{figure}
+\FloatBarrier
+\clearpage
+\begin{figure}[h!]
+  \centering
+
+  % Left: tall image
+  \begin{minipage}[t]{0.45\textwidth}
+    \vspace*{0pt} % ← Forces top alignment
+    \centering
+    \includegraphics[width=8cm, height=16cm]{chapitre2/Signin/send verification again.png}
+    \caption{Renvoi de l'e-mail de vérification}
+  \end{minipage}%
+  \hfill
+  % Right:  top aligned
+  \begin{minipage}[t]{0.45\textwidth}
+    \vspace*{0pt} % ← Forces top alignment
+    \centering
+    \includegraphics[width=8cm, height=16cm]{chapitre2/Signin/signin-failed-for-credentials.png}
+    \caption{Échec de connexion - Identifiants incorrects}
+  \end{minipage}
+\end{figure}
+\textbf{Interfaces du cas d'utilisation « Récupérer mot de passe »}
+
+La récupération de mot de passe sur Identity Secure est un processus simple et sécurisé. La figure 3.26 présente l'interface initiale où vous saisissez votre adresse e-mail. La figure 3.27 vous guide ensuite vers la vérification du code de réinitialisation. Une fois le code vérifié, la figure 3.28 vous permet de saisir un nouveau mot de passe.
+
+Si le processus rencontre des difficultés, les figures 3.29 et 3.30 illustrent différents scénarios d'erreur, tels qu'un jeton expiré ou une réinitialisation échouée. Un e-mail de réinitialisation est envoyé, comme le montre la figure 3.31, vous permettant de récupérer l'accès à votre compte en toute simplicité.
+
+\begin{figure}[H]
+  \centering
+
+  % First row
+  \begin{minipage}[t]{0.45\textwidth}
+    \centering
+    \includegraphics[width=8cm, height=10cm]{chapitre2/Forgot password/Reset password attempt 1.jpeg}
+    \caption{Interface de réinitialisation de mot de passe}
+  \end{minipage}
+  \hspace{1cm}
+  \begin{minipage}[t]{0.45\textwidth}
+    \centering
+    \includegraphics[width=8cm, height=10cm]{chapitre2/Forgot password/Reset password attempt 2.jpeg}
+    \caption{Interface de vérification de code de réinitialisation}
+  \end{minipage}
+
+  \vspace{0.5cm}
+  % Second row
+  \begin{minipage}[t]{0.45\textwidth}
+    \centering
+    \includegraphics[width=8cm, height=10cm]{chapitre2/Forgot password/reset-password-new-password.jpeg}
+    \caption{Interface de saisie le nouveau mot de passe}
+  \end{minipage}
+  \hspace{1cm}
+  \begin{minipage}[t]{0.45\textwidth}
+    \centering
+    \includegraphics[width=8cm, height=10cm]{chapitre2/Forgot password/reset-password-fraud-or-token-passed.jpeg}
+    \caption{Jeton expiré ou invalide}
+  \end{minipage}
+
+
+\end{figure}
+\begin{figure}[H]
+  \centering
+
+  % Left image (tall)
+  \begin{minipage}[t]{0.45\textwidth}
+    \vspace*{0pt} % Assure top alignment
+    \centering
+    \includegraphics[width=8cm, height=8cm]{chapitre2/Forgot password/reset-password-failed.jpeg}
+    \caption{Échec de réinitialisation de mot de passe}
+  \end{minipage}
+  \hspace{1cm}
+  % Right image (shorter)
+  \begin{minipage}[t]{0.45\textwidth}
+    \vspace*{0pt} % Assure top alignment
+    \centering
+    \includegraphics[width=8cm, height=3cm]{chapitre2/Forgot password/email-reset-password.jpeg}
+    \caption{E-mail de réinitialisation envoyé}
+  \end{minipage}
+
+\end{figure}
+
+
+\textbf{Interfaces du cas d'utilisation « Gérer Profil »}
+
+La gestion de votre profil sur Identity Secure est conçue pour être intuitive et complète. La figure 3.34 présente l'interface de profil détaillée, où vous pouvez consulter et modifier vos informations personnelles. Lorsque vous effectuez des modifications, la figure 3.32 montre le message de confirmation de mise à jour.
+
+La modification de mot de passe, illustrée par la figure 3.35, vous permet de changer votre mot de passe de manière sécurisée,( voir figure 3.33) pour le cas de succès. Pour les paramètres avancés, la figure 3.36 offre une vue sur la gestion des sessions actives et l'option de suppression de compte, vous donnant un contrôle total sur votre identité numérique.
+
+\begin{figure}[H]
+  \centering
+  % Block of 3 stacked images (full width)
+  \begin{minipage}[t]{\textwidth}
+    \centering
+    \includegraphics[width=0.5\textwidth, height=1.8cm]{chapitre2/profile/profile-save -changes.png}
+    \caption{Confirmation de sauvegarde des modifications}
+    \vspace{0.3cm}
+    \includegraphics[width=0.5\textwidth, height=1.8cm]{chapitre2/profile/Profile changing password success.png}
+    \caption{Changement de mot de passe réussi}
+  \end{minipage}
+
+\end{figure}
+\begin{figure}[H]
+  \centering
+
+  % Large image alone (full width)
+  \begin{minipage}[t]{\textwidth}
+    \centering
+    \includegraphics[width=\textwidth, height=24cm]{chapitre2/profile/profile interface.jpeg}
+    \caption{Interface du profil utilisateur}
+  \end{minipage}
+\end{figure}
+\begin{figure}[H]
+  \centering
+  % Block of 3 stacked images (full width)
+  \begin{minipage}[t]{\textwidth}
+    \centering
+    \includegraphics[width=\textwidth, height=10cm]{chapitre2/profile/profile change password part.jpg}
+    \caption{Interface de changement de mot de passe}
+
+    \vspace{0.3cm}
+
+    \includegraphics[width=\textwidth, height=5.5cm]{chapitre2/profile/profile-delete session.png}
+    \caption{Gestion des sessions actives}
+
+    \vspace{0.3cm}
+
+    \includegraphics[width=\textwidth, height=6cm]{chapitre2/profile/profile-delete account .png}
+    \caption{Suppression du compte}
+  \end{minipage}
+
+\end{figure}
+
+\addcontentsline{toc}{section}{Conclusion}
+\section*{Conclusion}
+À ce stade, les utilisateurs peuvent s'inscrire sur « Identity Secure » et s'authentifier. Ce travail pose les bases solides pour la suite du projet, qui sera abordée dans le prochain chapitre.
+\label{sec_Conclusion}

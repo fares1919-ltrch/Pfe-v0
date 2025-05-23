@@ -1,0 +1,309 @@
+\chapter{Release 3 :« Gérer CPF » }
+\label{chap_sprint3}
+\addcontentsline{toc}{section}{Introduction}
+\section*{Introduction}
+\label{sec_introduction:ch4}
+Après avoir clôturé la deuxième release dédiée à la gestion des rendez-vous, nous allons dans cette section examiner en détail la troisième release du projet, centrée sur la gestion des CPF (Cadastro de Pessoas Físicas). Cette release est cruciale car elle implémente le cœur du système d'identité brésilien, permettant la collecte des données biométriques, la vérification de l'unicité des identités, et la génération sécurisée des numéros CPF.
+
+Dans ce chapitre, nous décrivons l'organisation et le backlog du sprint « Gérer CPF », puis nous abordons la phase d'analyse et la solution conceptuelle en illustrant les interactions entre les acteurs et le système à l'aide de divers diagrammes. Nous détaillons particulièrement le processus automatisé de déduplication biométrique et de génération de CPF qui s'exécute après la collecte des données biométriques lors des rendez-vous. Enfin, nous mettons en lumière la mise en œuvre concrète à travers les interfaces utilisateur pour les citoyens, les officiers et les managers.
+
+\section{Sprint 3 : « Gérer CPF »}
+Dans cette section, nous décrivons le développement du système de gestion des CPF, qui constitue le cœur de notre application d'identité. Ce système permet la collecte sécurisée des données biométriques, la vérification automatique de l'unicité des identités via un processus de déduplication, et la génération des numéros CPF pour les citoyens brésiliens vérifiés.
+\subsection{Organisation}
+Le tableau 5.1 ci-dessous donne un aperçu détaillé sur le Backlog du sprint « Gérer CPF ».
+
+\begin{longtable}{|>{\centering\arraybackslash}p{0.7cm}|>{\arraybackslash}p{5cm}|>{\centering\arraybackslash}p{1.3cm}|>{\arraybackslash}p{6.5cm}|>{\centering\arraybackslash}p{1cm}|}
+\caption{Backlog du sprint 3 : « Gérer CPF »} \label{tab:backlog} \\
+
+\hline
+\textbf{ID} & \textbf{User Story} & \textbf{ID} & \textbf{Tâche} & \textbf{Durée /j} \\
+\hline
+\endfirsthead
+
+\hline
+\endhead
+
+\hline
+\endfoot
+
+\hline
+\endlastfoot
+
+% User Story 6.1
+\multirow{3}{0.7cm}{6.1} & \multirow{3}{5cm}{En tant que citoyen, je peux consulter mon numéro CPF et son statut, effectuer des actions comme le blocage en cas de fraude et recevoir des notifications des transactions basées sur mon numéro CPF.}
+& 6.1.1 & Implémenter une interface frontend pour afficher le numéro CPF et son statut pour le citoyen. & 1 \\
+\cline{3-5}
+& & 6.1.2 & Développer une API backend sécurisée (via JWT) pour récupérer le numéro CPF et son statut pour le citoyen authentifié. & 1 \\
+\cline{3-5}
+& & 6.1.3 & Ajouter une fonctionnalité de notification des transactions liées au CPF (par e-mail ou via l'interface utilisateur). & 1 \\
+\hline
+
+% User Story 6.2
+\multirow{3}{0.7cm}{6.2} & \multirow{3}{5cm}{En tant que manager CPF, je peux consulter et gérer les fraudes liées aux comptes.}
+& 6.2.1 & Implémenter une interface frontend pour afficher et examiner les cas potentiels de fraude détectés par déduplication. & 1 \\
+\cline{3-5}
+& & 6.2.2 & Développer une API backend pour récupérer et gérer les rapports de fraude (incluant statuts et historique). & 1 \\
+\cline{3-5}
+& & 6.2.3 & Ajouter des fonctionnalités de gestion des fraudes (ex. : blocage, marquage des comptes, notifications aux parties concernées). & 1 \\
+\hline
+
+% User Story 6.3
+\multirow{3}{0.7cm}{6.3} & \multirow{3}{5cm}{En tant que manager, je peux gérer les réclamations des demandes de blocage.}
+& 6.3.1 & Implémenter une interface frontend pour afficher et traiter les réclamations de blocage de CPF (avec filtres par statut et date). & 1 \\
+\cline{3-5}
+& & 6.3.2 & Développer une API backend pour gérer les réclamations de blocage, incluant l'historique et les statuts. & 1 \\
+\cline{3-5}
+& & 6.3.3 & Configurer des tests unitaires pour valider les processus de gestion des réclamations (ex. : validation des statuts, traçabilité). & 1 \\
+\hline
+
+% User Story 6.4
+\multirow{3}{0.7cm}{6.4} & \multirow{3}{5cm}{En tant que manager CPF ou officier de police, je peux consulter la liste des citoyens avec des filtres par statut (actif, suspendu, bloqué) et par état de génération du CPF et effectuer des actions (blocage).}
+& 6.4.1 & Implémenter une interface frontend pour consulter la liste des citoyens avec filtres (statut : actif, suspendu, bloqué ; état de génération : en attente, généré, rejeté). & 1 \\
+\cline{3-5}
+& & 6.4.2 & Développer une API backend pour récupérer la liste des citoyens avec pagination et filtres. & 1 \\
+\cline{3-5}
+& & 6.4.3 & Ajouter des fonctionnalités de gestion (ex. : blocage, mise à jour de statut) dans l'interface de consultation. & 1 \\
+\hline
+
+% User Story 6.5
+\multirow{3}{0.7cm}{6.5} & \multirow{3}{5cm}{En tant que manager, je peux consulter les déduplications détectées dans la base.}
+& 6.5.1 & Implémenter une interface frontend pour afficher les résultats de déduplication avec filtres (ex. : type de doublon, date de détection). & 1 \\
+\cline{3-5}
+& & 6.5.2 & Développer une API backend pour récupérer les résultats de déduplication avec traçabilité. & 1 \\
+\cline{3-5}
+& & 6.5.3 & Configurer des notifications pour alerter les managers des nouveaux cas de déduplication détectés. & 1 \\
+\hline
+
+% User Story 6.6
+\multirow{3}{0.7cm}{6.6} & \multirow{3}{5cm}{En tant qu’officier de police, je peux téléverser et enregistrer les données biométriques des citoyens (empreintes digitales, image faciale, iris).}
+& 6.6.1 & Implémenter une interface frontend pour le téléversement sécurisé des données biométriques (visage, empreintes digitales, iris). & 1 \\
+\cline{3-5}
+& & 6.6.2 & Développer une API backend pour recevoir et stocker les données biométriques avec chiffrement. & 1 \\
+\cline{3-5}
+& & 6.6.3 & Intégrer des contrôles de qualité automatiques (ex. : netteté, lisibilité) lors de la capture des données biométriques. & 1 \\
+\hline
+
+\end{longtable}
+
+\subsection{Analyse}
+Durant cette phase d'analyse, nous approfondissons les diverses fonctionnalités en les accompagnant de leurs cas d'utilisation respectifs.
+\subsubsection{Diagrammes de cas d'utilisation}
+Nous présentons dans cette partie les différents cas d'utilisation raffinés.\\
+
+\textbf{– Raffinement de cas d'utilisation « Gérer CPF »}\\
+La Figure 5.1 montre le raffinement de cas d'utilisation « Gérer CPF » mettant en lumière
+les interactions entre les citoyens, les officiers et les managers dans le processus de gestion des CPF.
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.65]{chapitre4/gerer_cpf_usecase.png}
+\caption{ Sprint 3 - Diagramme de cas d'utilisation « Gérer CPF ». }
+\end{figure}
+
+Le Tableau 5.2 représente une description textuelle du cas d'utilisation « Gérer CPF ». Il
+détaille le scénario nominal ainsi que les enchaînements alternatifs.
+
+\begin{longtable}{|>{\arraybackslash}p{4.2cm}|>{\arraybackslash}p{12.5cm}|}
+\caption{\centering Description textuelle du cas d'utilisation « Gérer CPF »}
+\label{tab:backlog} \\
+\hline
+\textbf{Cas d'utilisation} & Gérer CPF \\
+\hline
+\endfirsthead
+
+\hline
+\endhead
+
+\hline
+\endfoot
+
+\hline \hline
+\endlastfoot
+ \textbf{Acteur}  & Citoyen, Officer de Police, Manager CPF\\
+\hline
+\textbf{Résumé} &
+\begin{itemize}[label=]
+  \item\textbf{Scénario 1: Téléverser données biométriques}
+  \item L'officier de police peut téléverser les données biométriques d'un citoyen lors d'un rendez-vous.
+  \item\textbf{Scénario 2: Vérifier déduplication}
+  \item Le système vérifie automatiquement si les données biométriques correspondent à une identité existante.
+  \item\textbf{Scénario 3: Générer CPF}
+  \item Le système génère automatiquement un numéro CPF pour les citoyens vérifiés.
+  \item\textbf{Scénario 4: Consulter CPF}
+  \item Le citoyen peut consulter son numéro CPF et son statut.
+  \item\textbf{Scénario 5: Télécharger CPF}
+  \item Le citoyen peut télécharger son certificat CPF.
+  \item\textbf{Scénario 6: Consulter liste citoyens}
+  \item Le manager CPF et l'officier de police peuvent consulter la liste des citoyens avec des filtres par statut (actif, suspendu, bloqué) et par état de génération du CPF.
+\end{itemize}\\
+
+\hline
+\textbf{Pré-conditions} &
+\begin{itemize}[label=]
+  \item\textbf{Scénario 1: Téléverser données biométriques}
+ \item L'officier de police est authentifié.
+ \item Le rendez-vous avec le citoyen est validé et en cours.
+ \item\textbf{Scénario 2: Vérifier déduplication}
+ \item Les données biométriques ont été téléversées.
+ \item\textbf{Scénario 3: Générer CPF}
+ \item La vérification de déduplication est terminée sans correspondance.
+ \item\textbf{Scénario 4: Consulter CPF}
+ \item Le citoyen est authentifié.
+ \item Le citoyen possède un CPF généré.
+ \item\textbf{Scénario 5: Télécharger CPF}
+ \item Le citoyen est authentifié.
+ \item Le citoyen possède un CPF généré.
+ \item\textbf{Scénario 6: Consulter liste citoyens}
+ \item Le manager CPF ou l'officier de police est authentifié.
+\end{itemize} \\
+
+\hline
+\textbf{Description de scénario nominal }  &
+\begin{itemize}[label=]
+  \item\textbf{Scénario 1: Téléverser données biométriques}
+ \item{1-} L'officier de police accède à l'interface de collecte biométrique.
+ \item{2-} L'officier capture la photo du visage du citoyen.
+ \item{3-} L'officier capture les empreintes digitales du citoyen.
+ \item{4-} L'officier capture les scans d'iris du citoyen.
+ \item{5-} L'officier vérifie la qualité des données biométriques.
+ \item{6-} L'officier soumet les données biométriques.
+ \item{7-} Le système enregistre les données et lance automatiquement le processus de déduplication.
+ \item\textbf{Scénario 2: Vérifier déduplication}
+ \item{1-} Le système reçoit les données biométriques.
+ \item{2-} Le système envoie les données à l'API de déduplication.
+ \item{3-} L'API compare les données avec la base existante.
+ \item{4-} L'API renvoie les résultats de la comparaison.
+ \item{5-} Si aucune correspondance n'est trouvée, le système marque l'identité comme vérifiée.
+ \item{6-} Si des correspondances sont trouvées, le système ajoute l'identité à la liste des cas potentiels de fraude.
+\end{itemize} \\
+\hline
+\textbf{}&
+\begin{itemize}[label=]
+  \item\textbf{Scénario 3: Générer CPF}
+ \item{1-} Le système vérifie que l'identité est marquée comme vérifiée.
+ \item{2-} Le système génère un numéro CPF unique selon l'algorithme brésilien.
+ \item{3-} Le système crée un certificat CPF avec les informations du citoyen.
+ \item{4-} Le système enregistre le CPF dans la base de données.
+ \item{5-} Le système notifie le citoyen de la disponibilité de son CPF.
+ \item\textbf{Scénario 4: Consulter CPF}
+ \item{1-} Le citoyen accède à son tableau de bord.
+ \item{2-} Le système affiche le numéro CPF et son statut.
+ \item{3-} Le système affiche l'historique des transactions liées au CPF.
+ \item\textbf{Scénario 5: Télécharger CPF}
+ \item{1-} Le citoyen clique sur "Télécharger CPF".
+ \item{2-} Le système génère un document PDF sécurisé contenant le certificat CPF.
+ \item{3-} Le système propose le téléchargement du document au citoyen.
+\end{itemize}\\
+\hline
+\textbf{}&
+\begin{itemize}[label=]
+  \item\textbf{Scénario 6: Consulter liste citoyens}
+ \item{1-} Le manager CPF ou l'officier de police accède à l'interface de gestion des citoyens.
+ \item{2-} Le système affiche la liste des citoyens avec pagination.
+ \item{3-} Le manager ou l'officier peut filtrer la liste par statut (actif, suspendu, bloqué).
+ \item{4-} Le manager ou l'officier peut filtrer par état de génération du CPF (en attente, généré, rejeté).
+ \item{5-} Le manager ou l'officier peut sélectionner un citoyen pour voir ses détails.
+ \item{6-} Le système affiche les informations détaillées du citoyen sélectionné, y compris son historique de statut.
+\end{itemize}\\
+
+\hline
+\textbf{Enchaînements Alternatifs} &
+\begin{itemize}[label=]
+  \item\textbf{Scénario 1: Téléverser données biométriques}
+ \item{5.1-} La qualité des données biométriques est insuffisante : le système affiche un message d'erreur et demande de recapturer les données.
+ \item\textbf{Scénario 2: Vérifier déduplication}
+ \item{4.1-} Erreur de communication avec l'API : le système met la vérification en attente et notifie l'administrateur.
+ \item\textbf{Scénario 3: Générer CPF}
+ \item{1.1-} L'identité n'est pas vérifiée : le système bloque la génération et notifie le manager.
+ \item\textbf{Scénario 5: Télécharger CPF}
+ \item{1.1-} Le CPF est bloqué : le système affiche un message d'erreur expliquant la situation.
+\end{itemize} \\
+\hline
+\textbf{Post-conditions } &
+\begin{itemize}[label=]
+  \item\textbf{Scénario 1: Téléverser données biométriques}
+ \item Les données biométriques sont enregistrées dans le système.
+ \item\textbf{Scénario 2: Vérifier déduplication}
+ \item L'identité est marquée comme vérifiée ou ajoutée à la liste des cas potentiels de fraude.
+ \item\textbf{Scénario 3: Générer CPF}
+ \item Un numéro CPF unique est généré et associé au citoyen.
+ \item\textbf{Scénario 5: Télécharger CPF}
+ \item Le citoyen obtient un document officiel contenant son CPF.
+ \item\textbf{Scénario 6: Consulter liste citoyens}
+ \item Le manager ou l'officier visualise la liste des citoyens selon les critères de filtrage.
+\end{itemize} \\
+\end{longtable}
+
+\subsection{Conception}
+Dans cette section, nous présentons l'étude conceptuelle des données par la présentation du
+diagramme de classes et des diagrammes d'interactions.
+\subsubsection{Diagramme de classes}
+La figure 5.3 décrit le diagramme de classes que nous avons utilisé pour développer le sprint « Gérer CPF ».
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=18 cm, height= 25cm]{chapitre4/gerer_cpf_class.png}
+\caption{ Sprint 3 - Diagramme de classes « Gérer CPF ». }
+\end{figure}
+
+\subsubsection{Diagrammes d'interaction détaillés}
+Dans cette sous-section, nous présentons quelques diagrammes de séquences qui détaillent
+l'interaction entre la partie front-end et la partie back-end du sprint « Gérer CPF ».\\
+
+\textbf{– Diagramme d'interaction « Téléverser Données Biométriques »}\\
+La fonction "Téléverser Données Biométriques" permet à un officier de police de capturer et d'enregistrer les données biométriques d'un citoyen lors d'un rendez-vous validé. L'officier capture les différentes données biométriques (visage, empreintes, iris), vérifie leur qualité, puis les soumet au système. Le backend reçoit ces données, les valide, les stocke de manière sécurisée, puis déclenche automatiquement le processus de déduplication. Une fois le processus terminé, le système notifie l'officier du résultat et, en cas de succès, lance la génération du CPF.
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.7]{chapitre4/televerse_biometric_sequence.png}
+\caption{ Sprint 3 - Diagramme d'interaction « Téléverser Données Biométriques ». }
+\end{figure}
+
+\textbf{– Diagramme d'interaction « Vérification Déduplication et Génération CPF »}\\
+Ce diagramme illustre le processus automatique qui se déclenche après le téléversement des données biométriques. Le système envoie les données à l'API de déduplication qui les compare avec la base existante. Si aucune correspondance n'est trouvée, le système marque l'identité comme vérifiée et génère automatiquement un numéro CPF unique selon l'algorithme brésilien. Le système crée ensuite un certificat CPF, l'enregistre dans la base de données, et notifie le citoyen de la disponibilité de son CPF. Si des correspondances sont trouvées, le système ajoute l'identité à la liste des cas potentiels de fraude pour examen par un manager.
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.7]{chapitre4/deduplication_cpf_sequence.png}
+\caption{ Sprint 3 - Diagramme d'interaction « Vérification Déduplication et Génération CPF ». }
+\end{figure}
+
+\subsection{Réalisation}
+Après avoir analysé le sprint 3 et achevé la phase de conception, cette section présente les
+interfaces homme-machine élaborées durant ce sprint.\\
+
+\textbf{– Interfaces du cas d'utilisation « Téléverser Données Biométriques »}\\
+L'interface de collecte biométrique permet à l'officier de police de capturer les différentes données biométriques du citoyen de manière structurée et sécurisée. L'interface inclut des outils de capture pour la photo du visage, les empreintes digitales et les scans d'iris, ainsi que des indicateurs de qualité pour s'assurer que les données capturées répondent aux normes requises.
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.8]{chapitre4/biometric_capture_interface.png}
+\caption{ Sprint 3 - Interface « Téléverser Données Biométriques » }
+\end{figure}
+
+\textbf{– Interfaces du cas d'utilisation « Consulter CPF »}\\
+L'interface de consultation CPF permet au citoyen de visualiser son numéro CPF, son statut, et l'historique des transactions associées. Elle offre également des fonctionnalités pour télécharger le certificat CPF et signaler d'éventuelles transactions frauduleuses.
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.67]{chapitre4/cpf_dashboard_interface.png}
+\caption{ Sprint 3 - Interface « Consulter CPF » }
+\end{figure}
+
+\textbf{– Interfaces du cas d'utilisation « Consulter liste citoyens »}\\
+L'interface de consultation des citoyens permet au manager CPF et à l'officier de police de visualiser et de filtrer la liste complète des citoyens. Elle offre des fonctionnalités de pagination et de filtrage par statut (actif, suspendu, bloqué) et par état de génération du CPF (en attente, généré, rejeté). L'interface permet également de sélectionner un citoyen pour afficher ses informations détaillées, y compris son historique de statut et les éventuels cas de déduplication ou de fraude associés.
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.67]{chapitre4/citizen_list_interface.png}
+\caption{ Sprint 3 - Interface « Consulter liste citoyens » }
+\end{figure}
+
+\addcontentsline{toc}{section}{Conclusion}
+\section*{Conclusion}
+\label{sec_Conclusion:ch4}
+Lors de cette release, nous avons accompli l'analyse, la conception et la réalisation du sprint « Gérer CPF ». À ce stade, nous avons mis en place un système complet de gestion des identités brésiliennes, permettant la collecte sécurisée des données biométriques, la vérification automatique de l'unicité des identités, et la génération des numéros CPF. Le processus automatisé de déduplication et de génération de CPF constitue le cœur de notre application, offrant une solution fiable et sécurisée pour l'identification des citoyens brésiliens.
+
+Les interfaces développées permettent aux différents acteurs (citoyens, officiers, managers) d'interagir efficacement avec le système selon leurs rôles et responsabilités. Les citoyens peuvent consulter et télécharger leurs CPF, les officiers peuvent collecter les données biométriques lors des rendez-vous, et les managers et officiers peuvent consulter la liste des citoyens avec différents filtres pour suivre l'état de génération des CPF et les statuts des comptes.
+
+Cette release représente une étape cruciale dans le développement de notre système d'identité, fournissant les fonctionnalités essentielles pour la gestion des CPF et posant les bases pour les futures améliorations et extensions du système.

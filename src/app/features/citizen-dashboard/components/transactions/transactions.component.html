@@ -1,0 +1,33 @@
+<div class="glass-card transactions-card">
+  <div class="card-header">
+    <h2>Recent Transactions</h2>
+  </div>
+
+  <div class="transactions-list">
+    <div
+      class="transaction-item"
+      *ngFor="let transaction of recentTransactions"
+    >
+      <div class="transaction-icon" [ngClass]="transaction.type">
+        <mat-icon>{{
+          transaction.type === "credit" ? "add_circle" : "remove_circle"
+        }}</mat-icon>
+      </div>
+      <div class="transaction-info">
+        <div class="transaction-header">
+          <span class="description">{{ transaction.description }}</span>
+          <span class="amount" [ngClass]="transaction.type">
+            {{ transaction.type === "credit" ? "+" : "-"
+            }}{{ formatCurrency(transaction.amount) }}
+          </span>
+        </div>
+        <div class="transaction-footer">
+          <span class="date">{{ formatDate(transaction.date) }}</span>
+          <span class="status-badge" [ngClass]="transaction.status">
+            {{ transaction.status | titlecase }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

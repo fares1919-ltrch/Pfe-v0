@@ -323,7 +323,7 @@ export class OfficerRequestsComponent implements OnInit, AfterViewInit {
         error: (err) => {
           this.isLoading.set(false);
           console.error('Error deleting request:', err);
-          
+
           if (err.status === 401 || err.status === 403) {
             this.snackBar.open('You are not authorized to delete this request', 'Close', {
               duration: 5000,

@@ -1,0 +1,235 @@
+.dashboard-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Roboto', sans-serif;
+}
+
+// Top Bar Styling
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: white;
+  border-radius: 10px;
+  padding: 15px 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+
+  .title-section {
+    display: flex;
+    align-items: center;
+
+    .fingerprint-icon {
+      color: #3f51b5;
+      font-size: 28px;
+      margin-right: 10px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 500;
+      color: #333;
+    }
+  }
+
+  .download-btn {
+    background-color: #3f51b5;
+    color: white;
+
+    mat-icon {
+      margin-right: 8px;
+    }
+  }
+}
+
+// Section Header
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+
+  h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 500;
+    color: #333;
+  }
+
+  .last-update {
+    color: #6c757d;
+    font-size: 14px;
+  }
+}
+
+// Status Card
+.status-section {
+  margin-bottom: 20px;
+}
+
+.status-card {
+  background-color: white;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+// CPF Number Section
+.cpf-number-section {
+  display: flex;
+  align-items: center;
+
+  .label {
+    color: #6c757d;
+    font-size: 14px;
+    margin: 0 15px 0 0;
+  }
+
+  .value {
+    font-family: 'Courier New', monospace;
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    margin: 0;
+    flex-grow: 1;
+  }
+
+  .visibility-toggle {
+    color: #6c757d;
+  }
+}
+
+// Status Badge
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 15px;
+  border-radius: 20px;
+  width: fit-content;
+
+  &.active {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+  }
+
+  &.expired {
+    background-color: #fff8e1;
+    color: #f57f17;
+  }
+
+  &.suspended {
+    background-color: #ffebee;
+    color: #c62828;
+  }
+
+  mat-icon {
+    font-size: 18px;
+    margin-right: 8px;
+  }
+
+  span {
+    font-weight: 500;
+  }
+}
+
+// Action Button
+.action-btn {
+  width: 100%;
+  margin-top: 10px;
+  color: #f44336;
+  border-color: #f44336;
+
+  mat-icon {
+    margin-right: 8px;
+  }
+}
+
+// Info Section
+.info-section {
+  margin-top: 20px;
+}
+
+.personal-info-card {
+  background-color: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.card-content {
+  padding: 20px;
+}
+
+// User Info
+.user-info {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+
+  .profile-image {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-right: 15px;
+    background-color: #f0f0f0;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  .user-details {
+    .user-name {
+      font-weight: 500;
+      font-size: 18px;
+      margin: 0 0 5px 0;
+      color: #333;
+    }
+
+    .user-id {
+      color: #6c757d;
+      margin: 0;
+      font-size: 14px;
+    }
+  }
+}
+
+// Verification and Appointment Info
+.verification-info,
+.appointment-info {
+  margin-bottom: 20px;
+
+  h4 {
+    font-size: 16px;
+    color: #333;
+    margin: 0 0 10px 0;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e9ecef;
+  }
+
+  p {
+    margin: 8px 0;
+    font-size: 14px;
+    display: flex;
+
+    .label {
+      color: #6c757d;
+      width: 80px;
+      display: inline-block;
+    }
+  }
+}
+
+// Hidden document container
+#cpfDocument {
+  position: absolute;
+  left: -9999px;
+}

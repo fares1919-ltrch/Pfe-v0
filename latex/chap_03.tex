@@ -1,0 +1,308 @@
+\chapter{Release 2 :« Gérer Rendez-vous » }
+\label{chap_sprint3}
+\addcontentsline{toc}{section}{Introduction}
+ Dans cette partie, nous traitons les points suivants : tout d'abord, l'organisation et le sprint backlog. Ensuite, nous décrivons le contenu du premier sprint, intitulé "Gérer rendez-vous et rendez-vous". Nous entamons ensuite la phase d'analyse et nous explorons les solutions conceptuelles. Enfin, nous présentons les différentes réalisations obtenues.
+\subsection{Organisation}
+Le tableau 4.1 ci-dessous donne un aperçu détaillé sur le Backlog du troisième sprint qui
+prend en charge une fonctionnalité "Gérer Rendez-vous".
+\\
+
+\begin{longtable}{|>{\centering\arraybackslash}p{0.7cm}|>{\arraybackslash}p{5cm}|>{\centering\arraybackslash}p{1.3cm}|>{\arraybackslash}p{6.5cm}|>{\centering\arraybackslash}p{1cm}|}
+\caption{\centering Backlog du sprint 2 : « Gérer Rendez-vous»}
+\label{tab:backlog} \\
+
+\hline
+ID & User Story & ID & Tâche & Durée /j \\
+\hline
+\endfirsthead
+
+
+\hline
+\endhead
+
+\hline
+\endfoot
+
+\hline
+\endlastfoot
+
+\multirow{3}{0.7cm}{5.1} & \multirow{3}{3.8cm}{En tant que citoyen, je peux soumettre un rendez-vous en choisissant un centre selon le map et une date selon les créneaux disponibles dans un calendrier.} & 5.1.1 & Créer les interfaces pour la sélection d'un centre et d'un créneau à partir du calendrier des disponibilités des jours. & 2 \\
+\cline{3-5}
+& & 5.1.2 & Développer les API pour la gestion des rendez-vous avec choix d'un créneau disponible. & 1 \\
+\cline{3-5}
+& & 5.1.3 & Tester les fonctionnalités de soumission de rendez-vous. & 1 \\
+\hline
+
+\multirow{3}{0.7cm}{5.2} & \multirow{3}{4cm}{En tant que citoyen, je peux consulter les détails de mes rendez-vous tels que la date, le statut, le centre, etc.} & 5.2.1 & Créer les interfaces pour la consultation et la filtration des rendez-vous. & 1 \\
+\cline{3-5}
+& & 5.2.2 & Développer les API pour la consultation et la filtration des rendez-vous. & 1 \\
+\cline{3-5}
+& & 5.2.3 & Tester les fonctionnalités de consultation et de filtration des rendez-vous. & 1 \\
+\hline
+
+\multirow{3}{0.7cm}{5.3} & \multirow{3}{4cm}{En tant qu'officier, je peux planifier les rendez-vous en les validant ou les rejetant .} & 5.3.1 &  Créer  les  interfaces  pour la  modification du statut d'un rendez-vous. & 1\\
+\cline{3-5}
+& & 5.3.2 & Développer les API pour modifier le statut un rendez-vous. &1\\
+\cline{3-5}
+& & 5.3.3 & Tester les fonctionnalités de modification des rendez-vous. & 1 \\
+\hline
+
+\end{longtable}
+
+
+\subsection{Analyse}
+Durant cette phase d'analyse, nous approfondissons les diverses fonctionnalités en les accompagnant de leurs cas d'utilisation respectifs
+\subsubsection{Diagrammes de cas d'utilisation}
+Nous présentons dans cette partie les différents cas d'utilisation raffinés.
+\\
+
+\textbf{– Raffinement de cas d'utilisation « Gérer rendez-vous  »
+}\\
+La Figure 4.1 montre le raffinement de cas d'utilisation « Gérer rendez-vous  » mettant en lumière la capacité de l'expert audit ou de l'auditeur à gérer les audits.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.75]{assetsChap3/GererDemandeUC18_05.drawio.png}
+\caption{ Sprint 3 -Diagramme de cas d'utilisation « Gérer rendez-vous » }
+\end{figure}
+
+Le Tableau 4.2 représente une description textuelle du cas d'utilisation « Gérer rendez-vous». Il
+détaille le scénario nominal ainsi que les enchaînements alternatifs.
+
+
+\begin{longtable}{|>{\arraybackslash}p{4.2cm}|>{\arraybackslash}p{12.5cm}|}
+\caption{\centering Description textuelle du cas d'utilisation « Gérer rendez-vous »}
+\label{tab:backlog} \\
+\hline
+\textbf{Cas d'utilisation} & Gérer Rendes-vous \\
+\hline
+\endfirsthead
+
+\hline
+\endhead
+
+\hline
+\endfoot
+
+\hline \hline
+\endlastfoot
+\textbf{Acteur}  & Citoyen et Officer de police\\
+\hline
+\textbf{Résumé} &
+\begin{itemize}[label=]
+\item\textbf{Scénario 1: Soumettre rendez-vous  }
+  \item Le citoyen brésilien peut soumettre un rendez-vous .
+  \item\textbf{Scénario 2: Consulter rendez-vous }
+  \item Le citoyen brésilien peut consulter les détails son rendez-vous .
+  \item\textbf{Scénario 3: Supprimer rendez-vous }
+  \item Le citoyen brésilien peut supprimer son rendez-vous .
+  \item\textbf{Scénario 4: Changer date rendez-vous}
+  \item Le citoyen peut changer la date de son rendez-vous rejeté.
+  \item\textbf{Scénario 5: Plannifier rendez-vous }
+  \item L'officier de police peut plannifier un rendez-vous.
+    \item L'officier de police peut rejeter un rendez-vous.
+\item\textbf{Scénario 6: Consulter liste des rendez-vous}
+  \item L'officier de police peut consulter la liste des rendez-vous.
+   \item\textbf{Scénario 7: Valider rendez-vous }
+  \item L'officier de police peut valider un rendez-vous .
+   \item\textbf{Scénario 8: Rejeter rendez-vous}
+    \item\textbf{Scénario 9: Filtrer rendez-vous}
+  \item L'officier de police peut filter la liste des rendez-vous.
+
+
+\end{itemize} \\
+
+
+% \hline
+% \textbf{} &
+% \begin{itemize}[label=]
+
+% \end{itemize}\\
+
+\hline
+\textbf{Pré-conditions} &
+\begin{itemize}[label=]
+\item\textbf{Scénario 1:  Soumettre rendez-vous }
+ \item Le citoyen brésilien est authentifié.
+ \item Le citoyen brésilien clique sur "CPF Request".
+ \item\textbf{Scénario 2: Consulter rendez-vous }
+ \item Le citoyen brésilien est authentifié.
+  \item Le citoyen brésilien clique sur "My Appointement".
+  \item\textbf{Scénario 3: Supprimer rendez-vous }
+ \item   Le scénario 2 «Consulter rendez-vous» est bien executé.
+ \item\textbf{Scénario 4: Changer date rendez-vous}
+ \item Le scénario 2 «Consulter rendez-vous» est bien executé.
+ \item le rendez-vous doit avoir le statut "rejeté"
+  \item\textbf{Scénario 5: Plannifier liste des rendez-vous }
+ \item L'officier de police est authentifié.
+  \item L'officier de police clique sur 'Requests'.
+  \item Un rendez-vous existe déja dans la base.
+  \item\textbf{Scénario 6: Consulter rendez-vous }
+   \item Le scénario 5 «Plannifier Liste des rendez-vous» est bien executé.
+  \item\textbf{Scénario 7: Valider rendez-vous }
+ \item   Le scénario 6 «Consulter Liste des rendez-vous» est bien executé.
+ \item\textbf{Scénario 8: Rejeter rendez-vous}
+ \item Le scénario 6 «Consulter Liste des rendez-vous» est bien executé.
+  \item\textbf{Scénario 9: Filtrer rendez-vous}
+ \item   Le scénario 6 «Consulter rendez-vous» est bien executé.
+\end{itemize} \\
+
+
+
+
+\hline
+
+\textbf{Description des scénarios nominaux} &
+    \begin{itemize}[label=]
+    \item \textbf{Scénario 1 : Soumettre rendez-vous}
+        \item 1- Le système demande l'autorisation de localisation pour identifier le centre le plus proche.
+        \item 2- Le citoyen autorise sa localisation et modifie sa position si désiré pour choisir le centre convenable.
+        \item 3- Le système affiche la nouvelle localisation.
+        \item 4- Le citoyen clique sur "choose date"
+         \item 5- Le système affiche et charge le calendrier avec les diponibilités  de chaque jour.
+         \item 6- le citoyen choisit la date et clique sur "submit Request"
+         \item 7- Le système enregistre la demande dans la base
+    \item\textbf{Scénario 2: Consulter rendez-vous }
+        \item 1- Le citoyen clique sur 'My appointement'
+        \item 2- Le système affiche l'interface avec les details du rendez-vous.
+         \item \textbf{Scénario 3 : Supprimer rendez-vous}
+               \item 1- Le citoyen brésilien clique sur l'icon de suppression de son rendez-vous
+              \item 2- Le système demande une confirmation.
+              \item 3- Le citoyen brésilien confirme la suppression.
+              \item 4- Le système supprime le rendez-vous de la base
+
+    \item \textbf{Scénario 4 : Changer date rendez-vous}
+            \item 1- Le citoyen clique sur l'icon du calendrier.
+            \item 4- Le système affiche et charge le calendrier avec les diponibilités de chaque jour.
+            \item 5- Le citoyen choisit la date , clique sur "apply" et puis sur "reschedule".
+             \item 6- Le système met à jour la nouvelle date dans la base
+
+\end{itemize} \\
+\hline
+\textbf{}&
+\begin{itemize}[label=]
+
+      \item \textbf{Scénario 5 : Plannifier liste des rendez-vous}
+            \item 1- L'officier de police clique sur "Requests"
+            \item 2- le système affiche l'interface des rendez-vous
+             \item\textbf{Scénario 6: Consulter rendez-vous }
+            \item 1- Le système affiche la liste des rendez-vous et leurs détails.
+      \item\textbf{Scénario 7: Valider rendez-vous }
+            \item 1- L'officier de police clique sur le boutton "Validate".
+            \item 2- Le système met à jour le statut du **rendez-vous à "scheduled"** et le statut de la **demande CPF liée à "approved"**.
+ \item\textbf{Scénario 8: Rejeter rendez-vous }
+            \item 1- L'officier de police clique sur le boutton "Reject".
+            \item 2- Le système demande une confirmation.
+            \item 3- Le citoyen brésilien confirme.
+            \item 4- Le système met à jour le statut du **rendez-vous à "cancelled"** et le statut de la **demande CPF liée à "rejected"**.
+          \item\textbf{Scénario 9:  Filtrer rendez-vous }
+            \item 1- L'officier de police clique sur le bouton "filtrer" et choisit l'option désirée.
+             \item 2- Le système affiche la liste des rendez-vous avec l'option du filtrage selectionnée
+
+
+\end{itemize}\\
+
+% \hline
+% \textbf{} &
+% \begin{itemize}[label=]
+
+
+% \end{itemize}\\
+
+
+\hline
+\textbf{Enchaînements Alternatifs} &
+\begin{itemize}[label=]
+ \item\textbf{Scénario 1: Soumettre rendez-vous}
+ \item{2.2.} L'utilisateur n'autorise pas sa localisation actuelle :démarre au point 2 du scénario nominal.
+  \item\textbf{Scénario 3: Supprimer rendez-vous}
+  \item le citoyen brésilien annule la suppression
+
+
+\end{itemize} \\
+\hline
+
+\textbf{Post-conditions} &
+\begin{itemize}[label=]
+ \item\textbf{Scénario 1: Soumettre rendez-vous}
+ \item Une nouvelle rendez-vous est créée dans le système.
+  \item\textbf{Scénario 3: Supprimer rendez-vous }
+ \item Le rendez-vous est supprimé de la base de données.
+  \item\textbf{Scénario 4: Changer Date rendez-vous }
+\item un rendez-vous est met à jour dans la base de données
+\item\textbf{Scénario 7: Valider Date rendez-vous }
+\item un rendez-vous est met à jour dans la base de données
+\item\textbf{Scénario 8: Rejeter Date rendez-vous }
+\item un rendez-vous est met à jour dans la base de données
+
+\end{itemize} \\
+
+% \hline
+% \textbf{} &
+% \begin{itemize}[label=]
+
+% \end{itemize}\\
+
+\end{longtable}
+
+
+
+\subsection{Conception}
+Dans cette section, nous présentons l'étude conceptuelle des données par la présentation du
+diagramme de classes et des diagrammes d'interactions.
+\subsubsection{Diagramme de classes}
+Le diagramme de classes est un outil permettant de représenter la structure interne d'un
+système en exposant les différentes classes, leurs attributs, ainsi que les relations structurelles
+qui les lient.
+La figure 4.3 décrit le diagramme de classes que nous avons utilisé pour développer le premier
+sprint du Release 2.
+\begin{figure}[H]
+\centering
+\includegraphics[width=18 cm, height= 25cm]{assetsChap3/GererDemandeClasse14_05.drawio (1).png}
+\caption{ Diagramme de classes « Gérer rendez-vous  » }
+\end{figure}
+
+\subsubsection{Diagrammes d'interaction détaillés}
+Dans cette sous-section, nous présentons quelques diagrammes de séquences qui détaillent
+l'interaction entre la partie front-end et la partie back-end du troisième sprint.
+\\
+
+\textbf{– Diagramme d'interaction « Créer rendez-vous »}
+
+La fonction "Créer Audit" permet de créer de nouveaux audits dans le système. Elle récupère les données nécessaires de la requête, telles que le type d'audit, ses détails, l'observation et la recommandation de l'expert. Ensuite, elle génère un rapport PDF correspondant aux données de l'audit. Ce rapport est enregistré sur le serveur et un nouvel enregistrement d'audit est créé dans la base de données. \\
+En cas d'erreur, un message approprié est renvoyé (voir figure 4.4).\\
+
+\textbf{– Diagramme d'interaction « Approuver rendez-vous »}
+
+La fonction approuverDemandeCPF permet à l'officier de police d'examiner et d'approuver une rendez-vous. Lorsqu'une demande est soumise, le serveur vérifie d'abord si toutes les conditions requises sont remplies. Ensuite, l'officier de police peut approuver ou rejeter la demande via une interface dédiée. Les détails de la décision, comme la date d'approbation , est enregistré dans la base de données pour un suivi ultérieur. Si l'approbation est réussie, le serveur renvoie un message confirmant que la rendez-vous a été approuvée avec succès (voir figure 4.5). \\
+
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.82]{assetsChap3/CrééerDemandeSequence.drawio (1).png}
+\caption{ Sprint 3 -Diagramme d'interaction « Créer rendez-vous » }
+\end{figure}
+
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.83]{assetsChap3/ApprouverDemandeSequence.drawio (2).png}
+\caption{ Sprint 3 -Diagramme d'interaction « Approuver rendez-vous » }
+\end{figure}
+
+
+
+
+ \subsection{Réalisation}
+
+
+
+\addcontentsline{toc}{section}{Conclusion}
+\section*{Conclusion}
+Durant cette release, nous avons mené à bien l'analyse, la conception et la mise en œuvre du troisième et quatrième sprint, à savoir "Gérer rendez-vous ". À ce stade, les utilisateurs ont la possibilité de créer des rendez-vous et de les gérér. Ils sont en mesure de gérer les listes et télécharger des fichiers.
+\\ Le prochain chapitre introduira la Troisième release du projet.
+\label{sec_Conclusion}
+
+
+

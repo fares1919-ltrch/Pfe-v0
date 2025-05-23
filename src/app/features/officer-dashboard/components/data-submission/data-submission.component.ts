@@ -47,7 +47,7 @@ export class DataSubmissionComponent implements OnInit {
   isIdNumberReadOnly: boolean = true; // New flag to control ID Number input readonly state
   activeTab: 'face' | 'iris' | 'fingerprints' = 'face';
 
- 
+
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
@@ -186,14 +186,14 @@ export class DataSubmissionComponent implements OnInit {
   @ViewChild('fingerprintRightRingInput') fingerprintRightRingInput!: ElementRef;
   @ViewChild('fingerprintRightPinkyInput') fingerprintRightPinkyInput!: ElementRef;
 
-  
+
 
   constructor(
     private route: ActivatedRoute,
     private biometricService: BiometricService,
     private snackBar: MatSnackBar,
     private userService: UserService,
-    
+
   ) {}
 
 
@@ -204,7 +204,7 @@ export class DataSubmissionComponent implements OnInit {
   faceImage: string | null = null;
   irisLeftImage: string | null = null;
   irisRightImage: string | null = null;
-  
+
   fingerprintLeftThumbImage: string | null = null;
   fingerprintLeftIndexImage: string | null = null;
   fingerprintLeftMiddleImage: string | null = null;
@@ -215,7 +215,7 @@ export class DataSubmissionComponent implements OnInit {
   fingerprintRightMiddleImage: string | null = null;
   fingerprintRightRingImage: string | null = null;
   fingerprintRightPinkyImage: string | null = null;
-  
+
   progressPercentage = 0;
   isUploading = false;
 
@@ -235,7 +235,7 @@ export class DataSubmissionComponent implements OnInit {
   }
 
   get isSubmissionReady(): boolean {
-    return this.faceImage !== null && 
+    return this.faceImage !== null &&
            this.irisLeftImage !== null &&
            this.irisRightImage !== null &&
            this.fingerprintImagesCount === 10;
@@ -245,12 +245,12 @@ export class DataSubmissionComponent implements OnInit {
   getCompletionPercentage(): number {
     const totalRequired = 12; // 1 face + 2 iris + 10 fingerprints
     let completed = 0;
-    
+
     if (this.faceImage) completed++;
     if (this.irisLeftImage) completed++;
     if (this.irisRightImage) completed++;
     completed += this.fingerprintImagesCount;
-    
+
     return Math.round((completed / totalRequired) * 100);
   }
 
@@ -262,7 +262,7 @@ export class DataSubmissionComponent implements OnInit {
   triggerIrisLeftUpload(): void {
     this.irisLeftInput.nativeElement.click();
   }
-  
+
   triggerIrisRightUpload(): void {
     this.irisRightInput.nativeElement.click();
   }
@@ -284,18 +284,18 @@ export class DataSubmissionComponent implements OnInit {
 
   // Check if any fingerprints are uploaded for hand sections
   hasLeftHandFingerprints(): boolean {
-    return this.fingerprintLeftThumbImage !== null || 
-           this.fingerprintLeftIndexImage !== null || 
-           this.fingerprintLeftMiddleImage !== null || 
-           this.fingerprintLeftRingImage !== null || 
+    return this.fingerprintLeftThumbImage !== null ||
+           this.fingerprintLeftIndexImage !== null ||
+           this.fingerprintLeftMiddleImage !== null ||
+           this.fingerprintLeftRingImage !== null ||
            this.fingerprintLeftPinkyImage !== null;
   }
-  
+
   hasRightHandFingerprints(): boolean {
-    return this.fingerprintRightThumbImage !== null || 
-           this.fingerprintRightIndexImage !== null || 
-           this.fingerprintRightMiddleImage !== null || 
-           this.fingerprintRightRingImage !== null || 
+    return this.fingerprintRightThumbImage !== null ||
+           this.fingerprintRightIndexImage !== null ||
+           this.fingerprintRightMiddleImage !== null ||
+           this.fingerprintRightRingImage !== null ||
            this.fingerprintRightPinkyImage !== null;
   }
 
@@ -370,7 +370,7 @@ export class DataSubmissionComponent implements OnInit {
     // Reset the input to allow selecting the same file again
     (event.target as HTMLInputElement).value = '';
   }
-  
+
   onIrisRightFileSelected(event: Event): void {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (file) {
@@ -386,58 +386,58 @@ export class DataSubmissionComponent implements OnInit {
     // Reset the input to allow selecting the same file again
     (event.target as HTMLInputElement).value = '';
   }
-  
+
   onFingerprintFileSelected(event: Event, fingerType: string): void {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (!file) return;
-    
+
     // Create a descriptive name for the toast notification
     let fingerName = '';
     switch (fingerType) {
-      case 'leftThumb': 
+      case 'leftThumb':
         fingerName = 'Left Thumb';
         this.handleFileUpload(file, (result) => this.fingerprintLeftThumbImage = result);
         break;
-      case 'leftIndex': 
+      case 'leftIndex':
         fingerName = 'Left Index';
         this.handleFileUpload(file, (result) => this.fingerprintLeftIndexImage = result);
         break;
-      case 'leftMiddle': 
+      case 'leftMiddle':
         fingerName = 'Left Middle';
         this.handleFileUpload(file, (result) => this.fingerprintLeftMiddleImage = result);
         break;
-      case 'leftRing': 
+      case 'leftRing':
         fingerName = 'Left Ring';
         this.handleFileUpload(file, (result) => this.fingerprintLeftRingImage = result);
         break;
-      case 'leftPinky': 
+      case 'leftPinky':
         fingerName = 'Left Pinky';
         this.handleFileUpload(file, (result) => this.fingerprintLeftPinkyImage = result);
         break;
-      case 'rightThumb': 
+      case 'rightThumb':
         fingerName = 'Right Thumb';
         this.handleFileUpload(file, (result) => this.fingerprintRightThumbImage = result);
         break;
-      case 'rightIndex': 
+      case 'rightIndex':
         fingerName = 'Right Index';
         this.handleFileUpload(file, (result) => this.fingerprintRightIndexImage = result);
         break;
-      case 'rightMiddle': 
+      case 'rightMiddle':
         fingerName = 'Right Middle';
         this.handleFileUpload(file, (result) => this.fingerprintRightMiddleImage = result);
         break;
-      case 'rightRing': 
+      case 'rightRing':
         fingerName = 'Right Ring';
         this.handleFileUpload(file, (result) => this.fingerprintRightRingImage = result);
         break;
-      case 'rightPinky': 
+      case 'rightPinky':
         fingerName = 'Right Pinky';
         this.handleFileUpload(file, (result) => this.fingerprintRightPinkyImage = result);
         break;
     }
-    
+
     this.showToast(`${fingerName} fingerprint uploaded successfully`);
-    
+
     // Reset the input to allow selecting the same file again
     (event.target as HTMLInputElement).value = '';
   }
@@ -526,7 +526,7 @@ export class DataSubmissionComponent implements OnInit {
     this.fingerprintRightMiddleImage = null;
     this.fingerprintRightRingImage = null;
     this.fingerprintRightPinkyImage = null;
-    
+
     // Reset active tab to face
     this.activeTab = 'face';
   }

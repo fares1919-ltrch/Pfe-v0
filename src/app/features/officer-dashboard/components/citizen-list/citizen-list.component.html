@@ -1,0 +1,186 @@
+<div class="citizen-list-container">
+  <div class="header">
+    <h1>Citizens List</h1>
+    <div class="search-filters">
+      <div class="search-box">
+        <mat-form-field appearance="outline">
+          <mat-label>Search</mat-label>
+          <input
+            matInput
+            [(ngModel)]="searchQuery"
+            placeholder="Search by name, email, CPF..."
+          />
+          <button mat-icon-button matSuffix (click)="applyFilters()">
+            <mat-icon>search</mat-icon>
+          </button>
+        </mat-form-field>
+      </div>
+
+      <div class="filters">
+        <mat-form-field appearance="outline">
+          <mat-label>Status</mat-label>
+          <mat-select
+            [(ngModel)]="statusFilter"
+            (selectionChange)="applyFilters()"
+          >
+            <mat-option value="">All</mat-option>
+            <mat-option value="active">Active</mat-option>
+            <mat-option value="suspended">Suspended</mat-option>
+            <mat-option value="blocked">Blocked</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>CPF Status</mat-label>
+          <mat-select
+            [(ngModel)]="cpfStatusFilter"
+            (selectionChange)="applyFilters()"
+          >
+            <mat-option value="">All</mat-option>
+            <mat-option value="pending">Pending</mat-option>
+            <mat-option value="generated">Generated</mat-option>
+            <mat-option value="blocked">Blocked</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Deduplication Status</mat-label>
+          <mat-select
+            [(ngModel)]="deduplicationStatusFilter"
+            (selectionChange)="applyFilters()"
+          >
+            <mat-option value="">All</mat-option>
+            <mat-option value="not_started">Not Started</mat-option>
+            <mat-option value="in_progress">In Progress</mat-option>
+            <mat-option value="verified">Verified</mat-option>
+            <mat-option value="duplicate_found">Duplicate Found</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <button mat-button color="primary" (click)="clearFilters()">
+          Clear Filters
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="loading-container" *ngIf="loading">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading citizens...</p>
+  </div>
+
+  <div class="table-container" *ngIf="!loading">
+    <table mat-table [dataSource]="citizens" matSort class="citizens-table">
+      <!-- Name Column -->
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
+        <td mat-cell *matCellDef="let citizen">
+          {{ citizen.firstName }} {{ citizen.lastName }}
+        </td>
+      </ng-container>
+
+      <!-- CPF Number Column -->
+      <ng-container matColumnDef="cpfNumber">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>CPF Number</th>
+        <td mat-cell *matCellDef="let citizen">
+          {{ citizen.cpf?.number || "Not Generated" }}
+        </td>
+      </ng-container>
+
+      <!-- CPF Status Column -->
+      <ng-container matColumnDef="cpfStatus">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>CPF Status</th>
+        <td mat-cell *matCellDef="let citizen">
+          <span
+            class="status-badge"
+            [ngClass]="citizen.cpf?.status || 'pending'"
+          >
+            {{ citizen.cpf?.status || "Pending" | titlecase }}
+          </span>
+        </td>
+      </ng-container>
+
+      <!-- Deduplication Status Column -->
+      <ng-container matColumnDef="deduplicationStatus">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Deduplication</th>
+        <td mat-cell *matCellDef="let citizen">
+          <span class="status-badge" [ngClass]="citizen.deduplicationStatus">
+            {{ citizen.deduplicationStatus | titlecase }}
+          </span>
+        </td>
+      </ng-container>
+
+      <!-- Status Column -->
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+        <td mat-cell *matCellDef="let citizen">
+          <span class="status-badge" [ngClass]="citizen.status">
+            {{ citizen.status | titlecase }}
+          </span>
+        </td>
+      </ng-container>
+
+      <!-- Actions Column -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
+        <td mat-cell *matCellDef="let citizen">
+          <button
+            mat-icon-button
+            color="primary"
+            (click)="viewCitizenDetails(citizen._id)"
+            matTooltip="View Details"
+          >
+            <mat-icon>visibility</mat-icon>
+          </button>
+
+          <button
+            mat-icon-button
+            [matMenuTriggerFor]="statusMenu"
+            matTooltip="Change Status"
+          >
+            <mat-icon>more_vert</mat-icon>
+          </button>
+
+          <mat-menu #statusMenu="matMenu">
+            <button
+              mat-menu-item
+              (click)="updateCitizenStatus(citizen._id, 'active')"
+              [disabled]="citizen.status === 'active'"
+            >
+              <mat-icon>check_circle</mat-icon>
+              <span>Set Active</span>
+            </button>
+            <button
+              mat-menu-item
+              (click)="updateCitizenStatus(citizen._id, 'suspended')"
+              [disabled]="citizen.status === 'suspended'"
+            >
+              <mat-icon>pause_circle</mat-icon>
+              <span>Set Suspended</span>
+            </button>
+            <button
+              mat-menu-item
+              (click)="updateCitizenStatus(citizen._id, 'blocked')"
+              [disabled]="citizen.status === 'blocked'"
+            >
+              <mat-icon>block</mat-icon>
+              <span>Set Blocked</span>
+            </button>
+          </mat-menu>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+
+    <mat-paginator
+      [length]="totalItems"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="[5, 10, 25, 50]"
+      [pageIndex]="pageIndex"
+      (page)="onPageChange($event)"
+      showFirstLastButtons
+    ></mat-paginator>
+  </div>
+</div>

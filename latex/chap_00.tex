@@ -1,0 +1,433 @@
+\chapter{Analyse et Spécification des Besoins}
+
+
+
+\addcontentsline{toc}{section}{Introduction}
+
+
+\section*{Introduction}
+
+Dans la genèse d'un projet, la phase de spécification et d'analyse des besoins représente
+une étape fondamentale. Elle permet de définir avec précision les attentes des utilisateurs et les exigences que le système doit satisfaire. Pour initier cette phase, nous menons une étude approfondie des applications existantes en matière de gestion d'identité numérique et de lutte contre la fraude. Cette analyse minutieuse nous aide à identifier les éléments clés et les lacunes à combler avec notre solution. Au cours de cette démarche, nous formulons les exigences fonctionnelles et non fonctionnels du projet, posant ainsi les bases solides pour le développement d'Identity Secure. Nous introduisons également les premières contraintes de conception, illustrées par le diagramme de cas d'utilisation. Enfin, nous présentons la méthodologie qui guidera l'ensemble du processus de développement.
+\section{Contexte \& problématique}
+
+Dans cette section, nous offrons une vue d'ensemble détaillée de notre projet de fin d'études. Nous expliquons le contexte dans lequel il s'inscrit, les motivations qui ont conduit à son élaboration, ainsi que la problématique centrale que nous cherchons à résoudre.
+
+\subsection{Contexte}
+Le projet, intitulé "\textbf{Identity Secure} :  une plateforme innovante pour la génération d'une identité numérique basé sur les données biométriques afin de garantir sa sécurité et d'assurer la lutte contre les fraudes", s'inscrit dans le cadre de préparation du projet de fin d'études pour l'obtention du diplôme de Licence Nationale en sciences de l'Informatique (LNI) délivré par l'Institut Supérieur d'Informatique de Mahdia (ISIMa). Ce projet professionnel est réalisé sur une période de quatre mois, du 1er février 2024 au 31 mai 2024, au sein de l'entreprise Twyn-T4ISB \cite{b1}.
+
+% \footnote{Site web de l'entreprise :  \url{https://www.t4isb.com}}
+
+\begin{figure}[H]
+\centering
+\fbox{%
+\includegraphics[width=0.5\linewidth]{chapitre0/Logo twyn_t4isb.png} } %
+\caption{Logo de l'entreprise d'accueil }
+\label{fig:1-1-company-logo}
+\end{figure}
+
+Twyn-T4ISB est une entreprise innovante spécialisée dans les technologies de biométrie, blockchain et développement logiciel. Elle accompagne les entreprises dans leur transformation digitale en proposant des solutions basées sur l'innovation, la technologie et la simplicité. Grâce à son expertise en intégration biométrique et en solutions d'identification, Twyn-T4ISB développe des plateformes de gestion d'identité reposant sur une architecture microservices et des technologies cloud.\\
+
+
+
+\subsection{Problématique}
+Le Brésil fait face à une crise majeure dans la gestion des identifiants fiscaux CPF (Cadastro de Pessoas Físicas), avec des conséquences économiques et sociales alarmantes. Selon les données récentes de la Receita Federal, plus de 3,8 millions de cas de fraude à l'identité ont été détectés en 2023, représentant une perte estimée à 18,7 milliards de reais pour l'économie brésilienne. Face à cette situation critique, plusieurs questions fondamentales se posent:
+
+\textbf{Quels sont les mécanismes à adopter pour surmonter la perte économique liée aux fraudes CPF?}, l'infrastructure actuelle de vérification d'identité souffre de failles structurelles importantes. Les systèmes centralisés traditionnels, conçus avant l'ère numérique, ne peuvent plus faire face à l'évolution rapide des techniques de fraude. Les processus manuels de vérification, encore largement utilisés, introduisent des délais considérables (jusqu'à 45 jours pour traiter certaines demandes) et des erreurs humaines dans près de 12\% des cas traités. Cette inefficacité systémique crée des opportunités d'exploitation par des réseaux criminels organisés qui utilisent des techniques de plus en plus sophistiquées.
+
+\textbf{Comment optimiser le processus de procuration d'un CPf et garantir sa sécurité?}, l'absence d'intégration biométrique fiable dans le processus de vérification CPF constitue une vulnérabilité critique. Les méthodes actuelles reposent principalement sur l'usage persistent des documents papier facilement falsifiables et des vérifications manuelles insuffisantes. Cette lacune technologique permet la création de multiples identités par une même personne et laisse la porte ouverte à l'usurpation d'identité . Les statistiques montrent que 68\% des fraudes détectées impliquent l'utilisation de documents falsifiés qui auraient pu être identifiés par des technologies biométriques appropriées.
+
+\textbf{Comment detecter et s'informer des fraudes en temps réel}? Aujourd'hui, les bases de données gouvernementales des institutions publiques restent cloisonnées à case de la fragmentation ce qui empêche une détection efficace des fraudes en temps réel. Les différentes agences (sécurité sociale, services fiscaux, banques) opèrent en silos, avec des systèmes qui ne communiquent pas entre eux. Cette désarticulation institutionnelle permet aux fraudeurs d'exploiter les incohérences entre les systèmes, créant un environnement où les activités suspectes ne sont détectées qu'après que des dommages significatifs aient été causés. Les délais moyens de détection des fraudes dépassent actuellement 97 jours, période pendant laquelle les préjudices financiers s'accumulent.
+
+Ces enjeux souligne la gravité croissante des fraudes liées au CPF pour mettre en lumière l'urgence de moderniser en profondeur le système d'identification fiscale au Brésil. Les failles actuelles — qu'elles soient technologiques, organisationnelles ou sécuritaires — ne permettent plus de répondre efficacement aux défis posés par des techniques de fraude de plus en plus sophistiquées. Pour restaurer la confiance dans les institutions publiques et préserver l'intégrité économique du pays, il devient essentiel d'adopter une approche intégrée, capable de surmonter la perte economique , garantir la fiabilité de l'identité numérique, d'assurer la sécurité des données personnelles, et de renforcer la capacité de détection proactive des activités frauduleuses.
+
+
+\section{Etude de l'existant}
+L'étude de l'existant permet de déterminer les points faibles et les points forts d'un produit actuel pour déterminer les besoins du client, en vue d'en prendre en considération lors de la conception et la réalisation de notre plateforme.
+\subsection{Revue des solutions existantes}
+Suite à une étude approfondie du marché, plusieurs solutions existantes en matière de gestion d'identité numérique et de lutte contre la fraude ont été identifiées. Ces solutions offrent généralement des fonctionnalités telles que la vérification biométrique, la gestion des identifiants uniques et la détection des fraudes. Cependant, elles présentent souvent des limites en termes de convivialité, d'automatisation et d'intégration avec les systèmes existants. Voici une analyse des produits les plus populaires dans ce secteur :  e-Estonia, IDEMIA, Onfido et Serpro.
+
+\subsubsection{e‑Estonia (Estonie)}
+e‑Estonia\cite{b2,b25} est le système d’identification électronique national estonien introduit en 2002 et reposant sur une carte à puce obligatoire pour tous les résidents\cite{b26}. La carte e‑ID, protégée par deux codes PIN et chiffrée en ECC 384 bits, sert à l’authentification dans tous les services publics et privés via la plateforme X‑Road\cite{b27}, du vote en ligne aux services de santé et d’éducation\cite{b26}.\\
+\begin{figure}[H]
+  \centering
+  \includegraphics[scale=0.4]{chapitre0/e-estonia_home.png}
+  \caption{Portail e‑Estonia – page d’accueil}
+\end{figure}
+\begin{itemize}[label=\textbullet]
+  \item \textbf{Processus d'utilisation :} Après obtention de la carte e‑ID en mairie ou en ambassade, l’utilisateur active son certificat via ses deux codes PIN\cite{b28}, puis accède au portail national. Il choisit le service (e‑Tax, e‑Health, e‑Voting, etc.), saisit son PIN pour s’authentifier ou signer électroniquement, et conserve une trace sécurisée de chaque transaction\cite{b28}.
+  \item \textbf{Acteurs :} Le ministère des Affaires économiques définit la stratégie numérique\cite{b29}, l’Agence d’administration du gouvernement électronique (RIA) déploie et opère X‑Road\cite{b27}, la Police et la Garde‑frontières émettent et vérifient les e‑ID\cite{b27}, et les citoyens (et e‑résidents) utilisent quotidiennement leur carte pour interagir avec les services publics et privés\cite{b26}.
+\end{itemize}
+
+\subsubsection{IDEMIA (Solution globale)}
+IDEMIA\cite{b3,b30} est une SAS multinationale française née de la fusion OT‑Morpho\cite{b31}, spécialisée en solutions biométriques et cryptographiques, avec 2{,}9 Md € de CA et 15000 employés en 2023\cite{b32}. Ses technologies (reconnaissance faciale, iris, empreintes, cartes à puce) sécurisent l’émission et la vérification d’identités pour plus de 600 gouvernements et 2300 entreprises dans 180 pays\cite{b33}.\\
+\begin{figure}[H]
+  \centering
+  \includegraphics[scale=0.4]{chapitre0/idemia_home.png}
+  \caption{Portail IDEMIA – page d’accueil}
+\end{figure}
+\begin{itemize}[label=\textbullet]
+  \item \textbf{Processus d'utilisation :} Les institutions (gouvernements, banques, transporteurs) intègrent les API IDEMIA pour personnaliser l’émission de documents sécurisés (cartes, passeports, permis) et activer la biométrie liveness\cite{b34}. Les agents capturent les données (photo, empreintes) via bornes ou SDK, puis valident l’identité en temps réel grâce aux serveurs d’IDEMIA\cite{b34}.
+  \item \textbf{Acteurs :} IDEMIA conçoit et opère la plateforme, les autorités étatiques (DMV, ministères) émettent les documents officiels, les forces de l’ordre (TSA, polices fédérales et locales) réalisent les contrôles biométriques, les banques et opérateurs mobiles consomment les services, et les intégrateurs IT assurent le déploiement et la maintenance\cite{b35}.
+\end{itemize}
+
+\subsubsection{Onfido (Royaume‑Uni)}
+Onfido\cite{b4,b36}, fondée à Londres en 2012 et intégrée à Entrust en 2024\cite{b37}, propose une solution d’Identity Verification reposant sur IA pour la vérification documentaire et biométrique dans 195 pays\cite{b36}. La plateforme allie capture intelligente, workflows no‑code et analyses AI pour KYC/AML et lutte contre la fraude\cite{b36}.\\
+\begin{figure}[H]
+  \centering
+  \includegraphics[scale=0.4]{chapitre0/onfido_home.png}
+  \caption{Portail Onfido – page d’accueil}
+\end{figure}
+\begin{itemize}[label=\textbullet]
+  \item \textbf{Processus d'utilisation :} L’utilisateur télécharge son document d’identité et réalise un selfie via le SDK Onfido\cite{b38}. Les données sont envoyées au moteur IA qui vérifie l’authenticité du document, réalise des contrôles de liveness sur le selfie, et alerte en cas de discordance pour examen manuel\cite{b37}.
+  \item \textbf{Acteurs :} Onfido exploite la plateforme, les départements Conformité (KYC/AML) des entreprises clientes valident les processus, les ingénieurs intègrent le SDK, les data scientists améliorent les modèles IA, et les utilisateurs finaux (clients) fournissent leurs pièces et selfies\cite{b39}.
+\end{itemize}
+
+\subsubsection{Serpro (Brésil)}
+Serpro\cite{b5,b40} (Serviço Federal de Processamento de Dados), fondé en 1964, est le principal prestataire IT public du Brésil, rattaché au ministère de l’Économie, avec 7822 employés et 2{,}78 MdR\$ de CA en 2021\cite{b41}. Il gère le CPF, le SIAFI, le RENAVAM, et d’autres systèmes essentiels aux services publics et à la lutte contre la fraude\cite{b40}.\\
+\begin{figure}[H]
+  \centering
+  \includegraphics[scale=0.4]{chapitre0/serpro_home.png}
+  \caption{Portail Serpro – page d’accueil}
+\end{figure}
+\begin{itemize}[label=\textbullet]
+  \item \textbf{Processus d'utilisation :} Les citoyens demandent leur CPF en ligne ou en agence. Les organismes (banques, administrations) interrogent l’API Serpro pour vérifier le statut fiscal, récupérer les informations personnelles et déclencher les services associés, avec mise à jour en temps réel des données\cite{b42}.
+  \item \textbf{Acteurs :} Serpro développe et maintient la plateforme, le ministère de l’Économie supervise la régulation, les agences (Receita Federal, DETRAN, ANPD) effectuent les contrôles, les intégrateurs IT assurent l’interfaçage, et les citoyens et entreprises consomment le service pour prévenir la fraude et accéder aux prestations\cite{b42}.
+\end{itemize}
+
+
+
+
+
+
+\subsection{Critiques des solutions existantes}
+Afin d'évaluer les solutions présentées dans la section précédente, nous avons défini un ensemble de critères axés sur les aspects fonctionnels et non fonctionnels de chaque plateforme. Ces critères visent à mettre en lumière les points forts et les faiblesses de chaque solution. Les critères sont les suivants :
+\begin{itemize}[label=\textbullet]
+
+\item \textbf{Critere 1 -} Portée géographique  :  Évalue la capacité de la solution à être déployée et utilisée dans différentes régions ou pays. Une portée géographique étendue indique une adaptabilité à divers contextes légaux et culturels.
+
+   
+\item \textbf{ Critère 2 :  }  Secteur d'application :  Examine les domaines d'utilisation de la solution, tels que les services gouvernementaux, les secteurs bancaires ou les entreprises privées. Ce critère permet de déterminer si la solution répond aux besoins spécifiques de l'utilisateur.
+
+\item \textbf{ Critère 3 :  }  Technologies utilisées :  Évalue les technologies mises en œuvre par la solution, telles que la biométrie, l'intelligence artificielle ou les systèmes de stockage décentralisés. Ce critère permet de mesurer l'innovation et l'efficacité de la solution.
+
+\item \textbf{ Critère 4 :  }  Sécurité des données :  Analyse la manière dont les données sont stockées et protégées. Une sécurité renforcée, comme la décentralisation des données, réduit les risques de piratage et de fraude.
+
+\item \textbf{ Critère 5 :  }  Convivialité pour l'utilisateur :  Évalue la facilité d'utilisation de la solution pour les utilisateurs finaux. Une interface intuitive et simple améliore l'adoption et la satisfaction des utilisateurs.
+
+\item \textbf{ Critère 6 :  }  Intégration avec les systèmes existants :  Examine la capacité de la solution à s'intégrer facilement avec les infrastructures et systèmes déjà en place. Une intégration fluide réduit les coûts et les délais de mise en œuvre.
+
+\item \textbf{ Critère 7 :  }  Détection de fraude en temps réel :  Évalue la capacité de la solution à identifier et à prévenir les fraudes en temps réel grâce à des technologies avancées comme l'IA ou la biométrie.
+
+\item \textbf{ Critère 8 :  }  Couverture des services :  Évalue l'étendue des services offerts par la solution, tels que l'accès aux services gouvernementaux, la vérification d'identité ou la gestion des identifiants uniques.
+   \end{itemize}
+Le tableau ci-dessous illustre la comparaison des solutions existantes:
+
+\begin{table}[H]
+\centering
+\caption{\centering Analyse des solutions existantes}
+\label{tab:analyse-solutions}
+\begin{tabular}{|p{1.8cm}|p{3cm}|p{3cm}|p{3cm}|p{3cm}|}
+\hline
+\rowcolor{gray!30} % couleur d’en-tête
+\textbf{Critère} & \textbf{e-Estonia} & \textbf{IDEMIA} & \textbf{Onfido} & \textbf{Serpro} \\
+\hline
+1 & Limitée à l'Estonie & Plus de 180 pays & Principalement Europe et Amérique du Nord & Limitée au Brésil \\
+\hline
+2 & Gouvernement et services publics & Secteurs bancaires et gouvernementaux & Entreprises privées & Gouvernement et services publics \\
+\hline
+3 & Carte d'identité numérique, signature électronique & Reconnaissance faciale, empreintes digitales, iris & Reconnaissance faciale, IA, vérification de documents & Bases de données centralisées, vérification d'identité \\
+\hline
+4 & Décentralisée (haute sécurité) & Base de données sécurisée & Stockage sécurisé des données & Centralisée (risques de sécurité) \\
+\hline
+5 & Interface simple pour les citoyens & Complexe pour les utilisateurs finaux & Très conviviale & Interface basique \\
+\hline
+6 & Difficile à adapter à d'autres pays & Complexe et coûteuse & Facile via des API & Intégration avec les systèmes publics \\
+\hline
+7 & Non & Oui (technologies biométriques avancées) & Oui (via IA) & Non \\
+\hline
+8 & Large éventail de services publics & Services bancaires et gouvernementaux & Services privés (banques, assurances, etc.) & Services gouvernementaux \\
+\hline
+\end{tabular}
+\end{table}
+
+
+\section{Solution proposée}
+Identity Secure propose une plateforme robuste pour sécuriser la gestion des identifiants CPF au Brésil, en s'appuyant sur des technologies avancées de cryptage, de hachage, de biométrie et de déduplication. Cette solution comble les lacunes des systèmes traditionnels grâce à une architecture décentralisée, des mécanismes de détection de fraude en temps réel et une conformité stricte aux réglementations, notamment la LGPD.
+
+\begin{itemize}[label=\textbullet]
+\item \textbf{Cryptage et hachage des données} : Les données CPF sont protégées par un cryptage AES-256 pour les données en transit et au repos, combiné à des fonctions de hachage SHA-256 pour stocker les identifiants de manière irréversible, réduisant les risques d'exposition en cas de fuite de données.
+
+    \item \textbf{Déduplication biométrique} : Utilisation d'algorithmes de reconnaissance faciale basés sur l'apprentissage profond pour détecter et éliminer les doublons dans les bases de données. Les images faciales sont comparées via des embeddings vectoriels pour identifier les correspondances, empêchant la création de multiples CPF par une même personne.
+
+    \item \textbf {Authentification multifactorielle (MFA)} : Intégration de la biométrie (reconnaissance faciale ou empreintes digitales) combinée à des jetons dynamiques (OTP) pour vérifier l'identité des utilisateurs lors de la création ou de la consultation des demandes CPF, réduisant les risques d'usurpation.
+
+    \item \textbf{Détection de fraude en temps réel} : Mise en œuvre d'un moteur d'analyse basé sur l'intelligence artificielle pour identifier les comportements anormaux (ex. : multiples demandes CPF depuis une même adresse IP) et bloquer les tentatives frauduleuses avant leur validation.
+
+    \item \textbf{Architecture décentralisée basée sur blockchain} : Les identifiants CPF sont enregistrés dans une blockchain privée pour garantir l'immutabilité et la traçabilité des transactions, tout en permettant une vérification décentralisée par les institutions partenaires.
+
+    \item \textbf{Conformité et évolutivité} : La plateforme intègre des outils de gestion des consentements conformes à la LGPD, avec un chiffrement des données personnelles et une architecture modulaire permettant l'ajout de nouvelles fonctionnalités (ex. : intégration de nouvelles normes biométriques).
+\end{itemize}
+
+\vspace{0.5cm} % Add some vertical spacing between sections
+
+\section{Spécification des besoins}
+Dans cette section, nous mettons en lumière les différents intervenants impliqués dans le fonctionnement de notre application, ainsi que leurs responsabilités respectives. En outre, nous décrivons les exigences fonctionnelles et non fonctionnelles auxquelles notre application vise à répondre.
+
+\subsection{Identification des acteurs}
+Dans notre application, nous identifions cinq acteurs, correspondant chacun à un rôle joué par une personne physique ou un élément système interagissant directement avec le système:
+
+\begin{itemize}
+  \item[\textbf{-}] \textbf{Internaute:} Il s'agit d'une personne non authentifiée par la plateforme et désirant consulter les informations et les services proposés par la plateforme.
+
+  \item[\textbf{-}] \textbf{Citoyens brésiliens:} Personne physique qui est à la demande d'un CPF ou peut gérer son statut tout en le consultant, il peut même créer des comptes bancaires virtuels.
+
+  \item[\textbf{-}] \textbf{Manager CPF:} Responsable de la gestion de la plateforme Secure Identity au niveau organisationnel. Il supervise les comptes CPF, crée et gère les comptes des officiers de police et suit les statuts de leurs CPF.
+
+  \item[\textbf{-}] \textbf{Officier de police:}  officier de police chargé de mener les inspections sur le terrain à l'aide de \textbf{Identity Secure}
+
+  \item[\textbf{-}] \textbf{ChatBot:} Module intelligent fournissant une assistance automatisée aux utilisateurs. Il peut aider à la navigation dans l'application et réponds aux questions sur les processus d'utilisation.
+\end{itemize}
+\subsection{Spécifications des besoins fonctionnels}
+Les spécifications fonctionnelles détaillent les différentes fonctionnalités de l'application et délimitent son champ d'action dans le projet. Elles découlent des besoins exprimés par le client. Ainsi, notre application doit satisfaire les exigences spécifiques de chaque utilisateur et doit répondre aux exigences suivantes pour chaque acteur.
+\\
+\subsubsection{Besoins fonctionnels de l'acteur « Internaute »}
+
+Le tableau 1.2 illustre les différents besoins fonctionnels de l'acteur « Internaute ».
+
+\begin{table}[H]
+\centering
+\caption{ \centering Besoins fonctionnels de l'acteur « Internaute »}
+\label{tab:backlog:ch1:1}
+\begin{tabular}
+{| >{\centering\arraybackslash}p{4.2cm} | >{\centering\arraybackslash}p{12.5cm} |}
+\rowcolor{gray!30} % couleur d’en-tête
+\hline \textbf{Fonctionnalité} & \textbf{Description}\\
+\hline  S'informer &  L'internaute peut consulter les différentes fonctionnalités et services intégrés dans Identity Secure sans besoin de s'inscrire ou de se connecter, y compris la documentation sur le processus d'obtention du CPF et les services disponibles. \\
+\hline S'inscrire &  L'internaute peut créer un compte sur la plateforme Identity Secure en fournissant ses informations personnelles (nom, prénom, email, mot de passe) et en acceptant les conditions d'utilisation. \\
+\hline procurer aide &  L'internaute peut accéder à l'assistance en ligne via le ChatBot pour obtenir des informations sur le processus d'obtention du CPF et les services disponibles. \\
+\hline
+\end{tabular}
+\end{table}
+\subsubsection{Besoins fonctionnels de l'acteur «citoyens brésiliens»}
+
+Le tableau 1.3 illustre les différents besoins fonctionnels de l'acteur «citoyens brésiliens».
+\begin{longtable}
+{| >{\centering\arraybackslash}p{4.2cm} | >{\arraybackslash}p{12.5cm} |}
+\caption{\centering Besoins fonctionnels de l'acteur « citoyens brésiliens »} \label{tab:besoins-citoyens} \\
+\hline
+\rowcolor{gray!30} \textbf{Fonctionnalité} & \textbf{Description} \\
+\hline
+\endfirsthead
+
+% <<< On vide la redéfinition d’en-tête pour les pages suivantes >>>
+\endhead
+
+\hline
+\endfoot
+
+\hline
+\endlastfoot
+
+S'inscrire & Le citoyen brésilien peut créer un compte sur la plateforme en fournissant ses informations personnelles et en acceptant les conditions d'utilisation pour accéder aux services CPF. \\
+\hline
+S'authentifier & Le citoyen brésilien peut se connecter à son espace personnel en utilisant son email et mot de passe pour accéder à ses fonctionnalités et données personnelles. \\
+\hline
+Récupérer Mot de passe & En cas d'oubli de son mot de passe, le citoyen brésilien peut demander une réinitialisation via un lien envoyé à son adresse email. \\
+\hline
+Gérer profil & Le citoyen brésilien peut gérer son profil en mettant à jour ses informations personnelles, son adresse et ses coordonnées. \\
+\hline
+Soumettre une demande rendez-vous & Le citoyen brésilien peut soumettre une demande de rendez-vous pour fournir ses données biométriques, en spécifiant sa localisation et en choisissant un centre de service. \\
+\hline
+Consulter la date de son rendez-vous & Le citoyen brésilien peut consulter les détails de son rendez-vous, y compris la date, l'heure et le lieu, et demander une modification si nécessaire. \\
+\hline
+Gérer transaction basées CPF & Le citoyen brésilien peut consulter son numéro CPF,statut CPF et ses transactions et utilisations externes. et peux effectuer des actions comme demander blocage en cas de fraude. \\
+\hline
+Procurer aide & Le citoyen brésilien peut interagir avec le ChatBot pour obtenir de l'aide sur l'utilisation de la plateforme et le processus CPF. \\
+\hline
+
+\end{longtable}
+
+
+
+\subsubsection{Besoins fonctionnels de l'acteur « Manager CPF»}
+
+Le tableau 1.4 montre les différents besoins fonctionnels de l'acteur «Manager CPF».
+\begin{longtable}
+{| >{\centering\arraybackslash}p{4.2cm} | >{\arraybackslash}p{12.5cm} |}
+\caption{\centering Besoins fonctionnels de l'acteur « citoyens brésiliens »} \label{tab:besoins-citoyens} \\
+\hline
+\rowcolor{gray!30} \textbf{Fonctionnalité} & \textbf{Description} \\
+\hline
+\endfirsthead
+\endhead
+
+\hline
+\endfoot
+
+\hline
+\endlastfoot
+
+S'authentifier & Le Manager CPF peut se connecter à son espace de gestion en utilisant son email et mot de passe pour accéder aux fonctionnalités administratives. \\
+\hline
+Récupérer Mot de passe & En cas d'oubli de son mot de passe, le Manager CPF peut demander une réinitialisation via un lien envoyé à son adresse email. \\
+\hline
+Gérer profil & Le Manager CPF peut gérer son profil professionnel et ses paramètres de notification. \\
+\hline
+Consulter Fraude & Le Manager CPF peut consulter et gérer la liste des demandes de fraudes et blocage. \\
+\hline
+Consulter notifications & Le Manager CPF peut consulter toutes nouvelles demandes , inscription
+fraude , blacklist pour etre uau courant. \\
+\hline
+Consulter citoyens & Le Manager CPF peut consulter la liste des citoyens avec des filtres par statut (actif, suspendu, bloqué) et par état de génération du CPF. \\
+\hline
+
+\end{longtable}
+
+
+
+\subsubsection{Besoins fonctionnels de l'acteur «officier de police»}
+
+Le tableau 1.5 illustre les différents besoins fonctionnels de l'acteur «officier de police».
+\begin{table}[H]
+\centering
+\caption{\centering Besoins fonctionnels de l'acteur « officier de police »}
+
+\begin{tabular}
+{| >{\centering\arraybackslash}p{4.2cm} | >{\centering\arraybackslash}p{12.5cm} |}
+\rowcolor{gray!30}
+\hline \textbf{Fonctionnalité} & \textbf{Description}\\
+\hline
+S'authentifier & L'officier de police peut se connecter à son espace de travail en utilisant son email et mot de passe pour accéder aux fonctionnalités de gestion des rendez-vous et des données biométriques. \\
+\hline
+Récupérer Mot de passe & En cas d'oubli de son mot de passe, l'officier de police peut demander une réinitialisation via un lien envoyé à son adresse email.\\
+\hline
+Gerer profile & L'officier de police peut gérer son profil professionnel et ses paramètres de notification.\\
+\hline
+plannifier rendez vous & L'officier de police peut planifier et gérer les rendez-vous pour la collecte des données biométriques, en tenant compte des disponibilités du centre.\\
+\hline
+consulter rendez-vous & L'officier de police peut consulter son calendrier de rendez-vous et les détails associés à chaque rendez-vous.\\
+\hline
+televerser les donnees biometriques & L'officier de police peut télécharger et enregistrer les données biométriques des citoyens (empreintes digitales, photo d'identité, iris) lors des rendez-vous.\\
+\hline
+consulter liste citoyen & L'officier de police peut consulter la liste des citoyens ayant déjà un CPF et leurs informations associées.\\
+\hline
+\end{tabular}
+\end{table}
+
+
+\subsubsection{Besoins fonctionnels de l'acteur « ChatBot»}
+
+Le tableau 1.6 illustre les différents besoins fonctionnels de l'acteur «ChatBot».
+\begin{table}[H]
+\centering
+\caption{\centering Besoins fonctionnels de l'acteur « ChatBot »}
+\label{tab:backlog:ch1:2}
+\begin{tabular}
+{| >{\centering\arraybackslash}p{4.2cm} | >{\centering\arraybackslash}p{12.5cm} |}
+\rowcolor{gray!30}
+
+\hline \textbf{Fonctionnalité} & \textbf{Description}\\
+\hline Procurer Aide &  Le ChatBot fournit une assistance automatisée 24/7 aux utilisateurs en répondant aux questions fréquentes sur le processus CPF, les rendez-vous, et l'utilisation de la plateforme Identity Secure. Il peut également guider les utilisateurs dans la résolution des problèmes courants.\\
+\hline
+\end{tabular}
+\end{table}
+\subsection{Spécifications des besoins non fonctionnels}
+Dans le cadre du projet \textbf{Identity Secure}, plusieurs besoins non fonctionnels revêtent une importance capitale pour garantir la fiabilité et la qualité du système. Ces exigences sont essentielles pour assurer un fonctionnement optimal de l'application. Voici les principaux besoins non fonctionnels implémentés dans notre solution :
+
+\textbf{-  Sécurité :} L'application Identity Secure garantit la confidentialité et la sécurité des données sensibles grâce à plusieurs mécanismes avancés :
+\begin{itemize}[label=$\circ$]
+  \item \textbf{Authentification par JWT (JSON Web Tokens)} : Implémentation de tokens JWT signés avec l'algorithme HS256 pour sécuriser les sessions utilisateurs, avec une durée de validité de 24 heures et un mécanisme de rafraîchissement automatique lorsque le token est sur le point d'expirer.
+  \item \textbf{Hachage sécurisé des mots de passe} : Utilisation de l'algorithme bcrypt avec un facteur de coût de 8 pour le hachage irréversible des mots de passe, empêchant leur récupération en cas de fuite de données.
+  \item \textbf{Cryptage des données biométriques} : Application de l'algorithme AES-256-GCM pour le chiffrement des données biométriques sensibles, tant en transit qu'au repos.
+  \item \textbf{Validation des tokens} : Vérification systématique de l'authenticité et de la validité des tokens JWT à chaque requête via un intercepteur HTTP dédié.
+  \item \textbf{Protection contre les attaques} : Mise en place de mécanismes de détection et de prévention des tentatives d'accès non autorisées, avec verrouillage temporaire des comptes après plusieurs échecs d'authentification.
+  \item \textbf{Gestion sécurisée des réinitialisations de mot de passe} : Génération de tokens cryptographiquement sécurisés avec une durée de validité limitée (1 heure) pour les demandes de réinitialisation de mot de passe.
+\end{itemize}
+
+\textbf{- Performance du système :} Notre application assure des temps de réponse rapides et des performances optimales grâce à :
+\begin{itemize}[label=$\circ$]
+  \item \textbf{Mise en cache des tokens} : Implémentation d'un système de mise en cache côté client qui évite les validations redondantes de tokens JWT (validité vérifiée seulement toutes les 60 secondes).
+  \item \textbf{Compression des images biométriques} : Traitement automatique des images biométriques avec un taux de compression configurable (80\% par défaut) pour optimiser le stockage et la transmission.
+  \item \textbf{Chargement asynchrone des composants Angular} : Utilisation du chargement différé (lazy loading) des modules pour réduire le temps de chargement initial de l'application.
+  \item \textbf{Optimisation des requêtes HTTP} : Utilisation de l'API Fetch moderne via \texttt{withFetch()} pour des communications réseau plus efficaces.
+  \item \textbf{Gestion intelligente des ressources} : Limitation de la taille des fichiers biométriques (2-5 Mo selon le type) pour éviter la surcharge du système.
+\end{itemize}
+
+\textbf{- Évolutivité :} L'architecture de l'application est conçue pour s'adapter facilement aux nouvelles exigences :
+\begin{itemize}[label=$\circ$]
+  \item \textbf{Architecture modulaire} : Séparation claire entre le frontend Angular et le backend Node.js/Express, permettant des mises à jour indépendantes.
+  \item \textbf{Configuration externalisée} : Utilisation de fichiers de configuration centralisés (\texttt{config.js}, \texttt{biometric.config.js}) pour faciliter les ajustements sans modifier le code source.
+  \item \textbf{Injection de dépendances} : Implémentation du pattern d'injection de dépendances dans Angular pour faciliter les tests et le remplacement de composants.
+  \item \textbf{API RESTful} : Conception d'interfaces API standardisées permettant l'intégration future avec d'autres systèmes.
+  \item \textbf{Gestion des versions d'API} : Structure de routage préparée pour supporter plusieurs versions d'API simultanément (\texttt{/api/v1/}).
+\end{itemize}
+
+\textbf{- Fiabilité :} La stabilité et la disponibilité de l'application sont assurées par :
+\begin{itemize}[label=$\circ$]
+  \item \textbf{Gestion centralisée des erreurs} : Middleware dédié (\texttt{errorHandler.js}) qui capture, classifie et traite uniformément les erreurs à travers l'application.
+  \item \textbf{Mécanismes de récupération} : Implémentation de stratégies de retry pour les opérations critiques, notamment lors des échecs de communication réseau.
+  \item \textbf{Validation des données} : Contrôles stricts des entrées utilisateur pour prévenir les erreurs de traitement et les injections.
+  \item \textbf{Journalisation structurée} : Système de logs configuré pour enregistrer les événements importants avec rotation automatique des fichiers (10 Mo maximum, conservation des 5 derniers fichiers).
+  \item \textbf{Détection proactive des problèmes} : Surveillance des performances et des erreurs pour identifier les problèmes potentiels avant qu'ils n'affectent les utilisateurs.
+\end{itemize}
+
+\textbf{- Accessibilité :} L'application est conçue pour être accessible à tous les utilisateurs :
+\begin{itemize}[label=$\circ$]
+  \item \textbf{Design responsive} : Interfaces utilisateur adaptatives qui s'ajustent automatiquement aux différentes tailles d'écran (desktop, tablette, mobile) avec des breakpoints à 768px et 480px.
+  \item \textbf{Contraste et lisibilité} : Utilisation de combinaisons de couleurs à fort contraste et de polices lisibles pour améliorer l'expérience des utilisateurs malvoyants.
+  \item \textbf{Navigation au clavier} : Support complet de la navigation par clavier pour les utilisateurs ne pouvant pas utiliser de souris.
+  \item \textbf{Attributs ARIA} : Intégration d'attributs d'accessibilité dans les composants UI pour améliorer la compatibilité avec les lecteurs d'écran.
+  \item \textbf{Textes alternatifs} : Ajout systématique d'attributs \texttt{alt} descriptifs pour les images, notamment les photos de profil et les éléments biométriques.
+  \item \textbf{Thèmes adaptés} : Support de thèmes clairs et sombres pour s'adapter aux préférences visuelles des utilisateurs.
+\end{itemize}
+\section{Méthodologie adoptée}
+
+Une méthodologie est un cadre utilisé pour structurer, planifier et contrôler le développement d'une application. Dans la réalisation de notre projet, nous avons opté pour «Scrum» comme méthodologie de conception et de développement.
+
+Scrum est une méthodologie de gestion de projet agile\cite{b6}. Elle met l'accent sur la collaboration, la livraison continue de logiciels fonctionnels et l'adaptabilité aux changements. En favorisant les interactions entre les individus, la réactivité aux besoins changeants des clients et la simplification des processus, Scrum permet aux équipes de travailler de manière efficace et productive. Ses piliers de transparence, de vérification et d'adaptation garantissent une approche itérative et incrémentielle, permettant une amélioration continue du produit et du processus de développement. Pour notre projet Identity Secure, où la communication transparente et la livraison régulière de fonctionnalités sont essentielles, Scrum offre un cadre idéal pour gérer efficacement la complexité et l'évolution des besoins.
+\\
+
+\subsection{Organisation de l'équipe Scrum}
+
+\textbf{Dans une équipe Scrum, 3 rôles sont définis à savoir: }\\
+
+\begin{itemize}
+\item[\textbf{-}] \textbf{Le product owner :} C'est le responsable du produit qui représente le client, il porte la vision du produit à réaliser. Dans notre projet, ce rôle est assumé par notre encadrant professionnel qui définit les priorités et valide les fonctionnalités développées.
+\item[\textbf{-}] \textbf{Le Scrum master :} C'est un membre de l'équipe qui a pour rôle d'aider l'équipe à avancer de manière autonome en éliminant les obstacles et en facilitant les processus Scrum. Ce rôle est partagé entre les membres de l'équipe selon les phases du projet.
+\item[\textbf{-}] \textbf{Le Scrum Team :} La particularité d'une équipe Scrum est qu'elle est dépourvue de toute hiérarchie interne. Notre équipe est auto-organisée et composée de développeurs polyvalents capables d'intervenir sur différentes parties du projet.
+\end{itemize}
+
+\subsection{Cycle de vie et processus Scrum}
+
+Le cycle de vie de la méthode Scrum se décompose en plusieurs Sprints successifs. La figure suivante présente le processus de développement d'un projet selon Scrum:
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.31]{chapitre0/scrum.jpg}
+\caption{Processus de Scrum}
+\label{fig:scrum-process}
+\end{figure}
+
+La figure \ref{fig:scrum-process} illustre le principe de base de la méthodologie Scrum. Elle définit certains concepts clés qui nous serviront tout au long du projet et de la rédaction du présent mémoire.\\
+
+\begin{itemize}
+  \item[\textbf{-}] \textbf{Carnet de produit (Product Backlog) :} Liste hiérarchisée des fonctionnalités attendues du produit. Il est élaboré avant le lancement des sprints, dans la phase de préparation. Pour Identity Secure, notre Product Backlog comprend toutes les fonctionnalités de gestion d'identité, de biométrie et de sécurité identifiées lors de l'analyse des besoins.
+
+  \item[\textbf{-}] \textbf{Réunion de planification de sprint (Sprint Planning Meeting) :} Réunion collaborative où l'équipe sélectionne les éléments du Product Backlog à réaliser pendant le sprint et détermine comment les implémenter. Nos réunions de planification se tiennent au début de chaque sprint de deux semaines.
+
+  \item[\textbf{-}] \textbf{Carnet de sprint (Sprint Backlog) :} Liste détaillée des tâches à implémenter dans un sprint, classées par priorité et état. Notre Sprint Backlog est géré via un tableau Kanban qui permet de visualiser l'avancement des tâches (À faire, En cours, À valider, Terminé).
+
+  \item[\textbf{-}] \textbf{Mêlée quotidienne (Daily Scrum) :} Réunion quotidienne de 15 minutes maximum où chaque membre de l'équipe partage ce qu'il a fait la veille, ce qu'il prévoit de faire aujourd'hui et les obstacles éventuels. Ces réunions nous permettent de maintenir une synchronisation constante et d'identifier rapidement les problèmes.
+
+  \item[\textbf{-}] \textbf{Revue de sprint (Sprint Review) :} Activité réalisée à la fin de chaque sprint où l'équipe présente les fonctionnalités développées aux parties prenantes pour obtenir des retours. Nos revues de sprint incluent des démonstrations des nouvelles fonctionnalités de sécurité et de gestion d'identité implémentées.
+
+  \item[\textbf{-}] \textbf{Rétrospective de sprint (Sprint Retrospective) :} Réunion où l'équipe analyse son processus de travail pour l'améliorer dans les sprints suivants. Nous utilisons cette opportunité pour identifier les bonnes pratiques à conserver et les points à améliorer dans notre développement.
+\end{itemize}
+
+\addcontentsline{toc}{section}{Conclusion}
+
+\section{Conclusion}
+
+Dans ce premier chapitre introductif, nous avons situé notre projet \textbf{Identity Secure} dans son contexte général et exposé succinctement les objectifs visés. Ainsi nous avons examiné les solutions existantes, mis en évidence leurs limitations et proposé une alternative. Ensuite, nous avons identifié les divers acteurs impliqués dans le projet, ainsi que les exigences fonctionnelles et non fonctionnelles. Enfin, nous avons détaillé la méthodologie Scrum que nous avons sélectionnée pour piloter le projet.\\
+Le chapitre suivant se concentrera sur la phase de préparation.

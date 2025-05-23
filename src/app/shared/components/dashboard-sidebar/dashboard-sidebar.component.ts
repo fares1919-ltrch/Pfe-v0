@@ -46,11 +46,12 @@ export class DashboardSidebarComponent {
     citizen: [
       { icon: 'home', label: 'Home', route: '/home' },
       { icon: 'dashboard', label: 'Overview', route: '/citizen-dashboard/dashboard' },
+      { icon: 'account_balance', label: 'Transactions', route: '/citizen-dashboard/transactions' },
       { icon: 'description', label: 'Cpf Request', route: '/citizen-dashboard/cpf-request' },
       { icon: 'event', label: 'My Appointment', route: '/citizen-dashboard/appointment' },
-      { icon: 'description', label: 'My Documents', route: '/citizen-dashboard/documents' },
-      { icon: 'notifications', label: 'Notifications', route: '/citizen-dashboard/notifications' },
-      { icon: 'history', label: 'History', route: '/citizen-dashboard/history' }
+      { icon: 'credit_card', label: 'Generated CPF', route: '/citizen-dashboard/overview/generated' },
+      { icon: 'watch_later', label: 'Pending CPF', route: '/citizen-dashboard/overview/pending' },
+      { icon: 'warning', label: 'Fraud Detected', route: '/citizen-dashboard/overview/fraud' }
     ],
     officer: [
       { icon: 'home', label: 'Home', route: '/home' },

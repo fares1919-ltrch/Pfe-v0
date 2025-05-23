@@ -1,9 +1,12 @@
 <div class="container">
-  <div class="header" style=" display: flex; justify-content: space-between; align-items: center;">
+  <div
+    class="header"
+    style="display: flex; justify-content: space-between; align-items: center"
+  >
     <div>
       <h1>CPF Requests</h1>
     </div>
-    <div style="display: flex; gap: 1rem;">
+    <div style="display: flex; gap: 1rem">
       <button class="filter-btn">
         <span class="material-icons">filter_list</span>
         <div class="custom-select status-filter">
@@ -12,7 +15,7 @@
             id="statusFilter"
             [(ngModel)]="statusFilter"
             (change)="applyStatusFilter(statusFilter)"
-            [ngStyle]="{'&:hover': {'background-color': '#e2e8f0'}}"
+            [ngStyle]="{ '&:hover': { 'background-color': '#e2e8f0' } }"
           >
             <option value="all">All</option>
             <option value="pending">Pending</option>
@@ -22,16 +25,17 @@
           </select>
         </div>
       </button>
-      
-      <button class="icon-button" 
-             (click)="refreshPage()" 
-              matTooltip="Refresh pending approvals" 
-              matTooltipClass="action-button-tooltip"
-              matTooltipPosition="below">
+
+      <button
+        class="icon-button"
+        (click)="refreshPage()"
+        matTooltip="Refresh pending approvals"
+        matTooltipClass="action-button-tooltip"
+        matTooltipPosition="below"
+      >
         <span class="material-icon">refresh</span>
       </button>
     </div>
-    
   </div>
 
   <!-- Custom progress bar -->
@@ -143,7 +147,11 @@
 
           <!-- Delete Cell -->
           <td class="delete-cell">
-            <button class="icon-button delete-button" (click)="deleteRequest(request._id)" title="Delete Request">
+            <button
+              class="icon-button delete-button"
+              (click)="deleteRequest(request._id)"
+              title="Delete Request"
+            >
               <span class="material-icon">delete</span>
             </button>
           </td>
@@ -165,10 +173,9 @@
   <!-- Custom paginator -->
   <div class="custom-paginator">
     <div class="paginator-range-label">
-      {{ Math.min(totalItems, 1) === 0 ? 0 : (currentPage - 1) * pageSize + 1 }}-{{
-        Math.min(currentPage * pageSize, totalItems)
-      }}
-      of {{ totalItems }}
+      {{
+        Math.min(totalItems, 1) === 0 ? 0 : (currentPage - 1) * pageSize + 1
+      }}-{{ Math.min(currentPage * pageSize, totalItems) }} of {{ totalItems }}
     </div>
 
     <div class="paginator-controls">

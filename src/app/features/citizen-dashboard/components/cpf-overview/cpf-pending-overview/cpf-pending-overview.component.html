@@ -1,0 +1,131 @@
+<div class="dashboard-container">
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="title-section">
+      <mat-icon class="fingerprint-icon">fingerprint</mat-icon>
+      <h2>CPF Dashboard</h2>
+    </div>
+    <button
+      type="button"
+      mat-raised-button
+      color="primary"
+      class="download-btn"
+      disabled
+    >
+      <mat-icon>hourglass_empty</mat-icon>
+      CPF Processing
+    </button>
+  </div>
+
+  <!-- CPF Status Card -->
+  <div class="status-section">
+    <div class="section-header">
+      <h3>CPF Status</h3>
+      <span class="last-update"
+        >Updated:
+        {{
+          citizen?.cpfRequest?.requestDate | date : "dd/MM/yyyy, HH:mm"
+        }}</span
+      >
+    </div>
+
+    <div class="status-card">
+      <!-- CPF Request Status -->
+      <div class="cpf-number-section">
+        <p class="label">Request Status</p>
+        <p class="value pending-value">
+          {{ citizen?.cpfRequest?.status | uppercase }}
+        </p>
+      </div>
+
+      <!-- Status Badge -->
+      <div class="status-badge pending">
+        <mat-icon>pending</mat-icon>
+        <span>Pending</span>
+      </div>
+
+      <!-- Warning Message -->
+      <div class="warning-message">
+        <mat-icon>info</mat-icon>
+        <span>Your CPF has not been generated yet</span>
+      </div>
+
+      <!-- Action Button -->
+      <button
+        type="button"
+        mat-stroked-button
+        color="warn"
+        class="action-btn"
+        (click)="cancelRequest()"
+      >
+        <mat-icon>cancel</mat-icon>
+        Cancel Request
+      </button>
+    </div>
+  </div>
+
+  <!-- Additional Information -->
+  <div class="info-section">
+    <div class="personal-info-card">
+      <div class="card-content">
+        <div class="user-info">
+          <div class="profile-image">
+            <img src="assets/images/134766992.png" alt="Profile photo" />
+          </div>
+          <div class="user-details">
+            <p class="user-name">{{ citizen?.fullName }}</p>
+            <p class="user-id">ID: {{ citizen?.identityNumber }}</p>
+          </div>
+        </div>
+
+        <!-- Appointment Info -->
+        <div class="appointment-info" *ngIf="citizen?.appointment">
+          <h4>Appointment</h4>
+          <p>
+            <span class="label">Date:</span>
+            {{ citizen?.appointment?.date | date : "dd/MM/yyyy" }}
+          </p>
+          <p>
+            <span class="label">Location:</span>
+            {{ citizen?.appointment?.location }}
+          </p>
+          <p>
+            <span class="label">Status:</span>
+            {{ citizen?.appointment?.status | uppercase }}
+          </p>
+
+          <button
+            type="button"
+            mat-stroked-button
+            class="appointment-btn"
+            (click)="rescheduleAppointment()"
+          >
+            <mat-icon>event</mat-icon>
+            Reschedule Appointment
+          </button>
+        </div>
+
+        <!-- Next Steps -->
+        <div class="next-steps">
+          <h4>Next Steps</h4>
+          <div class="steps-list">
+            <div class="step">
+              <div class="step-number">1</div>
+              <div class="step-text">
+                Attend appointment with required documents
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-number">2</div>
+              <div class="step-text">Biometric data collection</div>
+            </div>
+            <div class="step">
+              <div class="step-number">3</div>
+              <div class="step-text">Verification and CPF generation</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
