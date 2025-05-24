@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-interface Complaint {
+interface FraudCase {
   id: string;
   username: string;
   userAccount: string;
@@ -16,25 +16,25 @@ interface Complaint {
 }
 
 @Component({
-  selector: 'app-complaints',
+  selector: 'app-fraud',
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="complaints-container">
+    <div class="fraud-container">
       <!-- Header Section -->
       <div class="header-section">
         <div class="d-flex justify-content-between align-items-center">
           <div>
-            <h1 class="mb-2">Complaints Management</h1>
-            <p class="text-muted mb-0">Handle user complaints regarding account access</p>
+            <h1 class="mb-2">Fraud Management</h1>
+            <p class="text-muted mb-0">Handle fraud cases and suspicious activities</p>
           </div>
           <div class="stats-cards">
             <div class="stat-card">
-              <div class="stat-value">{{ getComplaintsByStatus('pending').length }}</div>
+              <div class="stat-value">{{ getFraudCasesByStatus('pending').length }}</div>
               <div class="stat-label">Pending</div>
             </div>
             <div class="stat-card">
-              <div class="stat-value">{{ getComplaintsByStatus('completed').length }}</div>
+              <div class="stat-value">{{ getFraudCasesByStatus('completed').length }}</div>
               <div class="stat-label">Completed</div>
             </div>
           </div>
@@ -78,8 +78,8 @@ interface Complaint {
         </div>
       </div>
 
-      <!-- Complaints List -->
-      <div class="complaints-list">
+      <!-- Fraud Cases List -->
+      <div class="fraud-list">
         <table class="table">
           <thead>
             <tr>
@@ -92,29 +92,29 @@ interface Complaint {
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let complaint of filteredComplaints">
+            <tr *ngFor="let fraudCase of filteredFraudCases">
               <td>
-                <span class="account-status-badge" [class]="complaint.accountStatus">
-                  {{ complaint.accountStatus }}
+                <span class="account-status-badge" [class]="fraudCase.accountStatus">
+                  {{ fraudCase.accountStatus }}
                 </span>
               </td>
-              <td>{{ complaint.username }}</td>
+              <td>{{ fraudCase.username }}</td>
               <td>
-                <span class="status-badge" [class]="complaint.status">
-                  {{ complaint.status }}
+                <span class="status-badge" [class]="fraudCase.status">
+                  {{ fraudCase.status }}
                 </span>
               </td>
-              <td>{{ complaint.submittedDate }}</td>
-              <td>{{ complaint.lastUpdated }}</td>
+              <td>{{ fraudCase.submittedDate }}</td>
+              <td>{{ fraudCase.lastUpdated }}</td>
               <td>
                 <div class="action-buttons">
-                  <button class="btn btn-sm btn-outline-primary" (click)="viewComplaint(complaint)">
+                  <button class="btn btn-sm btn-outline-primary" (click)="viewFraudCase(fraudCase)">
                     <i class="fas fa-eye"></i>
                   </button>
                   <button
                     class="btn btn-sm btn-danger"
-                    *ngIf="complaint.status === 'pending'"
-                    (click)="blockAccount(complaint)"
+                    *ngIf="fraudCase.status === 'pending'"
+                    (click)="blockAccount(fraudCase)"
                   >
                     <i class="fas fa-ban"></i>
                   </button>
@@ -125,41 +125,41 @@ interface Complaint {
         </table>
       </div>
 
-      <!-- Complaint Details Modal -->
+      <!-- Fraud Case Details Modal -->
       <div class="modal fade" [class.show]="showModal" [style.display]="showModal ? 'block' : 'none'">
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title">Complaint Details</h5>
+              <h5 class="modal-title">Fraud Case Details</h5>
               <button type="button" class="btn-close" (click)="closeModal()"></button>
             </div>
-            <div class="modal-body" *ngIf="selectedComplaint">
-              <div class="complaint-header">
+            <div class="modal-body" *ngIf="selectedFraudCase">
+              <div class="fraud-header">
                 <div class="row">
                   <div class="col-md-6">
                     <div class="info-group">
                       <label>Username</label>
-                      <p>{{ selectedComplaint.username }}</p>
+                      <p>{{ selectedFraudCase.username }}</p>
                     </div>
                     <div class="info-group">
                       <label>User Account</label>
-                      <p>{{ selectedComplaint.userAccount }}</p>
+                      <p>{{ selectedFraudCase.userAccount }}</p>
                     </div>
                   </div>
                   <div class="col-md-6">
                     <div class="info-group">
                       <label>Status</label>
                       <p>
-                        <span class="status-badge" [class]="selectedComplaint.status">
-                          {{ selectedComplaint.status }}
+                        <span class="status-badge" [class]="selectedFraudCase.status">
+                          {{ selectedFraudCase.status }}
                         </span>
                       </p>
                     </div>
                     <div class="info-group">
                       <label>Account Status</label>
                       <p>
-                        <span class="account-status-badge" [class]="selectedComplaint.accountStatus">
-                          {{ selectedComplaint.accountStatus }}
+                        <span class="account-status-badge" [class]="selectedFraudCase.accountStatus">
+                          {{ selectedFraudCase.accountStatus }}
                         </span>
                       </p>
                     </div>
@@ -167,39 +167,39 @@ interface Complaint {
                 </div>
               </div>
 
-              <div class="complaint-content">
+              <div class="fraud-content">
                 <div class="info-group">
                   <label>Comment</label>
                   <div class="comment-box">
-                    {{ selectedComplaint.comment }}
+                    {{ selectedFraudCase.comment }}
                   </div>
                 </div>
               </div>
 
-              <div class="complaint-timeline">
+              <div class="fraud-timeline">
                 <h6>Timeline</h6>
                 <div class="timeline">
                   <div class="timeline-item">
-                    <div class="timeline-date">{{ selectedComplaint.submittedDate }}</div>
+                    <div class="timeline-date">{{ selectedFraudCase.submittedDate }}</div>
                     <div class="timeline-content">
-                      <strong>Complaint Submitted</strong>
-                      <p>Initial complaint received</p>
+                      <strong>Fraud Case Submitted</strong>
+                      <p>Initial fraud case received</p>
                     </div>
                   </div>
-                  <div class="timeline-item" *ngIf="selectedComplaint.actionTaken">
-                    <div class="timeline-date">{{ selectedComplaint.actionDate }}</div>
+                  <div class="timeline-item" *ngIf="selectedFraudCase.actionTaken">
+                    <div class="timeline-date">{{ selectedFraudCase.actionDate }}</div>
                     <div class="timeline-content">
                       <strong>Action Taken</strong>
-                      <p>{{ selectedComplaint.actionTaken }}</p>
+                      <p>{{ selectedFraudCase.actionTaken }}</p>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div class="complaint-actions" *ngIf="selectedComplaint.status === 'pending'">
+              <div class="fraud-actions" *ngIf="selectedFraudCase.status === 'pending'">
                 <button
                   class="btn btn-danger w-100"
-                  (click)="blockAccount(selectedComplaint)"
+                  (click)="blockAccount(selectedFraudCase)"
                 >
                   <i class="fas fa-ban me-2"></i>Block Account
                 </button>
@@ -212,7 +212,7 @@ interface Complaint {
     </div>
   `,
   styles: [`
-    .complaints-container {
+    .fraud-container {
       padding: 2rem;
       background-color: #f8f9fa;
       min-height: 100vh;
@@ -435,9 +435,9 @@ interface Complaint {
     }
   `]
 })
-export class ComplaintsComponent implements OnInit {
+export class FraudComponent implements OnInit {
   Math = Math;
-  complaints: Complaint[] = [
+  fraudCases: FraudCase[] = [
     {
       id: '1',
       username: 'john.doe',

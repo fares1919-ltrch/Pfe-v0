@@ -9,6 +9,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatMenuModule } from '@angular/material/menu';
 
 interface Citizen {
   id: string;
@@ -17,6 +18,11 @@ interface Citizen {
   dateOfBirth: Date;
   gender: string;
   nationality: string;
+  maritalStatus?: string;
+  profession?: string;
+  city?: string;
+  state?: string;
+  postalCode?: string;
   address: {
     street: string;
     city: string;
@@ -25,10 +31,13 @@ interface Citizen {
     country: string;
   };
   status: 'active' | 'suspended' | 'blocked';
-  cpfStatus: 'generated' | 'pending' | 'failed';
+  cpfStatus: 'generated' | 'pending' | 'failed' | 'fraudulent';
   cpfNumber?: string;
   cpfIssueDate?: Date;
   cpfExpiryDate?: Date;
+  deduplicationStatus?: 'verified' | 'in_progress' | 'not_started' | 'duplicate_found';
+  assignedOfficer?: string;
+  processingCenter?: string;
   biometricData: {
     height: number;
     weight: number;
@@ -37,6 +46,11 @@ interface Citizen {
     fingerprint: string;
     photo: string;
     signature: string;
+    fingerprintsStatus?: string;
+    irisStatus?: string;
+    faceStatus?: string;
+    collectionDate?: Date;
+    qualityScore?: string;
   };
   documents: {
     idNumber: string;
@@ -49,6 +63,9 @@ interface Citizen {
     drivingLicense?: string;
     drivingLicenseIssueDate?: Date;
     drivingLicenseExpiryDate?: Date;
+    driverLicense?: string;
+    birthCertificate?: string;
+    status?: string;
   };
   contactInfo: {
     email: string;
@@ -77,7 +94,8 @@ interface Citizen {
     MatSelectModule,
     MatProgressSpinnerModule,
     MatChipsModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatMenuModule
   ],
   templateUrl: './citizens.component.html',
   styleUrl: './citizens.component.css'
@@ -90,11 +108,15 @@ export class CitizensComponent implements OnInit {
   isLoading: boolean = true;
   viewMode: 'grid' | 'list' = 'grid';
   activeTab: 'personal' | 'biometric' | 'documents' | 'contact' | 'status' = 'personal';
-  
+  showCpfNumber: boolean = false;
+
   // Filter states
-  statusFilter: 'all' | 'active' | 'suspended' | 'blocked' = 'all';
-  cpfStatusFilter: 'all' | 'generated' | 'pending' | 'failed' = 'all';
-  dateRangeFilter: { start: Date | null; end: Date | null } = { start: null, end: null };
+  cpfStatusFilter: 'all' | 'generated' | 'pending' | 'failed' | 'fraudulent' = 'all';
+
+  // Pagination
+  currentPage: number = 1;
+  itemsPerPage: number = 10;
+  totalItems: number = 0;
 
   // Statistics
   totalCitizens: number = 0;
@@ -104,6 +126,7 @@ export class CitizensComponent implements OnInit {
   generatedCpf: number = 0;
   pendingCpf: number = 0;
   failedCpf: number = 0;
+  fraudulentCpf: number = 0;
 
   placeholderCitizen: Citizen = {
     id: '',
@@ -167,17 +190,22 @@ export class CitizensComponent implements OnInit {
 
     // Simulate API call
     setTimeout(() => {
-      // Sample data with diverse states
+      // Enhanced realistic fake data with diverse scenarios
       this.citizens = [
         {
           id: '1',
-          firstName: 'John',
-          lastName: 'Doe',
+          firstName: 'João',
+          lastName: 'Silva Santos',
           dateOfBirth: new Date('1990-05-15'),
           gender: 'Male',
           nationality: 'Brazilian',
+          maritalStatus: 'Married',
+          profession: 'Software Engineer',
+          city: 'São Paulo',
+          state: 'SP',
+          postalCode: '01310-200',
           address: {
-            street: '123 Main St',
+            street: 'Rua das Flores, 123',
             city: 'São Paulo',
             state: 'SP',
             postalCode: '01310-200',
@@ -194,39 +222,56 @@ export class CitizensComponent implements OnInit {
             eyeColor: 'Brown',
             hairColor: 'Black',
             fingerprint: 'base64...',
-            photo: 'assets/images/profile-placeholder.jpg',
-            signature: 'assets/images/signature-placeholder.jpg'
+            photo: 'assets/images/person face.jpg',
+            signature: 'assets/images/signature-placeholder.jpg',
+            fingerprintsStatus: 'verified',
+            irisStatus: 'verified',
+            faceStatus: 'verified',
+            collectionDate: new Date('2020-01-12'),
+            qualityScore: '98%'
           },
           documents: {
-            idNumber: 'ID123456',
-            idType: 'National ID',
+            idNumber: 'RG12345678',
+            idType: 'RG',
             idIssueDate: new Date('2015-06-20'),
             idExpiryDate: new Date('2025-06-20'),
             passportNumber: 'BR123456',
             passportIssueDate: new Date('2018-03-10'),
-            passportExpiryDate: new Date('2028-03-10')
+            passportExpiryDate: new Date('2028-03-10'),
+            drivingLicense: 'CNH987654321',
+            driverLicense: 'CNH987654321',
+            birthCertificate: 'BC-SP-1990-05-15-001234',
+            status: 'verified'
           },
           contactInfo: {
-            email: 'john.doe@email.com',
+            email: 'joao.silva@gmail.com',
             phone: '+55 11 98765-4321',
             emergencyContact: {
-              name: 'Jane Doe',
+              name: 'Maria Silva Santos',
               relationship: 'Spouse',
               phone: '+55 11 98765-4322'
             }
           },
           registrationDate: new Date('2020-01-10'),
-          lastUpdated: new Date('2023-12-15')
+          lastUpdated: new Date('2023-12-15'),
+          deduplicationStatus: 'verified',
+          assignedOfficer: 'Officer Maria Oliveira',
+          processingCenter: 'Centro São Paulo - SP'
         },
         {
           id: '2',
           firstName: 'Maria',
-          lastName: 'Silva',
+          lastName: 'Fernanda Costa',
           dateOfBirth: new Date('1985-08-22'),
           gender: 'Female',
           nationality: 'Brazilian',
+          maritalStatus: 'Single',
+          profession: 'Marketing Manager',
+          city: 'Rio de Janeiro',
+          state: 'RJ',
+          postalCode: '20040-020',
           address: {
-            street: '456 Oak Ave',
+            street: 'Av. Copacabana, 456',
             city: 'Rio de Janeiro',
             state: 'RJ',
             postalCode: '20040-020',
@@ -240,70 +285,115 @@ export class CitizensComponent implements OnInit {
             eyeColor: 'Green',
             hairColor: 'Brown',
             fingerprint: 'base64...',
-            photo: 'assets/images/profile-placeholder.jpg',
-            signature: 'assets/images/signature-placeholder.jpg'
+            photo: 'assets/images/person face.jpg',
+            signature: 'assets/images/signature-placeholder.jpg',
+            fingerprintsStatus: 'pending',
+            irisStatus: 'verified',
+            faceStatus: 'verified',
+            collectionDate: new Date('2023-11-22'),
+            qualityScore: '92%'
           },
           documents: {
-            idNumber: 'ID789012',
-            idType: 'National ID',
+            idNumber: 'RG87654321',
+            idType: 'RG',
             idIssueDate: new Date('2016-09-15'),
-            idExpiryDate: new Date('2026-09-15')
+            idExpiryDate: new Date('2026-09-15'),
+            passportNumber: 'BR789012',
+            passportIssueDate: new Date('2019-04-10'),
+            passportExpiryDate: new Date('2029-04-10'),
+            drivingLicense: 'CNH456789123',
+            driverLicense: 'CNH456789123',
+            birthCertificate: 'BC-RJ-1985-08-22-005678',
+            status: 'pending'
           },
           contactInfo: {
-            email: 'maria.silva@email.com',
-            phone: '+55 21 98765-4323'
+            email: 'maria.costa@outlook.com',
+            phone: '+55 21 98765-4323',
+            emergencyContact: {
+              name: 'Carlos Costa',
+              relationship: 'Father',
+              phone: '+55 21 98765-4324'
+            }
           },
           registrationDate: new Date('2023-11-20'),
-          lastUpdated: new Date('2023-12-10')
+          lastUpdated: new Date('2023-12-10'),
+          deduplicationStatus: 'in_progress',
+          assignedOfficer: 'Officer Carlos Mendes',
+          processingCenter: 'Centro Rio de Janeiro - RJ'
         },
         {
           id: '3',
           firstName: 'Carlos',
-          lastName: 'Santos',
+          lastName: 'Eduardo Santos',
           dateOfBirth: new Date('1978-03-30'),
           gender: 'Male',
           nationality: 'Brazilian',
+          maritalStatus: 'Divorced',
+          profession: 'Construction Worker',
+          city: 'Belo Horizonte',
+          state: 'MG',
+          postalCode: '30130-110',
           address: {
-            street: '789 Pine St',
+            street: 'Rua da Liberdade, 789',
             city: 'Belo Horizonte',
             state: 'MG',
             postalCode: '30130-110',
             country: 'Brazil'
           },
           status: 'suspended',
-          cpfStatus: 'failed',
+          cpfStatus: 'fraudulent',
           biometricData: {
             height: 175,
             weight: 80,
             eyeColor: 'Brown',
             hairColor: 'Black',
             fingerprint: 'base64...',
-            photo: 'assets/images/profile-placeholder.jpg',
-            signature: 'assets/images/signature-placeholder.jpg'
+            photo: 'assets/images/person face.jpg',
+            signature: 'assets/images/signature-placeholder.jpg',
+            fingerprintsStatus: 'failed',
+            irisStatus: 'failed',
+            faceStatus: 'suspicious',
+            collectionDate: new Date('2023-10-17'),
+            qualityScore: '67%'
           },
           documents: {
-            idNumber: 'ID345678',
-            idType: 'National ID',
+            idNumber: 'RG34567890',
+            idType: 'RG',
             idIssueDate: new Date('2014-12-05'),
-            idExpiryDate: new Date('2024-12-05')
+            idExpiryDate: new Date('2024-12-05'),
+            passportNumber: 'BR345678',
+            passportIssueDate: new Date('2015-01-10'),
+            passportExpiryDate: new Date('2025-01-10'),
+            drivingLicense: 'CNH123456789',
+            driverLicense: 'CNH123456789',
+            birthCertificate: 'BC-MG-1978-03-30-009876',
+            status: 'suspicious'
           },
           contactInfo: {
-            email: 'carlos.santos@email.com',
-            phone: '+55 31 98765-4324'
+            email: 'carlos.santos@yahoo.com',
+            phone: '+55 31 98765-4324',
+            emergencyContact: {
+              name: 'Ana Santos',
+              relationship: 'Sister',
+              phone: '+55 31 98765-4325'
+            }
           },
           registrationDate: new Date('2023-10-15'),
           lastUpdated: new Date('2023-12-05'),
-          notes: 'Account suspended due to document verification issues'
+          notes: 'Account suspended due to document verification issues',
+          deduplicationStatus: 'duplicate_found',
+          assignedOfficer: 'Officer Ana Rodrigues',
+          processingCenter: 'Centro Belo Horizonte - MG'
         },
         {
           id: '4',
           firstName: 'Ana',
-          lastName: 'Oliveira',
+          lastName: 'Paula Oliveira',
           dateOfBirth: new Date('1995-11-12'),
           gender: 'Female',
           nationality: 'Brazilian',
           address: {
-            street: '321 Maple Dr',
+            street: 'Rua do Pelourinho, 321',
             city: 'Salvador',
             state: 'BA',
             postalCode: '40015-970',
@@ -320,32 +410,42 @@ export class CitizensComponent implements OnInit {
             eyeColor: 'Blue',
             hairColor: 'Blonde',
             fingerprint: 'base64...',
-            photo: 'assets/images/profile-placeholder.jpg',
+            photo: 'assets/images/person face.jpg',
             signature: 'assets/images/signature-placeholder.jpg'
           },
           documents: {
-            idNumber: 'ID901234',
-            idType: 'National ID',
+            idNumber: 'RG90123456',
+            idType: 'RG',
             idIssueDate: new Date('2017-04-18'),
-            idExpiryDate: new Date('2027-04-18')
+            idExpiryDate: new Date('2027-04-18'),
+            passportNumber: 'BR345678',
+            drivingLicense: 'CNH456789123'
           },
           contactInfo: {
-            email: 'ana.oliveira@email.com',
-            phone: '+55 71 98765-4325'
+            email: 'ana.oliveira@hotmail.com',
+            phone: '+55 71 98765-4325',
+            emergencyContact: {
+              name: 'Pedro Oliveira',
+              relationship: 'Brother',
+              phone: '+55 71 98765-4326'
+            }
           },
           registrationDate: new Date('2019-07-15'),
           lastUpdated: new Date('2023-11-30'),
-          notes: 'Account blocked due to suspicious activity'
+          notes: 'Account blocked due to suspicious activity',
+          deduplicationStatus: 'verified',
+          assignedOfficer: 'Officer João Silva',
+          processingCenter: 'Centro Salvador - BA'
         },
         {
           id: '5',
           firstName: 'Pedro',
-          lastName: 'Costa',
+          lastName: 'Henrique Costa',
           dateOfBirth: new Date('1982-06-25'),
           gender: 'Male',
           nationality: 'Brazilian',
           address: {
-            street: '654 Cedar Ln',
+            street: 'SQN 308, Bloco A',
             city: 'Brasília',
             state: 'DF',
             postalCode: '70070-900',
@@ -362,21 +462,177 @@ export class CitizensComponent implements OnInit {
             eyeColor: 'Brown',
             hairColor: 'Black',
             fingerprint: 'base64...',
-            photo: 'assets/images/profile-placeholder.jpg',
+            photo: 'assets/images/person face.jpg',
             signature: 'assets/images/signature-placeholder.jpg'
           },
           documents: {
-            idNumber: 'ID567890',
-            idType: 'National ID',
+            idNumber: 'RG56789012',
+            idType: 'RG',
             idIssueDate: new Date('2018-11-10'),
-            idExpiryDate: new Date('2028-11-10')
+            idExpiryDate: new Date('2028-11-10'),
+            passportNumber: 'BR901234',
+            drivingLicense: 'CNH789012345'
           },
           contactInfo: {
-            email: 'pedro.costa@email.com',
-            phone: '+55 61 98765-4326'
+            email: 'pedro.costa@gmail.com',
+            phone: '+55 61 98765-4326',
+            emergencyContact: {
+              name: 'Lucia Costa',
+              relationship: 'Mother',
+              phone: '+55 61 98765-4327'
+            }
           },
           registrationDate: new Date('2021-02-20'),
-          lastUpdated: new Date('2023-12-01')
+          lastUpdated: new Date('2023-12-01'),
+          deduplicationStatus: 'verified',
+          assignedOfficer: 'Officer Lucia Fernandes',
+          processingCenter: 'Centro Brasília - DF'
+        },
+        {
+          id: '6',
+          firstName: 'Fernanda',
+          lastName: 'Alves Pereira',
+          dateOfBirth: new Date('1993-09-18'),
+          gender: 'Female',
+          nationality: 'Brazilian',
+          address: {
+            street: 'Rua Augusta, 1500',
+            city: 'São Paulo',
+            state: 'SP',
+            postalCode: '01305-100',
+            country: 'Brazil'
+          },
+          status: 'active',
+          cpfStatus: 'pending',
+          biometricData: {
+            height: 168,
+            weight: 58,
+            eyeColor: 'Brown',
+            hairColor: 'Brown',
+            fingerprint: 'base64...',
+            photo: 'assets/images/person face.jpg',
+            signature: 'assets/images/signature-placeholder.jpg'
+          },
+          documents: {
+            idNumber: 'RG11223344',
+            idType: 'RG',
+            idIssueDate: new Date('2019-03-22'),
+            idExpiryDate: new Date('2029-03-22'),
+            passportNumber: 'BR556677'
+          },
+          contactInfo: {
+            email: 'fernanda.pereira@uol.com.br',
+            phone: '+55 11 99876-5432',
+            emergencyContact: {
+              name: 'Roberto Pereira',
+              relationship: 'Father',
+              phone: '+55 11 99876-5433'
+            }
+          },
+          registrationDate: new Date('2023-12-01'),
+          lastUpdated: new Date('2023-12-18'),
+          deduplicationStatus: 'not_started',
+          assignedOfficer: 'Officer Roberto Silva',
+          processingCenter: 'Centro São Paulo - SP'
+        },
+        {
+          id: '7',
+          firstName: 'Ricardo',
+          lastName: 'Moreira Lima',
+          dateOfBirth: new Date('1987-12-03'),
+          gender: 'Male',
+          nationality: 'Brazilian',
+          address: {
+            street: 'Av. Boa Viagem, 2000',
+            city: 'Recife',
+            state: 'PE',
+            postalCode: '51020-000',
+            country: 'Brazil'
+          },
+          status: 'suspended',
+          cpfStatus: 'pending',
+          biometricData: {
+            height: 177,
+            weight: 72,
+            eyeColor: 'Green',
+            hairColor: 'Brown',
+            fingerprint: 'base64...',
+            photo: 'assets/images/person face.jpg',
+            signature: 'assets/images/signature-placeholder.jpg'
+          },
+          documents: {
+            idNumber: 'RG55667788',
+            idType: 'RG',
+            idIssueDate: new Date('2020-08-15'),
+            idExpiryDate: new Date('2030-08-15'),
+            drivingLicense: 'CNH998877665'
+          },
+          contactInfo: {
+            email: 'ricardo.lima@terra.com.br',
+            phone: '+55 81 98765-4327',
+            emergencyContact: {
+              name: 'Carla Lima',
+              relationship: 'Wife',
+              phone: '+55 81 98765-4328'
+            }
+          },
+          registrationDate: new Date('2023-11-15'),
+          lastUpdated: new Date('2023-12-12'),
+          notes: 'Pending document review',
+          deduplicationStatus: 'in_progress',
+          assignedOfficer: 'Officer Carla Santos',
+          processingCenter: 'Centro Recife - PE'
+        },
+        {
+          id: '8',
+          firstName: 'Juliana',
+          lastName: 'Rodrigues Souza',
+          dateOfBirth: new Date('1991-04-07'),
+          gender: 'Female',
+          nationality: 'Brazilian',
+          address: {
+            street: 'Rua XV de Novembro, 800',
+            city: 'Curitiba',
+            state: 'PR',
+            postalCode: '80020-310',
+            country: 'Brazil'
+          },
+          status: 'active',
+          cpfStatus: 'generated',
+          cpfNumber: '321.654.987-00',
+          cpfIssueDate: new Date('2022-05-10'),
+          cpfExpiryDate: new Date('2032-05-10'),
+          biometricData: {
+            height: 163,
+            weight: 55,
+            eyeColor: 'Brown',
+            hairColor: 'Black',
+            fingerprint: 'base64...',
+            photo: 'assets/images/person face.jpg',
+            signature: 'assets/images/signature-placeholder.jpg'
+          },
+          documents: {
+            idNumber: 'RG99887766',
+            idType: 'RG',
+            idIssueDate: new Date('2021-01-20'),
+            idExpiryDate: new Date('2031-01-20'),
+            passportNumber: 'BR112233',
+            drivingLicense: 'CNH554433221'
+          },
+          contactInfo: {
+            email: 'juliana.souza@bol.com.br',
+            phone: '+55 41 98765-4329',
+            emergencyContact: {
+              name: 'Marcos Souza',
+              relationship: 'Husband',
+              phone: '+55 41 98765-4330'
+            }
+          },
+          registrationDate: new Date('2022-05-05'),
+          lastUpdated: new Date('2023-12-08'),
+          deduplicationStatus: 'verified',
+          assignedOfficer: 'Officer Marcos Oliveira',
+          processingCenter: 'Centro Curitiba - PR'
         }
       ];
 
@@ -394,51 +650,24 @@ export class CitizensComponent implements OnInit {
     this.generatedCpf = this.citizens.filter(c => c.cpfStatus === 'generated').length;
     this.pendingCpf = this.citizens.filter(c => c.cpfStatus === 'pending').length;
     this.failedCpf = this.citizens.filter(c => c.cpfStatus === 'failed').length;
+    this.fraudulentCpf = this.citizens.filter(c => c.cpfStatus === 'fraudulent').length;
   }
 
   clearAllFilters() {
     this.searchTerm = '';
-    this.statusFilter = 'all';
     this.cpfStatusFilter = 'all';
-    this.dateRangeFilter = { start: null, end: null };
-    this.applyFilters();
-  }
-
-  onSearch() {
-    this.applyFilters();
-  }
-
-  onStatusFilterChange() {
-    this.applyFilters();
-  }
-
-  onCpfStatusFilterChange() {
-    this.applyFilters();
-  }
-
-  onDateRangeChange() {
     this.applyFilters();
   }
 
   applyFilters() {
     let filtered = [...this.citizens];
 
-    // Apply search filter
+    // Apply search filter (search by citizen ID only)
     if (this.searchTerm) {
       const searchLower = this.searchTerm.toLowerCase();
-      filtered = filtered.filter(citizen => 
-        citizen.firstName.toLowerCase().includes(searchLower) ||
-        citizen.lastName.toLowerCase().includes(searchLower) ||
-        citizen.documents.idNumber.toLowerCase().includes(searchLower) ||
-        citizen.cpfNumber?.toLowerCase().includes(searchLower) ||
-        citizen.contactInfo.email.toLowerCase().includes(searchLower) ||
-        citizen.contactInfo.phone.toLowerCase().includes(searchLower)
+      filtered = filtered.filter(citizen =>
+        citizen.documents.idNumber.toLowerCase().includes(searchLower)
       );
-    }
-
-    // Apply status filter
-    if (this.statusFilter !== 'all') {
-      filtered = filtered.filter(citizen => citizen.status === this.statusFilter);
     }
 
     // Apply CPF status filter
@@ -446,22 +675,79 @@ export class CitizensComponent implements OnInit {
       filtered = filtered.filter(citizen => citizen.cpfStatus === this.cpfStatusFilter);
     }
 
-    // Apply date range filter
-    if (this.dateRangeFilter.start && this.dateRangeFilter.end) {
-      filtered = filtered.filter(citizen => {
-        const registrationDate = new Date(citizen.registrationDate);
-        return registrationDate >= this.dateRangeFilter.start! && 
-               registrationDate <= this.dateRangeFilter.end!;
-      });
-    }
-
     this.filteredCitizens = filtered;
+    this.totalItems = filtered.length;
+    this.currentPage = 1; // Reset to first page when filters change
     this.calculateStatistics();
+  }
+
+  // Pagination methods
+  get totalPages(): number {
+    return Math.ceil(this.totalItems / this.itemsPerPage);
+  }
+
+  getPageNumbers(): number[] {
+    const pages: number[] = [];
+    for (let i = 1; i <= this.totalPages; i++) {
+      pages.push(i);
+    }
+    return pages;
+  }
+
+  changePage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+    }
+  }
+
+  get paginatedCitizens(): Citizen[] {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    return this.filteredCitizens.slice(startIndex, endIndex);
+  }
+
+  get paginationEndIndex(): number {
+    return Math.min(this.currentPage * this.itemsPerPage, this.totalItems);
   }
 
   selectCitizen(citizen: Citizen) {
     this.selectedCitizen = citizen;
     this.activeTab = 'personal';
+  }
+
+  viewCitizenDetails(citizen: Citizen) {
+    this.selectedCitizen = citizen;
+    this.activeTab = 'personal';
+    this.showCpfNumber = false; // Reset CPF visibility when opening modal
+  }
+
+  toggleCpfVisibility() {
+    this.showCpfNumber = !this.showCpfNumber;
+  }
+
+  exportToExcel() {
+    // Implement Excel export functionality
+    console.log('Exporting to Excel...');
+  }
+
+  editCitizen(citizen: Citizen) {
+    // TODO: Implement edit functionality
+    console.log('Edit citizen:', citizen);
+  }
+
+  generateCPF(citizen: Citizen) {
+    // TODO: Implement CPF generation
+    console.log('Generate CPF for:', citizen);
+  }
+
+  scheduleAppointment(citizen: Citizen) {
+    // TODO: Implement appointment scheduling
+    console.log('Schedule appointment for:', citizen);
+  }
+
+  changeCitizenStatus(citizen: Citizen) {
+    // TODO: Implement status change
+    console.log('Change status for:', citizen);
   }
 
   toggleViewMode() {
@@ -492,5 +778,21 @@ export class CitizensComponent implements OnInit {
 
   getFullAddress(address: Citizen['address']): string {
     return `${address.street}, ${address.city}, ${address.state} ${address.postalCode}, ${address.country}`;
+  }
+
+  // Additional methods for actions
+  viewDocuments(citizen: Citizen): void {
+    console.log('View documents for citizen:', citizen);
+    // TODO: Implement document viewing
+  }
+
+  suspendAccount(citizen: Citizen): void {
+    console.log('Suspend account for citizen:', citizen);
+    // TODO: Implement account suspension
+  }
+
+  blockAccount(citizen: Citizen): void {
+    console.log('Block account for citizen:', citizen);
+    // TODO: Implement account blocking
   }
 }

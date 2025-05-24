@@ -76,15 +76,11 @@
           <div class="details-grid">
             <div class="detail-item">
               <span class="label">Type:</span>
-              <span class="value">{{
-                citizen?.fraudDetails?.type | uppercase
-              }}</span>
+              <span class="value">{{ getFraudTypeLabel() }}</span>
             </div>
             <div class="detail-item">
               <span class="label">Status:</span>
-              <span class="value">{{
-                citizen?.fraudDetails?.status | uppercase
-              }}</span>
+              <span class="value">{{ getFraudStatusLabel() }}</span>
             </div>
             <div class="detail-item">
               <span class="label">Detection:</span>
@@ -130,9 +126,272 @@
         </div>
 
         <!-- View Details Button -->
-        <button type="button" mat-stroked-button class="view-details-btn">
+        <button
+          type="button"
+          mat-stroked-button
+          class="view-details-btn"
+          (click)="openDetailsModal()"
+        >
           <mat-icon>visibility</mat-icon>
           View Complete Details
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contest Fraud Modal -->
+  <div
+    class="modal-overlay"
+    *ngIf="showContestModal"
+    (click)="closeContestModal()"
+  >
+    <div class="modal-content contest-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Contest Fraud Detection</h2>
+        <button
+          type="button"
+          class="close-button"
+          (click)="closeContestModal()"
+        >
+          ×
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <p class="modal-description">
+          Please provide details about why you believe this fraud detection is
+          incorrect.
+        </p>
+
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Contest Type</mat-label>
+          <mat-select
+            [(ngModel)]="selectedContestType"
+            [disabled]="isSubmittingContest"
+          >
+            <mat-option *ngFor="let type of contestTypes" [value]="type.value">
+              {{ type.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Detailed Explanation</mat-label>
+          <textarea
+            matInput
+            [(ngModel)]="contestReason"
+            placeholder="Please explain why you believe this fraud detection is incorrect..."
+            rows="4"
+            maxlength="1000"
+            [disabled]="isSubmittingContest"
+          >
+          </textarea>
+          <mat-hint>{{ contestReason.length }}/1000 characters</mat-hint>
+        </mat-form-field>
+
+        <div class="warning-notice">
+          <mat-icon>warning</mat-icon>
+          <span
+            >Submitting false information may result in legal
+            consequences.</span
+          >
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="secondary-button"
+          (click)="closeContestModal()"
+          [disabled]="isSubmittingContest"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="primary-button"
+          (click)="submitContestFraud()"
+          [disabled]="
+            !selectedContestType || !contestReason.trim() || isSubmittingContest
+          "
+        >
+          <mat-spinner
+            *ngIf="isSubmittingContest"
+            diameter="16"
+            style="margin-right: 8px"
+          ></mat-spinner>
+          {{ isSubmittingContest ? "Submitting..." : "Submit Contest" }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fraud Details Modal -->
+  <div
+    class="modal-overlay"
+    *ngIf="showDetailsModal"
+    (click)="closeDetailsModal()"
+  >
+    <div class="modal-content details-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Complete Fraud Detection Details</h2>
+        <button
+          type="button"
+          class="close-button"
+          (click)="closeDetailsModal()"
+        >
+          ×
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Fraud Overview -->
+        <div class="details-section">
+          <h3>Fraud Overview</h3>
+          <div class="details-grid">
+            <div class="detail-row">
+              <span class="detail-label">Detection ID:</span>
+              <span class="detail-value"
+                >FRD-{{ citizen?.identityNumber }}-2023</span
+              >
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Type:</span>
+              <span class="detail-value">{{ getFraudTypeLabel() }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Status:</span>
+              <span class="detail-value">{{ getFraudStatusLabel() }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Detection Date:</span>
+              <span class="detail-value">{{
+                citizen?.fraudDetails?.detectionDate | date : "dd/MM/yyyy"
+              }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Risk Level:</span>
+              <span class="detail-value risk-high">High</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Match Details -->
+        <div class="details-section">
+          <h3>Biometric Match Details</h3>
+          <div class="match-score">
+            <div class="score-circle">
+              <span class="score-number">92%</span>
+              <span class="score-label">Similarity Score</span>
+            </div>
+          </div>
+          <div class="details-grid">
+            <div class="detail-row">
+              <span class="detail-label">Biometric Match:</span>
+              <span class="detail-value">Fingerprints, Face</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Confidence Level:</span>
+              <span class="detail-value">Very High (92%)</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Algorithm Version:</span>
+              <span class="detail-value">BiometricAI v3.2.1</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Original Registration -->
+        <div class="details-section">
+          <h3>Original Registration Details</h3>
+          <div class="details-grid">
+            <div class="detail-row">
+              <span class="detail-label">Date:</span>
+              <span class="detail-value">05/05/2023</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Location:</span>
+              <span class="detail-value">Centre Rio de Janeiro</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Officer:</span>
+              <span class="detail-value">Maria Oliveira</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Document Used:</span>
+              <span class="detail-value">National ID Card</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Investigation Notes -->
+        <div class="details-section">
+          <h3>Investigation Notes</h3>
+          <div class="investigation-notes">
+            <p>
+              <strong>Initial Assessment:</strong> High similarity match
+              detected between current application and existing registration.
+              Biometric analysis shows 92% facial recognition match and 89%
+              fingerprint match.
+            </p>
+            <p>
+              <strong>System Flags:</strong> Duplicate identity detected,
+              potential identity theft or registration error.
+            </p>
+            <p>
+              <strong>Recommended Action:</strong> Manual verification required.
+              Contact applicant for additional documentation and in-person
+              verification.
+            </p>
+          </div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="details-section">
+          <h3>Investigation Timeline</h3>
+          <div class="timeline">
+            <div class="timeline-item">
+              <div class="timeline-date">10/05/2023 14:30</div>
+              <div class="timeline-content">
+                Fraud detection system flagged application
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-date">10/05/2023 15:15</div>
+              <div class="timeline-content">
+                Biometric analysis completed - High match probability
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-date">10/05/2023 16:00</div>
+              <div class="timeline-content">
+                Case assigned to investigation team
+              </div>
+            </div>
+            <div class="timeline-item active">
+              <div class="timeline-date">Current</div>
+              <div class="timeline-content">
+                Awaiting applicant response or contest
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="secondary-button"
+          (click)="closeDetailsModal()"
+        >
+          Close
+        </button>
+        <button
+          type="button"
+          class="primary-button"
+          (click)="closeDetailsModal(); contestFraud()"
+        >
+          Contest This Detection
         </button>
       </div>
     </div>

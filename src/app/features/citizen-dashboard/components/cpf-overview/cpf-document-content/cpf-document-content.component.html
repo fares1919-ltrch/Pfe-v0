@@ -1,83 +1,288 @@
 <div class="cpf-document-container">
+  <!-- Document Header with Official Branding -->
   <div class="header">
-    <img src="{{ documentData?.header?.logo }}" alt="Logo" class="logo" />
-    <div class="title">
-      <h1>RÉPUBLIQUE FÉDÉRATIVE DU BRÉSIL</h1>
-      <h2>CERTIFICAT DE PERSONNE PHYSIQUE (CPF)</h2>
+    <div class="header-left">
+      <img src="{{ governmentSeal }}" alt="Brasão da República" class="logo" />
+      <div class="republic-info">
+        <p class="republic-name">REPÚBLICA FEDERATIVA DO BRASIL</p>
+        <p class="ministry">MINISTÉRIO DA FAZENDA</p>
+        <p class="department">RECEITA FEDERAL DO BRASIL</p>
+      </div>
     </div>
-    <div class="document-info">
-      <p>Document #: {{ documentData?.header?.documentId }}</p>
-      <p>Date: {{ documentData?.header?.generationDate | date }}</p>
+    <div class="title-center">
+      <h1>CADASTRO DE PESSOAS FÍSICAS</h1>
+      <h2>CERTIFICAT DE PERSONNE PHYSIQUE</h2>
+      <div class="document-number">
+        <span class="doc-label">Nº do Documento:</span>
+        <span class="doc-value">{{ documentData?.header?.documentId }}</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="ministry-section">
+        <img
+          src="{{ ministryLogo }}"
+          alt="Ministério Logo"
+          class="ministry-logo"
+        />
+      </div>
+      <div class="generation-info">
+        <p class="generation-date">
+          <strong>Émis le:</strong><br />
+          {{ documentData?.header?.generationDate | date : "dd/MM/yyyy" }}
+        </p>
+        <p class="generation-time">
+          <strong>Heure:</strong><br />
+          {{ documentData?.header?.generationDate | date : "HH:mm:ss" }}
+        </p>
+      </div>
+      <div class="security-features">
+        <div class="security-seal">OFFICIEL</div>
+      </div>
     </div>
   </div>
 
+  <!-- Personal Information Section -->
   <div class="section personal-info">
-    <img
-      src="{{ documentData?.personalInfo?.photo }}"
-      alt="Photo"
-      class="photo"
-    />
-    <div class="details">
-      <p>NOM: {{ documentData?.personalInfo?.fullName | uppercase }}</p>
-      <p>IDENTITÉ: {{ documentData?.personalInfo?.identityNumber }}</p>
-      <p>
-        DATE DE NAISSANCE: {{ documentData?.personalInfo?.birthDate | date }}
-      </p>
-      <p>
-        NATIONALITÉ: {{ documentData?.personalInfo?.nationality | uppercase }}
-      </p>
+    <div class="section-title">
+      <h3>INFORMATIONS PERSONNELLES</h3>
+    </div>
+    <div class="personal-content">
+      <div class="photo-container">
+        <img src="{{ citizenPhoto }}" alt="Photo d'identité" class="photo" />
+        <div class="photo-info">
+          <p class="photo-date">Photo prise le:</p>
+          <p class="photo-date-value">
+            {{
+              documentData?.collectionInfo?.appointmentDate
+                | date : "dd/MM/yyyy"
+            }}
+          </p>
+        </div>
+      </div>
+      <div class="personal-details">
+        <div class="detail-row">
+          <span class="label">NOM COMPLET:</span>
+          <span class="value">{{
+            documentData?.personalInfo?.fullName | uppercase
+          }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">NUMÉRO D'IDENTITÉ:</span>
+          <span class="value">{{
+            documentData?.personalInfo?.identityNumber
+          }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">DATE DE NAISSANCE:</span>
+          <span class="value">{{
+            documentData?.personalInfo?.birthDate | date : "dd/MM/yyyy"
+          }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">NATIONALITÉ:</span>
+          <span class="value">{{
+            documentData?.personalInfo?.nationality | uppercase
+          }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">ÂGE DU DOCUMENT:</span>
+          <span class="value">{{ getDocumentAge() }} jours</span>
+        </div>
+      </div>
     </div>
   </div>
 
+  <!-- CPF Information Section -->
   <div class="section cpf-info">
-    <h4>INFORMATIONS CPF</h4>
-    <p>NUMÉRO CPF: {{ documentData?.cpfInfo?.number }}</p>
-    <p>DATE D'ÉMISSION: {{ documentData?.cpfInfo?.issueDate | date }}</p>
-    <p>DATE D'EXPIRATION: {{ documentData?.cpfInfo?.expiryDate | date }}</p>
-    <p>STATUT: {{ documentData?.cpfInfo?.status | uppercase }}</p>
-    <img
-      src="{{ documentData?.cpfInfo?.qrCode }}"
-      alt="QR Code"
-      class="qr-code"
-    />
+    <div class="section-title">
+      <h3>INFORMATIONS CPF</h3>
+    </div>
+    <div class="cpf-content">
+      <div class="cpf-main-info">
+        <div class="cpf-number-container">
+          <span class="cpf-label">NUMÉRO CPF:</span>
+          <span class="cpf-number">{{
+            formatCPF(documentData?.cpfInfo?.number || "")
+          }}</span>
+        </div>
+        <div class="cpf-details-grid">
+          <div class="cpf-detail">
+            <span class="label">DATE D'ÉMISSION:</span>
+            <span class="value">{{
+              documentData?.cpfInfo?.issueDate | date : "dd/MM/yyyy"
+            }}</span>
+          </div>
+          <div class="cpf-detail">
+            <span class="label">DATE D'EXPIRATION:</span>
+            <span class="value">{{
+              documentData?.cpfInfo?.expiryDate | date : "dd/MM/yyyy"
+            }}</span>
+          </div>
+          <div class="cpf-detail">
+            <span class="label">STATUT:</span>
+            <span class="value status-active">{{
+              documentData?.cpfInfo?.status | uppercase
+            }}</span>
+          </div>
+          <div class="cpf-detail">
+            <span class="label">VALIDITÉ:</span>
+            <span class="value">10 ans</span>
+          </div>
+        </div>
+      </div>
+      <div class="qr-section">
+        <img
+          src="{{ documentData?.cpfInfo?.qrCode }}"
+          alt="Code QR de vérification"
+          class="qr-code"
+        />
+        <p class="qr-label">Code de vérification</p>
+      </div>
+    </div>
   </div>
 
+  <!-- Collection Information Section -->
   <div class="section collection-info">
-    <h4>INFORMATIONS DE COLLECTE</h4>
-    <p>
-      DATE DU RENDEZ-VOUS:
-      {{ documentData?.collectionInfo?.appointmentDate | date }}
-    </p>
-    <p>LIEU: {{ documentData?.collectionInfo?.appointmentLocation }}</p>
-    <p>
-      OFFICIER: {{ documentData?.collectionInfo?.officerName }} (BADGE:
-      {{ documentData?.collectionInfo?.officerBadge }})
-    </p>
+    <div class="section-title">
+      <h3>INFORMATIONS DE COLLECTE</h3>
+    </div>
+    <div class="collection-content">
+      <div class="collection-grid">
+        <div class="collection-detail">
+          <span class="label">DATE DU RENDEZ-VOUS:</span>
+          <span class="value">{{
+            documentData?.collectionInfo?.appointmentDate
+              | date : "dd/MM/yyyy à HH:mm"
+          }}</span>
+        </div>
+        <div class="collection-detail">
+          <span class="label">LIEU DE COLLECTE:</span>
+          <span class="value">{{
+            documentData?.collectionInfo?.appointmentLocation
+          }}</span>
+        </div>
+        <div class="collection-detail">
+          <span class="label">OFFICIER RESPONSABLE:</span>
+          <span class="value">{{
+            documentData?.collectionInfo?.officerName
+          }}</span>
+        </div>
+        <div class="collection-detail">
+          <span class="label">BADGE OFFICIER:</span>
+          <span class="value">{{
+            documentData?.collectionInfo?.officerBadge
+          }}</span>
+        </div>
+      </div>
+    </div>
   </div>
 
+  <!-- Biometric Information Section -->
   <div class="section biometric-info">
-    <h4>INFORMATIONS BIOMÉTRIQUES</h4>
-    <p>
-      DATE DE COLLECTE: {{ documentData?.biometricInfo?.collectionDate | date }}
-    </p>
-    <p>
-      DATE DE VÉRIFICATION:
-      {{ documentData?.biometricInfo?.verificationDate | date }}
-    </p>
-    <p>
-      TYPES COLLECTÉS:
-      {{ documentData?.biometricInfo?.collectedTypes?.join(", ") | uppercase }}
-    </p>
+    <div class="section-title">
+      <h3>INFORMATIONS BIOMÉTRIQUES</h3>
+    </div>
+    <div class="biometric-content">
+      <div class="biometric-grid">
+        <div class="biometric-detail">
+          <span class="label">DATE DE COLLECTE:</span>
+          <span class="value">{{
+            documentData?.biometricInfo?.collectionDate
+              | date : "dd/MM/yyyy à HH:mm"
+          }}</span>
+        </div>
+        <div class="biometric-detail">
+          <span class="label">DATE DE VÉRIFICATION:</span>
+          <span class="value">{{
+            documentData?.biometricInfo?.verificationDate
+              | date : "dd/MM/yyyy à HH:mm"
+          }}</span>
+        </div>
+        <div class="biometric-detail full-width">
+          <span class="label">TYPES BIOMÉTRIQUES COLLECTÉS:</span>
+          <div class="biometric-types">
+            <span
+              *ngFor="let type of documentData?.biometricInfo?.collectedTypes"
+              class="biometric-type"
+            >
+              {{ type }}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="security-notice">
+        <p>
+          <strong>SÉCURITÉ:</strong> Les données biométriques sont cryptées et
+          stockées selon les normes de sécurité les plus strictes.
+        </p>
+      </div>
+    </div>
   </div>
 
+  <!-- Security Features Section -->
+  <div class="section security-features">
+    <div class="section-title">
+      <h3>CARACTÉRISTIQUES DE SÉCURITÉ</h3>
+    </div>
+    <div class="security-content">
+      <div class="security-items">
+        <div class="security-item">
+          <span class="security-icon">🔒</span>
+          <span class="security-text">Cryptage AES-256</span>
+        </div>
+        <div class="security-item">
+          <span class="security-icon">🛡️</span>
+          <span class="security-text">Signature numérique</span>
+        </div>
+        <div class="security-item">
+          <span class="security-icon">📱</span>
+          <span class="security-text">Code QR de vérification</span>
+        </div>
+        <div class="security-item">
+          <span class="security-icon">🔍</span>
+          <span class="security-text">Hologramme de sécurité</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Document Footer -->
   <div class="footer">
-    <p>{{ documentData?.footer?.legalText }}</p>
-    <p>
-      Vérifiez l'authenticité:
-      <a href="{{ documentData?.footer?.verificationUrl }}">{{
-        documentData?.footer?.verificationUrl
-      }}</a>
-    </p>
-    <p>Contact: {{ documentData?.footer?.contactInfo }}</p>
+    <div class="footer-content">
+      <div class="legal-section">
+        <p class="legal-text">{{ documentData?.footer?.legalText }}</p>
+        <div class="verification-section">
+          <p class="verification-title">
+            <strong>VÉRIFICATION D'AUTHENTICITÉ:</strong>
+          </p>
+          <p class="verification-url">
+            Site web:
+            <a
+              href="{{ documentData?.footer?.verificationUrl }}"
+              target="_blank"
+              >{{ documentData?.footer?.verificationUrl }}</a
+            >
+          </p>
+          <p class="contact-info">{{ documentData?.footer?.contactInfo }}</p>
+        </div>
+      </div>
+      <div class="footer-stamps">
+        <div class="official-stamp">
+          <div class="stamp-content">
+            <p class="stamp-title">RECEITA FEDERAL</p>
+            <p class="stamp-subtitle">DO BRASIL</p>
+            <p class="stamp-date">{{ currentDate | date : "yyyy" }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p class="document-id">
+        ID: {{ documentData?.header?.documentId }} | Généré le
+        {{
+          documentData?.header?.generationDate | date : "dd/MM/yyyy à HH:mm:ss"
+        }}
+      </p>
+    </div>
   </div>
 </div>

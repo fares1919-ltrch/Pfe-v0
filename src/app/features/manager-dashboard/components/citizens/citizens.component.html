@@ -23,155 +23,248 @@
       </div>
     </div>
 
-    <!-- Enhanced Controls Section -->
-    <div class="controls">
-      <mat-form-field appearance="outline" class="search-field">
-        <mat-label>Search Citizens</mat-label>
-        <input matInput [(ngModel)]="searchTerm" (keyup)="onSearch()" 
-               placeholder="Search by name, ID, or CPF...">
-        <mat-icon matSuffix>search</mat-icon>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" class="filter-field">
-        <mat-label>Status</mat-label>
-        <mat-select [(ngModel)]="statusFilter" (selectionChange)="onStatusFilterChange()">
-          <mat-option value="all">All Statuses</mat-option>
-          <mat-option value="active">
-            <span class="status-badge active"></span>
-            Active ({{ activeCitizens }})
-          </mat-option>
-          <mat-option value="suspended">
-            <span class="status-badge suspended"></span>
-            Suspended ({{ suspendedCitizens }})
-          </mat-option>
-          <mat-option value="blocked">
-            <span class="status-badge blocked"></span>
-            Blocked ({{ blockedCitizens }})
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" class="filter-field">
-        <mat-label>CPF Status</mat-label>
-        <mat-select [(ngModel)]="cpfStatusFilter" (selectionChange)="onCpfStatusFilterChange()">
-          <mat-option value="all">All CPF Statuses</mat-option>
-          <mat-option value="generated">
-            <span class="cpf-badge generated"></span>
-            Generated ({{ generatedCpf }})
-          </mat-option>
-          <mat-option value="pending">
-            <span class="cpf-badge pending"></span>
-            Pending ({{ pendingCpf }})
-          </mat-option>
-          <mat-option value="failed">
-            <span class="cpf-badge failed"></span>
-            Failed ({{ failedCpf }})
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <button mat-icon-button (click)="toggleViewMode()" class="view-toggle" matTooltip="Toggle View">
-        <mat-icon>{{ viewMode === 'grid' ? 'view_list' : 'grid_view' }}</mat-icon>
-      </button>
-    </div>
-
-    <!-- Enhanced Active Filters Display -->
-    <div class="active-filters" *ngIf="statusFilter !== 'all' || cpfStatusFilter !== 'all' || searchTerm">
-      <div class="filter-chip" *ngIf="searchTerm">
-        <mat-icon>search</mat-icon>
-        <span>Search: "{{ searchTerm }}"</span>
-        <mat-icon class="remove-filter" (click)="searchTerm = ''; onSearch()">close</mat-icon>
+    <!-- Filters Section -->
+    <div class="filters-section">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Search by Citizen ID..."
+              [(ngModel)]="searchTerm"
+              (input)="applyFilters()"
+            />
+          </div>
+        </div>
+        <div class="col-md-3">
+          <select
+            class="form-select"
+            [(ngModel)]="cpfStatusFilter"
+            (change)="applyFilters()"
+          >
+            <option value="all">All CPF Statuses ({{ totalCitizens }})</option>
+            <option value="generated">Generated ({{ generatedCpf }})</option>
+            <option value="pending">Pending ({{ pendingCpf }})</option>
+            <option value="failed">Failed ({{ failedCpf }})</option>
+            <option value="fraudulent">Fraudulent ({{ fraudulentCpf }})</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <button class="btn btn-primary" (click)="exportToExcel()">
+            <i class="fas fa-download"></i> Export
+          </button>
+        </div>
+        <div class="col-md-3 text-end">
+          <button
+            class="btn btn-outline-secondary"
+            (click)="toggleViewMode()"
+            title="Toggle View"
+          >
+            <i class="fas {{ viewMode === 'grid' ? 'fa-list' : 'fa-th' }}"></i>
+          </button>
+        </div>
       </div>
-      
-      <div class="filter-chip" *ngIf="statusFilter !== 'all'">
-        <mat-icon>person</mat-icon>
-        <span>Status: {{ statusFilter | titlecase }}</span>
-        <mat-icon class="remove-filter" (click)="statusFilter = 'all'; onStatusFilterChange()">close</mat-icon>
-      </div>
-      
-      <div class="filter-chip" *ngIf="cpfStatusFilter !== 'all'">
-        <mat-icon>badge</mat-icon>
-        <span>CPF Status: {{ cpfStatusFilter | titlecase }}</span>
-        <mat-icon class="remove-filter" (click)="cpfStatusFilter = 'all'; onCpfStatusFilterChange()">close</mat-icon>
-      </div>
-
-      <button mat-button color="primary" class="clear-all" 
-              *ngIf="statusFilter !== 'all' || cpfStatusFilter !== 'all' || searchTerm"
-              (click)="clearAllFilters()">
-        <mat-icon>clear_all</mat-icon>
-        Clear All Filters
-      </button>
     </div>
   </div>
 
   <!-- Main Content -->
   <div class="main-content">
-    <!-- Grid View -->
-    <div class="citizens-grid" *ngIf="viewMode === 'grid'">
-      <div class="citizen-item" *ngFor="let citizen of filteredCitizens" 
-           (click)="!isLoading && selectCitizen(citizen)"
-           [class.selected]="selectedCitizen?.id === citizen.id"
-           [class.loading]="isLoading">
-        <div class="citizen-avatar">
-          <img [src]="citizen.biometricData.photo" [alt]="citizen.firstName + ' ' + citizen.lastName">
-          <div class="status-indicator" [ngClass]="citizen.status" *ngIf="!isLoading"></div>
+    <!-- Citizens List as Horizontal Bars -->
+    <div class="citizens-rows">
+      <div
+        class="citizen-row"
+        *ngFor="let citizen of paginatedCitizens"
+        [class.loading]="isLoading"
+      >
+        <!-- Photo -->
+        <div class="citizen-photo">
+          <img
+            [src]="
+              citizen.biometricData.photo ||
+              'assets/images/avatar-placeholder.png'
+            "
+            [alt]="citizen.firstName + ' ' + citizen.lastName"
+            class="photo-thumbnail"
+          />
+          <div
+            class="status-indicator"
+            [ngClass]="citizen.status"
+            *ngIf="!isLoading"
+          ></div>
         </div>
+
+        <!-- Essential Information -->
         <div class="citizen-info">
-          <h3>{{ citizen.firstName }} {{ citizen.lastName }}</h3>
-          <p class="id-number" *ngIf="!isLoading">ID: {{ citizen.documents.idNumber }}</p>
-          <div class="quick-stats">
-            <span class="stat" *ngIf="!isLoading">
-              <mat-icon>person</mat-icon>
-              {{ citizen.gender }}
-            </span>
-            <span class="stat" *ngIf="!isLoading">
-              <mat-icon>cake</mat-icon>
-              {{ citizen.dateOfBirth | date:'mediumDate' }}
-            </span>
-            <span class="stat cpf-status" [ngClass]="citizen.cpfStatus" *ngIf="!isLoading">
-              <mat-icon>badge</mat-icon>
-              {{ citizen.cpfStatus | titlecase }}
+          <div class="primary-info">
+            <h3 class="citizen-name">
+              {{ citizen.firstName }} {{ citizen.lastName }}
+            </h3>
+            <span class="citizen-id" *ngIf="!isLoading"
+              >ID: {{ citizen.documents.idNumber || "N/A" }}</span
+            >
+          </div>
+          <div class="secondary-info">
+            <span class="email" *ngIf="!isLoading">{{
+              citizen.contactInfo.email || "No email"
+            }}</span>
+            <span class="phone" *ngIf="!isLoading">{{
+              citizen.contactInfo.phone || "No phone"
+            }}</span>
+          </div>
+        </div>
+
+        <!-- CPF Information -->
+        <div class="cpf-info">
+          <div class="cpf-number" *ngIf="!isLoading">
+            <span class="label">CPF:</span>
+            <span class="value cpf-hidden">{{
+              citizen.cpfNumber ? "***.***.***-**" : "Not Generated"
+            }}</span>
+          </div>
+          <div class="cpf-status">
+            <span
+              class="status-badge cpf-status"
+              [ngClass]="citizen.cpfStatus || 'pending'"
+            >
+              {{ citizen.cpfStatus || "pending" | titlecase }}
             </span>
           </div>
+        </div>
+
+        <!-- Dates -->
+        <div class="dates-info">
+          <div class="registration-date" *ngIf="!isLoading">
+            <span class="label">Registered:</span>
+            <span class="value">{{
+              citizen.registrationDate | date : "dd/MM/yyyy"
+            }}</span>
+          </div>
+          <div class="last-update" *ngIf="!isLoading">
+            <span class="label">Updated:</span>
+            <span class="value">{{
+              citizen.lastUpdated | date : "dd/MM/yyyy"
+            }}</span>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="actions">
+          <button
+            mat-icon-button
+            color="primary"
+            (click)="viewCitizenDetails(citizen)"
+            matTooltip="View Details"
+            class="action-btn"
+          >
+            <mat-icon>visibility</mat-icon>
+          </button>
+
+          <button
+            mat-icon-button
+            [matMenuTriggerFor]="actionMenu"
+            matTooltip="More Actions"
+            class="action-btn"
+          >
+            <mat-icon>more_vert</mat-icon>
+          </button>
+
+          <mat-menu #actionMenu="matMenu">
+            <button mat-menu-item (click)="editCitizen(citizen)">
+              <mat-icon>edit</mat-icon>
+              <span>Edit</span>
+            </button>
+            <button
+              mat-menu-item
+              (click)="generateCPF(citizen)"
+              *ngIf="!citizen.cpfNumber"
+            >
+              <mat-icon>credit_card</mat-icon>
+              <span>Generate CPF</span>
+            </button>
+            <button mat-menu-item (click)="scheduleAppointment(citizen)">
+              <mat-icon>event</mat-icon>
+              <span>Schedule Appointment</span>
+            </button>
+            <button mat-menu-item (click)="changeCitizenStatus(citizen)">
+              <mat-icon>swap_horiz</mat-icon>
+              <span>Change Status</span>
+            </button>
+          </mat-menu>
         </div>
       </div>
     </div>
 
-    <!-- List View -->
-    <div class="citizens-list" *ngIf="viewMode === 'list'">
-      <div class="list-item" *ngFor="let citizen of filteredCitizens"
-           (click)="!isLoading && selectCitizen(citizen)"
-           [class.selected]="selectedCitizen?.id === citizen.id"
-           [class.loading]="isLoading">
-        <div class="list-item-content">
-          <img [src]="citizen.biometricData.photo" [alt]="citizen.firstName + ' ' + citizen.lastName">
-          <div class="list-item-details">
-            <h3>{{ citizen.firstName }} {{ citizen.lastName }}</h3>
-            <p *ngIf="!isLoading">ID: {{ citizen.documents.idNumber }}</p>
-            <p *ngIf="!isLoading">{{ citizen.contactInfo.email }}</p>
-            <div class="list-item-status">
-              <span class="status-badge" [ngClass]="citizen.status">{{ citizen.status | titlecase }}</span>
-              <span class="cpf-badge" [ngClass]="citizen.cpfStatus">{{ citizen.cpfStatus | titlecase }}</span>
-            </div>
-          </div>
+    <!-- Empty State -->
+    <div
+      class="empty-state"
+      *ngIf="filteredCitizens.length === 0 && !isLoading"
+    >
+      <mat-icon>people_outline</mat-icon>
+      <h3>No Citizens Found</h3>
+      <p>Try adjusting your search criteria or filters.</p>
+    </div>
+
+    <!-- Pagination -->
+    <div
+      class="pagination-section"
+      *ngIf="filteredCitizens.length > 0 && !isLoading"
+    >
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="text-muted">
+          Showing {{ (currentPage - 1) * itemsPerPage + 1 }} to
+          {{ paginationEndIndex }} of {{ totalItems }} citizens
         </div>
+        <nav>
+          <ul class="pagination mb-0">
+            <li class="page-item" [class.disabled]="currentPage === 1">
+              <a class="page-link" (click)="changePage(currentPage - 1)">
+                <i class="fas fa-chevron-left"></i>
+              </a>
+            </li>
+            <li
+              class="page-item"
+              *ngFor="let page of getPageNumbers()"
+              [class.active]="page === currentPage"
+            >
+              <a class="page-link" (click)="changePage(page)">{{ page }}</a>
+            </li>
+            <li class="page-item" [class.disabled]="currentPage === totalPages">
+              <a class="page-link" (click)="changePage(currentPage + 1)">
+                <i class="fas fa-chevron-right"></i>
+              </a>
+            </li>
+          </ul>
+        </nav>
       </div>
     </div>
   </div>
 
   <!-- Popup Detailed View -->
-  <div class="popup-overlay" *ngIf="selectedCitizen" (click)="selectedCitizen = null">
+  <div
+    class="popup-overlay"
+    *ngIf="selectedCitizen"
+    (click)="selectedCitizen = null"
+  >
     <div class="popup-content" (click)="$event.stopPropagation()">
       <button class="close-button" (click)="selectedCitizen = null">
         <mat-icon>close</mat-icon>
       </button>
-      
+
       <div class="popup-header">
         <div class="profile-section">
-          <img [src]="selectedCitizen.biometricData.photo" [alt]="selectedCitizen.firstName + ' ' + selectedCitizen.lastName">
+          <img
+            [src]="selectedCitizen.biometricData.photo"
+            [alt]="selectedCitizen.firstName + ' ' + selectedCitizen.lastName"
+          />
           <div class="profile-info">
-            <h2>{{ selectedCitizen.firstName }} {{ selectedCitizen.lastName }}</h2>
-            <p class="id-number">ID: {{ selectedCitizen.documents.idNumber }}</p>
+            <h2>
+              {{ selectedCitizen.firstName }} {{ selectedCitizen.lastName }}
+            </h2>
+            <p class="id-number">
+              ID: {{ selectedCitizen.documents.idNumber }}
+            </p>
             <div class="profile-status">
               <span class="status-badge" [ngClass]="selectedCitizen.status">
                 {{ selectedCitizen.status | titlecase }}
@@ -186,23 +279,43 @@
 
       <div class="popup-body">
         <div class="info-tabs">
-          <div class="tab" [class.active]="activeTab === 'personal'" (click)="activeTab = 'personal'">
+          <div
+            class="tab"
+            [class.active]="activeTab === 'personal'"
+            (click)="activeTab = 'personal'"
+          >
             <mat-icon>person</mat-icon>
             Personal
           </div>
-          <div class="tab" [class.active]="activeTab === 'biometric'" (click)="activeTab = 'biometric'">
+          <div
+            class="tab"
+            [class.active]="activeTab === 'biometric'"
+            (click)="activeTab = 'biometric'"
+          >
             <mat-icon>fingerprint</mat-icon>
             Biometric
           </div>
-          <div class="tab" [class.active]="activeTab === 'documents'" (click)="activeTab = 'documents'">
+          <div
+            class="tab"
+            [class.active]="activeTab === 'documents'"
+            (click)="activeTab = 'documents'"
+          >
             <mat-icon>badge</mat-icon>
             Documents
           </div>
-          <div class="tab" [class.active]="activeTab === 'contact'" (click)="activeTab = 'contact'">
+          <div
+            class="tab"
+            [class.active]="activeTab === 'contact'"
+            (click)="activeTab = 'contact'"
+          >
             <mat-icon>contact_mail</mat-icon>
             Contact
           </div>
-          <div class="tab" [class.active]="activeTab === 'status'" (click)="activeTab = 'status'">
+          <div
+            class="tab"
+            [class.active]="activeTab === 'status'"
+            (click)="activeTab = 'status'"
+          >
             <mat-icon>info</mat-icon>
             Status
           </div>
@@ -215,7 +328,7 @@
               <div class="info-item">
                 <mat-icon>cake</mat-icon>
                 <span>Date of Birth</span>
-                <p>{{ selectedCitizen.dateOfBirth | date:'mediumDate' }}</p>
+                <p>{{ selectedCitizen.dateOfBirth | date : "mediumDate" }}</p>
               </div>
               <div class="info-item">
                 <mat-icon>person</mat-icon>
@@ -227,10 +340,30 @@
                 <span>Nationality</span>
                 <p>{{ selectedCitizen.nationality }}</p>
               </div>
+              <div class="info-item" *ngIf="selectedCitizen.maritalStatus">
+                <mat-icon>favorite</mat-icon>
+                <span>Marital Status</span>
+                <p>{{ selectedCitizen.maritalStatus }}</p>
+              </div>
+              <div class="info-item" *ngIf="selectedCitizen.profession">
+                <mat-icon>work</mat-icon>
+                <span>Profession</span>
+                <p>{{ selectedCitizen.profession }}</p>
+              </div>
               <div class="info-item">
                 <mat-icon>home</mat-icon>
                 <span>Address</span>
                 <p>{{ getFullAddress(selectedCitizen.address) }}</p>
+              </div>
+              <div class="info-item" *ngIf="selectedCitizen.city">
+                <mat-icon>location_city</mat-icon>
+                <span>City/State</span>
+                <p>{{ selectedCitizen.city }}, {{ selectedCitizen.state }}</p>
+              </div>
+              <div class="info-item" *ngIf="selectedCitizen.postalCode">
+                <mat-icon>local_post_office</mat-icon>
+                <span>Postal Code</span>
+                <p>{{ selectedCitizen.postalCode }}</p>
               </div>
             </div>
           </div>
@@ -239,56 +372,215 @@
           <div class="tab-pane" *ngIf="activeTab === 'biometric'">
             <div class="biometric-grid">
               <div class="biometric-item">
-                <div class="biometric-value">{{ selectedCitizen.biometricData.height }} cm</div>
+                <div class="biometric-value">
+                  {{ selectedCitizen.biometricData.height }} cm
+                </div>
                 <span>Height</span>
               </div>
               <div class="biometric-item">
-                <div class="biometric-value">{{ selectedCitizen.biometricData.weight }} kg</div>
+                <div class="biometric-value">
+                  {{ selectedCitizen.biometricData.weight }} kg
+                </div>
                 <span>Weight</span>
               </div>
               <div class="biometric-item">
-                <div class="biometric-value">{{ selectedCitizen.biometricData.eyeColor }}</div>
+                <div class="biometric-value">
+                  {{ selectedCitizen.biometricData.eyeColor }}
+                </div>
                 <span>Eye Color</span>
               </div>
               <div class="biometric-item">
-                <div class="biometric-value">{{ selectedCitizen.biometricData.hairColor }}</div>
+                <div class="biometric-value">
+                  {{ selectedCitizen.biometricData.hairColor }}
+                </div>
                 <span>Hair Color</span>
               </div>
+              <div
+                class="biometric-item"
+                *ngIf="selectedCitizen.biometricData.qualityScore"
+              >
+                <div class="biometric-value">
+                  {{ selectedCitizen.biometricData.qualityScore }}
+                </div>
+                <span>Quality Score</span>
+              </div>
+              <div
+                class="biometric-item"
+                *ngIf="selectedCitizen.biometricData.collectionDate"
+              >
+                <div class="biometric-value">
+                  {{
+                    selectedCitizen.biometricData.collectionDate
+                      | date : "dd/MM/yyyy"
+                  }}
+                </div>
+                <span>Collection Date</span>
+              </div>
+            </div>
+
+            <!-- Biometric Status Section -->
+            <div
+              class="biometric-status-section"
+              *ngIf="selectedCitizen.biometricData.fingerprintsStatus"
+            >
+              <h4>Biometric Verification Status</h4>
+              <div class="status-grid">
+                <div class="status-item">
+                  <mat-icon>fingerprint</mat-icon>
+                  <span>Fingerprints</span>
+                  <span
+                    class="status-badge"
+                    [ngClass]="selectedCitizen.biometricData.fingerprintsStatus"
+                  >
+                    {{
+                      selectedCitizen.biometricData.fingerprintsStatus
+                        | titlecase
+                    }}
+                  </span>
+                </div>
+                <div
+                  class="status-item"
+                  *ngIf="selectedCitizen.biometricData.irisStatus"
+                >
+                  <mat-icon>visibility</mat-icon>
+                  <span>Iris Scan</span>
+                  <span
+                    class="status-badge"
+                    [ngClass]="selectedCitizen.biometricData.irisStatus"
+                  >
+                    {{ selectedCitizen.biometricData.irisStatus | titlecase }}
+                  </span>
+                </div>
+                <div
+                  class="status-item"
+                  *ngIf="selectedCitizen.biometricData.faceStatus"
+                >
+                  <mat-icon>face</mat-icon>
+                  <span>Face Recognition</span>
+                  <span
+                    class="status-badge"
+                    [ngClass]="selectedCitizen.biometricData.faceStatus"
+                  >
+                    {{ selectedCitizen.biometricData.faceStatus | titlecase }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Signature Section -->
+            <div class="signature-section">
+              <h4>Digital Signature</h4>
               <div class="biometric-item signature">
-                <img [src]="selectedCitizen.biometricData.signature" alt="Signature">
-                <span>Signature</span>
+                <img
+                  [src]="selectedCitizen.biometricData.signature"
+                  alt="Signature"
+                />
+                <span>Captured Signature</span>
               </div>
             </div>
           </div>
 
           <!-- Documents Tab -->
           <div class="tab-pane" *ngIf="activeTab === 'documents'">
+            <!-- Document Status Overview -->
+            <div
+              class="document-status-overview"
+              *ngIf="selectedCitizen.documents.status"
+            >
+              <h4>Document Verification Status</h4>
+              <span
+                class="status-badge document-status"
+                [ngClass]="selectedCitizen.documents.status"
+              >
+                {{ selectedCitizen.documents.status | titlecase }}
+              </span>
+            </div>
+
             <div class="documents-grid">
               <div class="document-item">
                 <mat-icon>badge</mat-icon>
-                <span>ID Number</span>
+                <span
+                  >{{ selectedCitizen.documents.idType || "ID" }} Number</span
+                >
                 <p>{{ selectedCitizen.documents.idNumber }}</p>
                 <div class="document-dates">
-                  <small>Issued: {{ formatDate(selectedCitizen.documents.idIssueDate) }}</small>
-                  <small>Expires: {{ formatDate(selectedCitizen.documents.idExpiryDate) }}</small>
+                  <small
+                    >Issued:
+                    {{
+                      formatDate(selectedCitizen.documents.idIssueDate)
+                    }}</small
+                  >
+                  <small
+                    >Expires:
+                    {{
+                      formatDate(selectedCitizen.documents.idExpiryDate)
+                    }}</small
+                  >
                 </div>
               </div>
-              <div class="document-item" *ngIf="selectedCitizen.documents.passportNumber">
+
+              <div
+                class="document-item"
+                *ngIf="selectedCitizen.documents.birthCertificate"
+              >
+                <mat-icon>child_care</mat-icon>
+                <span>Birth Certificate</span>
+                <p>{{ selectedCitizen.documents.birthCertificate }}</p>
+              </div>
+
+              <div
+                class="document-item"
+                *ngIf="selectedCitizen.documents.passportNumber"
+              >
                 <mat-icon>flight_takeoff</mat-icon>
                 <span>Passport</span>
                 <p>{{ selectedCitizen.documents.passportNumber }}</p>
-                <div class="document-dates">
-                  <small>Issued: {{ formatDate(selectedCitizen.documents.passportIssueDate!) }}</small>
-                  <small>Expires: {{ formatDate(selectedCitizen.documents.passportExpiryDate!) }}</small>
+                <div
+                  class="document-dates"
+                  *ngIf="selectedCitizen.documents.passportIssueDate"
+                >
+                  <small
+                    >Issued:
+                    {{
+                      formatDate(selectedCitizen.documents.passportIssueDate!)
+                    }}</small
+                  >
+                  <small
+                    >Expires:
+                    {{
+                      formatDate(selectedCitizen.documents.passportExpiryDate!)
+                    }}</small
+                  >
                 </div>
               </div>
-              <div class="document-item" *ngIf="selectedCitizen.documents.drivingLicense">
+
+              <div
+                class="document-item"
+                *ngIf="selectedCitizen.documents.drivingLicense"
+              >
                 <mat-icon>directions_car</mat-icon>
                 <span>Driving License</span>
                 <p>{{ selectedCitizen.documents.drivingLicense }}</p>
-                <div class="document-dates">
-                  <small>Issued: {{ formatDate(selectedCitizen.documents.drivingLicenseIssueDate!) }}</small>
-                  <small>Expires: {{ formatDate(selectedCitizen.documents.drivingLicenseExpiryDate!) }}</small>
+                <div
+                  class="document-dates"
+                  *ngIf="selectedCitizen.documents.drivingLicenseIssueDate"
+                >
+                  <small
+                    >Issued:
+                    {{
+                      formatDate(
+                        selectedCitizen.documents.drivingLicenseIssueDate!
+                      )
+                    }}</small
+                  >
+                  <small
+                    >Expires:
+                    {{
+                      formatDate(
+                        selectedCitizen.documents.drivingLicenseExpiryDate!
+                      )
+                    }}</small
+                  >
                 </div>
               </div>
             </div>
@@ -307,11 +599,18 @@
                 <span>Phone</span>
                 <p>{{ selectedCitizen.contactInfo.phone }}</p>
               </div>
-              <div class="contact-item" *ngIf="selectedCitizen.contactInfo.emergencyContact">
+              <div
+                class="contact-item"
+                *ngIf="selectedCitizen.contactInfo.emergencyContact"
+              >
                 <mat-icon>emergency</mat-icon>
                 <span>Emergency Contact</span>
                 <p>{{ selectedCitizen.contactInfo.emergencyContact.name }}</p>
-                <p>{{ selectedCitizen.contactInfo.emergencyContact.relationship }}</p>
+                <p>
+                  {{
+                    selectedCitizen.contactInfo.emergencyContact.relationship
+                  }}
+                </p>
                 <p>{{ selectedCitizen.contactInfo.emergencyContact.phone }}</p>
               </div>
             </div>
@@ -319,6 +618,41 @@
 
           <!-- Status Tab -->
           <div class="tab-pane" *ngIf="activeTab === 'status'">
+            <!-- Account Status Overview -->
+            <div class="status-overview">
+              <h4>Account Status</h4>
+              <div class="status-badges-row">
+                <span
+                  class="status-badge account-status"
+                  [ngClass]="selectedCitizen.status"
+                >
+                  {{ selectedCitizen.status | titlecase }}
+                </span>
+                <span
+                  class="status-badge cpf-status"
+                  [ngClass]="selectedCitizen.cpfStatus"
+                >
+                  CPF: {{ selectedCitizen.cpfStatus | titlecase }}
+                </span>
+                <span
+                  class="status-badge dedup-status"
+                  [ngClass]="selectedCitizen.deduplicationStatus"
+                  *ngIf="selectedCitizen.deduplicationStatus"
+                >
+                  Dedup: {{ selectedCitizen.deduplicationStatus | titlecase }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Security Notice -->
+            <div class="security-notice" *ngIf="selectedCitizen.cpfNumber">
+              <mat-icon>security</mat-icon>
+              <span
+                >CPF information is sensitive and protected. Click the eye icon
+                to reveal.</span
+              >
+            </div>
+
             <div class="status-grid">
               <div class="status-item">
                 <mat-icon>how_to_reg</mat-icon>
@@ -330,10 +664,31 @@
                 <span>Last Updated</span>
                 <p>{{ formatDate(selectedCitizen.lastUpdated) }}</p>
               </div>
-              <div class="status-item">
+              <div class="status-item cpf-item">
                 <mat-icon>badge</mat-icon>
                 <span>CPF Number</span>
-                <p>{{ selectedCitizen.cpfNumber || 'Not Generated' }}</p>
+                <div class="cpf-display">
+                  <p class="cpf-value">
+                    {{
+                      showCpfNumber
+                        ? selectedCitizen.cpfNumber || "Not Generated"
+                        : selectedCitizen.cpfNumber
+                        ? "***.***.***-**"
+                        : "Not Generated"
+                    }}
+                  </p>
+                  <button
+                    mat-icon-button
+                    class="cpf-toggle-btn"
+                    (click)="toggleCpfVisibility()"
+                    *ngIf="selectedCitizen.cpfNumber"
+                    matTooltip="{{ showCpfNumber ? 'Hide CPF' : 'Show CPF' }}"
+                  >
+                    <mat-icon>{{
+                      showCpfNumber ? "visibility_off" : "visibility"
+                    }}</mat-icon>
+                  </button>
+                </div>
               </div>
               <div class="status-item" *ngIf="selectedCitizen.cpfNumber">
                 <mat-icon>event</mat-icon>
@@ -345,6 +700,16 @@
                 <span>CPF Expiry Date</span>
                 <p>{{ formatDate(selectedCitizen.cpfExpiryDate!) }}</p>
               </div>
+              <div class="status-item" *ngIf="selectedCitizen.assignedOfficer">
+                <mat-icon>person_pin</mat-icon>
+                <span>Assigned Officer</span>
+                <p>{{ selectedCitizen.assignedOfficer }}</p>
+              </div>
+              <div class="status-item" *ngIf="selectedCitizen.processingCenter">
+                <mat-icon>business</mat-icon>
+                <span>Processing Center</span>
+                <p>{{ selectedCitizen.processingCenter }}</p>
+              </div>
               <div class="status-item notes" *ngIf="selectedCitizen.notes">
                 <mat-icon>note</mat-icon>
                 <span>Notes</span>
@@ -353,6 +718,382 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detailed Citizen Modal -->
+  <div
+    class="modal-overlay"
+    *ngIf="selectedCitizen"
+    (click)="selectedCitizen = null"
+  >
+    <div
+      class="modal-content citizen-details-modal"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="modal-header">
+        <h2>Citizen Details</h2>
+        <button
+          type="button"
+          class="close-button"
+          (click)="selectedCitizen = null"
+        >
+          ×
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Citizen Photo and Basic Info -->
+        <div class="citizen-profile-section">
+          <div class="profile-photo">
+            <img
+              [src]="
+                selectedCitizen.biometricData.photo ||
+                'assets/images/person face.jpg'
+              "
+              [alt]="selectedCitizen.firstName + ' ' + selectedCitizen.lastName"
+              class="large-photo"
+            />
+            <div class="photo-overlay">
+              <div
+                class="status-indicator"
+                [ngClass]="selectedCitizen.status"
+              ></div>
+            </div>
+          </div>
+          <div class="profile-summary">
+            <h3 class="citizen-full-name">
+              {{ selectedCitizen.firstName }} {{ selectedCitizen.lastName }}
+            </h3>
+            <p class="citizen-title">
+              {{ selectedCitizen.documents.idNumber || "No ID" }}
+            </p>
+            <div class="status-badges">
+              <span
+                class="status-badge account-status"
+                [ngClass]="selectedCitizen.status"
+              >
+                {{ selectedCitizen.status | titlecase }}
+              </span>
+              <span
+                class="status-badge cpf-status"
+                [ngClass]="selectedCitizen.cpfStatus || 'pending'"
+              >
+                CPF: {{ selectedCitizen.cpfStatus || "pending" | titlecase }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Information Categories -->
+        <div class="info-categories">
+          <!-- Personal Information -->
+          <div class="info-category">
+            <h4 class="category-title">
+              <mat-icon>person</mat-icon>
+              Personal Information
+            </h4>
+            <div class="category-content">
+              <div class="info-grid">
+                <div class="info-item">
+                  <span class="label">Full Name:</span>
+                  <span class="value"
+                    >{{ selectedCitizen.firstName }}
+                    {{ selectedCitizen.lastName }}</span
+                  >
+                </div>
+                <div class="info-item">
+                  <span class="label">Date of Birth:</span>
+                  <span class="value">{{
+                    selectedCitizen.dateOfBirth | date : "dd/MM/yyyy"
+                  }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">Gender:</span>
+                  <span class="value">{{
+                    selectedCitizen.gender | titlecase
+                  }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">Nationality:</span>
+                  <span class="value">{{
+                    selectedCitizen.nationality || "Brazilian"
+                  }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">Marital Status:</span>
+                  <span class="value">{{
+                    selectedCitizen.maritalStatus || "Not specified"
+                  }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">Profession:</span>
+                  <span class="value">{{
+                    selectedCitizen.profession || "Not specified"
+                  }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Contact Information -->
+          <div class="info-category">
+            <h4 class="category-title">
+              <mat-icon>contact_phone</mat-icon>
+              Contact Information
+            </h4>
+            <div class="category-content">
+              <div class="info-grid">
+                <div class="info-item">
+                  <span class="label">Email:</span>
+                  <span class="value">{{
+                    selectedCitizen.contactInfo.email || "Not provided"
+                  }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">Phone:</span>
+                  <span class="value">{{
+                    selectedCitizen.contactInfo.phone || "Not provided"
+                  }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">Address:</span>
+                  <span class="value">{{
+                    selectedCitizen.address || "Not provided"
+                  }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">City:</span>
+                  <span class="value">{{
+                    selectedCitizen.city || "Not specified"
+                  }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">State:</span>
+                  <span class="value">{{
+                    selectedCitizen.state || "Not specified"
+                  }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">Postal Code:</span>
+                  <span class="value">{{
+                    selectedCitizen.postalCode || "Not provided"
+                  }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Documents Information -->
+          <div class="info-category">
+            <h4 class="category-title">
+              <mat-icon>description</mat-icon>
+              Documents & Identification
+            </h4>
+            <div class="category-content">
+              <div class="info-grid">
+                <div class="info-item">
+                  <span class="label">Identity Number:</span>
+                  <span class="value">{{
+                    selectedCitizen.documents.idNumber || "Not provided"
+                  }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">CPF Number:</span>
+                  <span class="value">{{
+                    selectedCitizen.cpfNumber || "Not generated"
+                  }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">Passport Number:</span>
+                  <span class="value">{{
+                    selectedCitizen.documents.passportNumber || "Not provided"
+                  }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">Driver's License:</span>
+                  <span class="value">{{
+                    selectedCitizen.documents.driverLicense || "Not provided"
+                  }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">Birth Certificate:</span>
+                  <span class="value">{{
+                    selectedCitizen.documents.birthCertificate || "Not provided"
+                  }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">Document Status:</span>
+                  <span
+                    class="value status-text"
+                    [ngClass]="selectedCitizen.documents.status || 'pending'"
+                  >
+                    {{
+                      selectedCitizen.documents.status || "pending" | titlecase
+                    }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Process Information -->
+          <div class="info-category">
+            <h4 class="category-title">
+              <mat-icon>timeline</mat-icon>
+              Process Information
+            </h4>
+            <div class="category-content">
+              <div class="info-grid">
+                <div class="info-item">
+                  <span class="label">Registration Date:</span>
+                  <span class="value">{{
+                    selectedCitizen.registrationDate | date : "dd/MM/yyyy HH:mm"
+                  }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">Last Updated:</span>
+                  <span class="value">{{
+                    selectedCitizen.lastUpdated | date : "dd/MM/yyyy HH:mm"
+                  }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">Application Status:</span>
+                  <span
+                    class="value status-text"
+                    [ngClass]="selectedCitizen.status"
+                  >
+                    {{ selectedCitizen.status | titlecase }}
+                  </span>
+                </div>
+                <div class="info-item">
+                  <span class="label">Deduplication Status:</span>
+                  <span
+                    class="value status-text"
+                    [ngClass]="
+                      selectedCitizen.deduplicationStatus || 'not_started'
+                    "
+                  >
+                    {{
+                      selectedCitizen.deduplicationStatus || "not_started"
+                        | titlecase
+                    }}
+                  </span>
+                </div>
+                <div class="info-item">
+                  <span class="label">Assigned Officer:</span>
+                  <span class="value">{{
+                    selectedCitizen.assignedOfficer || "Not assigned"
+                  }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">Processing Center:</span>
+                  <span class="value">{{
+                    selectedCitizen.processingCenter || "Not specified"
+                  }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Biometric Information -->
+          <div class="info-category">
+            <h4 class="category-title">
+              <mat-icon>fingerprint</mat-icon>
+              Biometric Information
+            </h4>
+            <div class="category-content">
+              <div class="info-grid">
+                <div class="info-item">
+                  <span class="label">Photo Status:</span>
+                  <span class="value status-text verified">Captured</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">Fingerprints:</span>
+                  <span
+                    class="value status-text"
+                    [ngClass]="
+                      selectedCitizen.biometricData.fingerprintsStatus ||
+                      'pending'
+                    "
+                  >
+                    {{
+                      selectedCitizen.biometricData.fingerprintsStatus ||
+                        "pending" | titlecase
+                    }}
+                  </span>
+                </div>
+                <div class="info-item">
+                  <span class="label">Iris Scan:</span>
+                  <span
+                    class="value status-text"
+                    [ngClass]="
+                      selectedCitizen.biometricData.irisStatus || 'pending'
+                    "
+                  >
+                    {{
+                      selectedCitizen.biometricData.irisStatus || "pending"
+                        | titlecase
+                    }}
+                  </span>
+                </div>
+                <div class="info-item">
+                  <span class="label">Face Recognition:</span>
+                  <span
+                    class="value status-text"
+                    [ngClass]="
+                      selectedCitizen.biometricData.faceStatus || 'verified'
+                    "
+                  >
+                    {{
+                      selectedCitizen.biometricData.faceStatus || "verified"
+                        | titlecase
+                    }}
+                  </span>
+                </div>
+                <div class="info-item">
+                  <span class="label">Collection Date:</span>
+                  <span class="value">{{
+                    selectedCitizen.biometricData.collectionDate
+                      | date : "dd/MM/yyyy HH:mm"
+                  }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">Quality Score:</span>
+                  <span class="value">{{
+                    selectedCitizen.biometricData.qualityScore || "95%"
+                  }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="secondary-button"
+          (click)="selectedCitizen = null"
+        >
+          Close
+        </button>
+        <button
+          type="button"
+          class="primary-button"
+          (click)="editCitizen(selectedCitizen)"
+        >
+          Edit Citizen
+        </button>
+        <button
+          type="button"
+          class="primary-button"
+          (click)="generateCPF(selectedCitizen)"
+          *ngIf="!selectedCitizen.cpfNumber"
+        >
+          Generate CPF
+        </button>
       </div>
     </div>
   </div>

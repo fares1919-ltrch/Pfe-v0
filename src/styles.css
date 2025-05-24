@@ -3,3 +3,56 @@
 @tailwind utilities;
 
 /* Your custom styles below */
+
+/* Global notification snackbar styles */
+.success-snackbar {
+  background-color: #4caf50 !important;
+  color: white !important;
+}
+
+.success-snackbar .mat-mdc-snack-bar-label {
+  color: white !important;
+}
+
+.success-snackbar .mat-mdc-button {
+  color: white !important;
+}
+
+.error-snackbar {
+  background-color: #f44336 !important;
+  color: white !important;
+}
+
+.error-snackbar .mat-mdc-snack-bar-label {
+  color: white !important;
+}
+
+.error-snackbar .mat-mdc-button {
+  color: white !important;
+}
+
+.warning-snackbar {
+  background-color: #ff9800 !important;
+  color: white !important;
+}
+
+.warning-snackbar .mat-mdc-snack-bar-label {
+  color: white !important;
+}
+
+.warning-snackbar .mat-mdc-button {
+  color: white !important;
+}
+
+.info-snackbar {
+  background-color: #2196f3 !important;
+  color: white !important;
+}
+
+.info-snackbar .mat-mdc-snack-bar-label {
+  color: white !important;
+}
+
+.info-snackbar .mat-mdc-button {
+  color: white !important;
+}

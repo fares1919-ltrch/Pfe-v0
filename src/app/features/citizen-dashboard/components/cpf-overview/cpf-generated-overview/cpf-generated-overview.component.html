@@ -11,9 +11,15 @@
       color="primary"
       class="download-btn"
       (click)="exportCPFDocument()"
+      [disabled]="isDownloading"
     >
-      <mat-icon>download</mat-icon>
-      Download CPF Information
+      <mat-spinner
+        *ngIf="isDownloading"
+        diameter="20"
+        style="margin-right: 8px"
+      ></mat-spinner>
+      <mat-icon *ngIf="!isDownloading">download</mat-icon>
+      {{ isDownloading ? "Downloading..." : "Download CPF Information" }}
     </button>
   </div>
 
@@ -31,9 +37,17 @@
       <!-- CPF Number Section -->
       <div class="cpf-number-section">
         <p class="label">CPF Number</p>
-        <p class="value">{{ citizen?.cpf?.number }}</p>
-        <button type="button" mat-icon-button class="visibility-toggle">
-          <mat-icon>visibility</mat-icon>
+        <p class="value">{{ getMaskedCpfNumber() }}</p>
+        <button
+          type="button"
+          mat-icon-button
+          class="visibility-toggle"
+          (click)="toggleCpfVisibility()"
+          [title]="isCpfVisible ? 'Hide CPF Number' : 'Show CPF Number'"
+        >
+          <mat-icon>{{
+            isCpfVisible ? "visibility_off" : "visibility"
+          }}</mat-icon>
         </button>
       </div>
 
@@ -44,7 +58,13 @@
       </div>
 
       <!-- Action Button -->
-      <button type="button" mat-stroked-button color="warn" class="action-btn">
+      <button
+        type="button"
+        mat-stroked-button
+        color="warn"
+        class="action-btn"
+        (click)="openConsultingModal()"
+      >
         <mat-icon>support_agent</mat-icon>
         Request Consulting Demand
       </button>
@@ -103,5 +123,137 @@
     <app-cpf-document-content
       [documentData]="documentData"
     ></app-cpf-document-content>
+  </div>
+
+  <!-- Consulting Demand Modal -->
+  <div
+    class="modal-overlay"
+    *ngIf="showConsultingModal"
+    (click)="closeConsultingModal()"
+  >
+    <div
+      class="modal-content consulting-modal"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="modal-header">
+        <h2>Request Consulting Demand</h2>
+        <button
+          type="button"
+          class="close-button"
+          (click)="closeConsultingModal()"
+        >
+          ×
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <p class="modal-description">
+          Please describe your consulting request or the issue you need
+          assistance with.
+        </p>
+
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Your Comment</mat-label>
+          <textarea
+            matInput
+            [(ngModel)]="consultingComment"
+            placeholder="Describe your request in detail..."
+            rows="4"
+            maxlength="500"
+            [disabled]="isSubmittingConsulting"
+          >
+          </textarea>
+          <mat-hint>{{ consultingComment.length }}/500 characters</mat-hint>
+        </mat-form-field>
+      </div>
+
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="secondary-button"
+          (click)="closeConsultingModal()"
+          [disabled]="isSubmittingConsulting"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="primary-button"
+          (click)="submitConsultingDemand()"
+          [disabled]="!consultingComment.trim() || isSubmittingConsulting"
+        >
+          <mat-spinner
+            *ngIf="isSubmittingConsulting"
+            diameter="16"
+            style="margin-right: 8px"
+          ></mat-spinner>
+          {{ isSubmittingConsulting ? "Submitting..." : "Submit Request" }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Secret Key Modal -->
+  <div
+    class="modal-overlay"
+    *ngIf="showSecretKeyModal"
+    (click)="closeSecretKeyModal()"
+  >
+    <div
+      class="modal-content secret-key-modal"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="modal-header">
+        <h2>Enter Secret Key</h2>
+        <button
+          type="button"
+          class="close-button"
+          (click)="closeSecretKeyModal()"
+        >
+          ×
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <p class="modal-description">
+          Please enter your secret key to view the complete CPF number.
+        </p>
+
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Secret Key</mat-label>
+          <input
+            matInput
+            type="password"
+            [(ngModel)]="enteredSecretKey"
+            placeholder="Enter 4-digit secret key"
+            maxlength="4"
+            (keyup.enter)="verifySecretKey()"
+          />
+        </mat-form-field>
+
+        <div class="error-message" *ngIf="secretKeyError">
+          <mat-icon>error</mat-icon>
+          <span>{{ secretKeyError }}</span>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="secondary-button"
+          (click)="closeSecretKeyModal()"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="primary-button"
+          (click)="verifySecretKey()"
+          [disabled]="!enteredSecretKey || enteredSecretKey.length !== 4"
+        >
+          Verify Key
+        </button>
+      </div>
+    </div>
   </div>
 </div>

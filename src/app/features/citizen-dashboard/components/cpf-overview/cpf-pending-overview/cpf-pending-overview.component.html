@@ -57,9 +57,15 @@
         color="warn"
         class="action-btn"
         (click)="cancelRequest()"
+        [disabled]="isCancellingRequest"
       >
-        <mat-icon>cancel</mat-icon>
-        Cancel Request
+        <mat-spinner
+          *ngIf="isCancellingRequest"
+          diameter="20"
+          style="margin-right: 8px"
+        ></mat-spinner>
+        <mat-icon *ngIf="!isCancellingRequest">cancel</mat-icon>
+        {{ isCancellingRequest ? "Cancelling..." : "Cancel Request" }}
       </button>
     </div>
   </div>
@@ -94,15 +100,27 @@
             {{ citizen?.appointment?.status | uppercase }}
           </p>
 
-          <button
-            type="button"
-            mat-stroked-button
-            class="appointment-btn"
-            (click)="rescheduleAppointment()"
-          >
-            <mat-icon>event</mat-icon>
-            Reschedule Appointment
-          </button>
+          <div class="appointment-actions">
+            <button
+              type="button"
+              mat-stroked-button
+              class="appointment-btn change-btn"
+              (click)="rescheduleAppointment()"
+              *ngIf="canChangeAppointment()"
+            >
+              <mat-icon>event</mat-icon>
+              Change Date
+            </button>
+            <button
+              type="button"
+              mat-stroked-button
+              class="appointment-btn delete-btn"
+              (click)="deleteAppointment()"
+            >
+              <mat-icon>delete</mat-icon>
+              Delete
+            </button>
+          </div>
         </div>
 
         <!-- Next Steps -->
@@ -112,7 +130,7 @@
             <div class="step">
               <div class="step-number">1</div>
               <div class="step-text">
-                Attend appointment with required documents
+                Attend appointment in exact date and time
               </div>
             </div>
             <div class="step">
@@ -125,6 +143,149 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Date and Time Picker Modal -->
+  <div
+    class="modal-overlay"
+    *ngIf="showAppointmentModal"
+    (click)="closeAppointmentModal()"
+  >
+    <div
+      class="modal-content date-time-picker"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="modal-header">
+        <h2>Change Appointment Date & Time</h2>
+        <button
+          type="button"
+          class="close-button"
+          (click)="closeAppointmentModal()"
+        >
+          ×
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="selected-datetime">
+          <div class="datetime-display">
+            <div class="datetime-item">
+              <mat-icon>calendar_today</mat-icon>
+              <mat-form-field appearance="fill">
+                <mat-label>Select Date</mat-label>
+                <input
+                  matInput
+                  [matDatepicker]="picker"
+                  [value]="selectedDate"
+                  (dateChange)="onDateSelected($event.value)"
+                />
+                <mat-datepicker-toggle
+                  matSuffix
+                  [for]="picker"
+                ></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+              </mat-form-field>
+            </div>
+            <div class="datetime-item">
+              <mat-icon>schedule</mat-icon>
+              <mat-form-field appearance="fill">
+                <mat-label>Enter time (HH:mm)</mat-label>
+                <input
+                  matInput
+                  type="text"
+                  [(ngModel)]="selectedTime"
+                  placeholder="e.g., 14:30"
+                  (input)="validateTime($event)"
+                  maxlength="5"
+                />
+                <mat-hint style="color: rgb(147, 145, 145)"
+                  >Use 24-hour format</mat-hint
+                >
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="secondary-button"
+          (click)="closeAppointmentModal()"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="primary-button"
+          (click)="saveNewDateTime()"
+          [disabled]="
+            !selectedDate ||
+            !selectedTime ||
+            !isValidTime ||
+            isUpdatingAppointment
+          "
+        >
+          <mat-spinner
+            *ngIf="isUpdatingAppointment"
+            diameter="16"
+            style="margin-right: 8px"
+          ></mat-spinner>
+          {{ isUpdatingAppointment ? "Updating..." : "Save Changes" }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div
+    class="modal-overlay"
+    *ngIf="showDeleteConfirm"
+    (click)="cancelDeleteAppointment()"
+  >
+    <div
+      class="modal-content delete-confirm"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="modal-header">
+        <h2>Confirm Delete</h2>
+        <button
+          type="button"
+          class="close-button"
+          (click)="cancelDeleteAppointment()"
+        >
+          ×
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <p>Are you sure you want to delete this appointment?</p>
+        <p class="warning-text">This action cannot be undone.</p>
+      </div>
+
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="secondary-button"
+          (click)="cancelDeleteAppointment()"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="delete-button"
+          (click)="confirmDeleteAppointment()"
+          [disabled]="isDeletingAppointment"
+        >
+          <mat-spinner
+            *ngIf="isDeletingAppointment"
+            diameter="16"
+            style="margin-right: 8px"
+          ></mat-spinner>
+          {{ isDeletingAppointment ? "Deleting..." : "Delete" }}
+        </button>
       </div>
     </div>
   </div>
