@@ -141,55 +141,84 @@
 
   <!-- Contest Fraud Modal -->
   <div
-    class="modal-overlay"
+    class="modal-overlay-smooth"
     *ngIf="showContestModal"
     (click)="closeContestModal()"
   >
-    <div class="modal-content contest-modal" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h2>Contest Fraud Detection</h2>
+    <div
+      class="modal-content-smooth contest-modal"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="modal-header-smooth">
+        <div class="modal-title-smooth">
+          <mat-icon class="warning-icon-smooth">gavel</mat-icon>
+          <div>
+            <h2>Contest Fraud Detection</h2>
+            <p>Challenge the fraud detection result</p>
+          </div>
+        </div>
         <button
           type="button"
-          class="close-button"
+          mat-icon-button
+          class="close-button-smooth"
           (click)="closeContestModal()"
         >
-          ×
+          <mat-icon>close</mat-icon>
         </button>
       </div>
 
-      <div class="modal-body">
-        <p class="modal-description">
+      <div class="modal-body-smooth">
+        <p class="modal-description-smooth">
           Please provide details about why you believe this fraud detection is
-          incorrect.
+          incorrect. Your submission will be reviewed by our security team.
         </p>
 
-        <mat-form-field appearance="fill" class="full-width">
-          <mat-label>Contest Type</mat-label>
-          <mat-select
+        <!-- Contest Type Selection -->
+        <div class="form-group-smooth">
+          <label class="form-label-smooth"
+            >Contest Type <span class="required-star">*</span></label
+          >
+          <select
+            class="form-select-smooth"
             [(ngModel)]="selectedContestType"
             [disabled]="isSubmittingContest"
+            id="contestType"
+            aria-label="Select contest type"
+            required
           >
-            <mat-option *ngFor="let type of contestTypes" [value]="type.value">
+            <option value="" disabled>Select the reason for contesting</option>
+            <option *ngFor="let type of contestTypes" [value]="type.value">
               {{ type.label }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
+            </option>
+          </select>
+          <div *ngIf="!selectedContestType" class="form-error-smooth">
+            Please select a contest type
+          </div>
+        </div>
 
-        <mat-form-field appearance="fill" class="full-width">
-          <mat-label>Detailed Explanation</mat-label>
+        <!-- Detailed Explanation -->
+        <div class="form-group-smooth">
+          <label class="form-label-smooth"
+            >Detailed Explanation <span class="required-star">*</span></label
+          >
           <textarea
-            matInput
+            class="form-textarea-smooth"
             [(ngModel)]="contestReason"
             placeholder="Please explain why you believe this fraud detection is incorrect..."
             rows="4"
             maxlength="1000"
             [disabled]="isSubmittingContest"
-          >
-          </textarea>
-          <mat-hint>{{ contestReason.length }}/1000 characters</mat-hint>
-        </mat-form-field>
+            required
+          ></textarea>
+          <div class="character-count-smooth">
+            {{ contestReason.length }}/1000 characters
+          </div>
+          <div *ngIf="!contestReason.trim()" class="form-error-smooth">
+            Please provide a detailed explanation
+          </div>
+        </div>
 
-        <div class="warning-notice">
+        <div class="warning-notice-smooth">
           <mat-icon>warning</mat-icon>
           <span
             >Submitting false information may result in legal
@@ -198,10 +227,10 @@
         </div>
       </div>
 
-      <div class="modal-footer">
+      <div class="modal-footer-smooth">
         <button
           type="button"
-          class="secondary-button"
+          class="btn-cancel-smooth"
           (click)="closeContestModal()"
           [disabled]="isSubmittingContest"
         >
@@ -209,7 +238,7 @@
         </button>
         <button
           type="button"
-          class="primary-button"
+          class="btn-submit-smooth"
           (click)="submitContestFraud()"
           [disabled]="
             !selectedContestType || !contestReason.trim() || isSubmittingContest
@@ -218,8 +247,11 @@
           <mat-spinner
             *ngIf="isSubmittingContest"
             diameter="16"
-            style="margin-right: 8px"
+            class="btn-spinner"
           ></mat-spinner>
+          <mat-icon *ngIf="!isSubmittingContest" class="btn-icon"
+            >gavel</mat-icon
+          >
           {{ isSubmittingContest ? "Submitting..." : "Submit Contest" }}
         </button>
       </div>

@@ -1,0 +1,214 @@
+<div class="fraud-complaints-container">
+  <!-- Header Section -->
+  <header class="fraud-header">
+    <div class="header-content">
+      <div class="title-section">
+        <mat-icon class="warning-icon">warning</mat-icon>
+        <div>
+          <h1>Fraud Detection</h1>
+          <p>Suspicious transactions requiring attention</p>
+        </div>
+      </div>
+
+      <!-- Statistics Cards -->
+      <div class="stats-cards">
+        <div class="stat-card">
+          <div class="stat-value">{{ totalReports }}</div>
+          <div class="stat-label">Total Reports</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">{{ pendingReports }}</div>
+          <div class="stat-label">Pending</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">{{ highRiskReports }}</div>
+          <div class="stat-label">High Risk</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">{{ resolvedReports }}</div>
+          <div class="stat-label">Resolved</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Filters Section -->
+  <div class="filters-section">
+    <div class="search-container">
+      <mat-icon>search</mat-icon>
+      <input
+        type="text"
+        placeholder="Search by transaction ID, user name, or merchant..."
+        [(ngModel)]="searchTerm"
+        (input)="onSearchChange()"
+        class="search-input"
+      />
+    </div>
+
+    <div class="filter-buttons">
+      <div class="filter-group">
+        <label>Status:</label>
+        <button
+          *ngFor="let status of statusOptions"
+          [class.active]="statusFilter === status"
+          (click)="onStatusFilterChange(status)"
+          class="filter-btn"
+        >
+          {{ status | titlecase }}
+        </button>
+      </div>
+
+      <div class="filter-group">
+        <label>Risk Level:</label>
+        <button
+          *ngFor="let risk of riskOptions"
+          [class.active]="riskFilter === risk"
+          (click)="onRiskFilterChange(risk)"
+          class="filter-btn"
+        >
+          {{ risk | titlecase }}
+        </button>
+      </div>
+
+      <button type="button" (click)="clearFilters()" class="clear-filters-btn">
+        <mat-icon>clear</mat-icon>
+        Clear Filters
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="isLoading" class="loading-container">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Processing fraud reports...</p>
+  </div>
+
+  <!-- Fraud Reports List -->
+  <div *ngIf="!isLoading" class="reports-container">
+    <div *ngIf="filteredReports.length === 0" class="no-reports">
+      <mat-icon>info</mat-icon>
+      <h3>No fraud reports found</h3>
+      <p>No reports match your current filter criteria.</p>
+    </div>
+
+    <div
+      *ngFor="let report of filteredReports"
+      class="fraud-report-card"
+      [class.processing-related]="isReportBeingAffected(report.id)"
+    >
+      <!-- Report Header -->
+      <div class="report-header">
+        <div class="transaction-info">
+          <mat-icon class="warning-icon">warning</mat-icon>
+          <span class="transaction-id"
+            >Transaction {{ report.transactionId }}</span
+          >
+          <span class="user-reported-badge">USER REPORTED</span>
+          <span
+            class="status-badge-inline"
+            [ngClass]="getStatusClass(report.status)"
+          >
+            {{ report.status | titlecase }}
+          </span>
+          <span
+            *ngIf="isReportBeingAffected(report.id)"
+            class="affected-indicator"
+          >
+            <mat-icon>sync</mat-icon>
+            UPDATING
+          </span>
+        </div>
+        <span
+          class="risk-badge"
+          [ngClass]="getRiskLevelClass(report.riskLevel)"
+        >
+          {{ report.riskLevel.toUpperCase() }} RISK
+        </span>
+      </div>
+
+      <!-- Report Details Grid -->
+      <div class="report-details">
+        <div class="details-left">
+          <div class="detail-item">
+            <span class="label">Amount:</span>
+            <span class="value">{{ formatCurrency(report.amount) }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">User:</span>
+            <span class="value">{{ report.user.name }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">Location:</span>
+            <span class="value">{{ report.location }}</span>
+          </div>
+        </div>
+
+        <div class="details-right">
+          <div class="detail-item">
+            <span class="label">Merchant:</span>
+            <span class="value">{{ report.merchant }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">Account Status:</span>
+            <span
+              class="account-status"
+              [ngClass]="getAccountStatusClass(report.user.accountStatus)"
+              [attr.data-status]="report.user.accountStatus"
+            >
+              <mat-icon class="status-icon">
+                {{
+                  report.user.accountStatus === "blocked"
+                    ? "block"
+                    : "check_circle"
+                }}
+              </mat-icon>
+              {{ report.user.accountStatus | titlecase }}
+            </span>
+          </div>
+          <div class="detail-item">
+            <span class="label">Time:</span>
+            <span class="value">{{ formatDate(report.timestamp) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- User Report Details -->
+      <div class="user-report-details">
+        <div class="report-info">
+          <p><strong>User Report Details:</strong></p>
+          <p><strong>Reason:</strong> {{ report.reportDetails.reason }}</p>
+          <p>
+            <strong>Description:</strong> {{ report.reportDetails.description }}
+          </p>
+          <p>
+            <strong>Reported:</strong>
+            {{ formatDate(report.reportDetails.reportedDate) }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <button
+          type="button"
+          mat-raised-button
+          [color]="report.user.accountStatus === 'blocked' ? 'primary' : 'warn'"
+          class="block-btn"
+          (click)="toggleAccountBlock(report)"
+          [disabled]="isBlockButtonDisabled(report)"
+        >
+          <mat-spinner
+            *ngIf="isReportProcessing(report.id)"
+            diameter="18"
+            class="button-spinner"
+          >
+          </mat-spinner>
+          <mat-icon *ngIf="!isReportProcessing(report.id)">{{
+            getBlockButtonIcon(report)
+          }}</mat-icon>
+          {{ getBlockButtonText(report) }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

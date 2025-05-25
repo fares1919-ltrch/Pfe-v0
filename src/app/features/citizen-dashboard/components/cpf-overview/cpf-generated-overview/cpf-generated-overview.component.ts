@@ -55,6 +55,8 @@ export class CpfGeneratedOverviewComponent implements OnInit {
   isDownloading: boolean = false;
   showConsultingModal: boolean = false;
   consultingComment: string = '';
+  consultingType: string = '';
+  contactPreference: string = 'email';
   isSubmittingConsulting: boolean = false;
 
   // Secret key properties
@@ -226,11 +228,15 @@ export class CpfGeneratedOverviewComponent implements OnInit {
   openConsultingModal(): void {
     this.showConsultingModal = true;
     this.consultingComment = '';
+    this.consultingType = '';
+    this.contactPreference = 'email';
   }
 
   closeConsultingModal(): void {
     this.showConsultingModal = false;
     this.consultingComment = '';
+    this.consultingType = '';
+    this.contactPreference = 'email';
     this.isSubmittingConsulting = false;
   }
 

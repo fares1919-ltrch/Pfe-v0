@@ -1,33 +1,240 @@
-<div class="glass-card transactions-card">
-  <div class="card-header">
-    <h2>Recent Transactions</h2>
-  </div>
-
-  <div class="transactions-list">
-    <div
-      class="transaction-item"
-      *ngFor="let transaction of recentTransactions"
-    >
-      <div class="transaction-icon" [ngClass]="transaction.type">
-        <mat-icon>{{
-          transaction.type === "credit" ? "add_circle" : "remove_circle"
-        }}</mat-icon>
-      </div>
-      <div class="transaction-info">
-        <div class="transaction-header">
-          <span class="description">{{ transaction.description }}</span>
-          <span class="amount" [ngClass]="transaction.type">
-            {{ transaction.type === "credit" ? "+" : "-"
-            }}{{ formatCurrency(transaction.amount) }}
-          </span>
-        </div>
-        <div class="transaction-footer">
-          <span class="date">{{ formatDate(transaction.date) }}</span>
-          <span class="status-badge" [ngClass]="transaction.status">
-            {{ transaction.status | titlecase }}
-          </span>
+<!-- Main Container -->
+<div class="transactions-container">
+  <!-- Header Section -->
+  <div class="transactions-header">
+    <div class="header-content">
+      <div class="header-title">
+        <mat-icon class="header-icon">credit_card</mat-icon>
+        <div>
+          <h1>My Transactions</h1>
+          <p>
+            View your recent transactions and report any suspicious activity
+          </p>
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading your transactions...</p>
+  </div>
+
+  <!-- Transactions List -->
+  <div *ngIf="!isLoading" class="transactions-list">
+    <div
+      *ngFor="let transaction of filteredTransactions"
+      class="transaction-card"
+      [class.reported]="transaction.isReported"
+    >
+      <!-- Transaction Content -->
+      <div class="transaction-content">
+        <!-- Left Section: Icon and Details -->
+        <div class="transaction-left">
+          <div class="transaction-icon">
+            <mat-icon>{{ getCategoryIcon(transaction.category) }}</mat-icon>
+          </div>
+          <div class="transaction-details">
+            <h3 class="merchant-name">{{ transaction.merchant }}</h3>
+            <p class="transaction-id">
+              Transaction ID: {{ transaction.transactionId }}
+            </p>
+            <div class="transaction-meta">
+              <div class="meta-item">
+                <mat-icon>schedule</mat-icon>
+                <span>{{ formatDate(transaction.date) }}</span>
+              </div>
+              <div class="meta-item">
+                <mat-icon>location_on</mat-icon>
+                <span>{{ transaction.location }}</span>
+              </div>
+              <div class="meta-item">
+                <mat-icon>credit_card</mat-icon>
+                <span>Card ending {{ transaction.cardNumber }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Section: Amount and Actions -->
+        <div class="transaction-right">
+          <div class="amount-section">
+            <span class="amount">{{ formatCurrency(transaction.amount) }}</span>
+            <div
+              class="status-badge"
+              [ngClass]="getStatusClass(transaction.status)"
+            >
+              <mat-icon>{{ getStatusIcon(transaction.status) }}</mat-icon>
+              {{ transaction.status | titlecase }}
+            </div>
+          </div>
+
+          <!-- Report Fraud Button -->
+          <button
+            type="button"
+            mat-stroked-button
+            color="warn"
+            class="report-button"
+            [disabled]="
+              transaction.isReported ||
+              isTransactionProcessing(transaction.transactionId)
+            "
+            (click)="openFraudModal(transaction)"
+          >
+            <mat-spinner
+              *ngIf="isTransactionProcessing(transaction.transactionId)"
+              diameter="18"
+            >
+            </mat-spinner>
+            <mat-icon
+              *ngIf="!isTransactionProcessing(transaction.transactionId)"
+            >
+              {{ transaction.isReported ? "report_problem" : "warning" }}
+            </mat-icon>
+            {{ transaction.isReported ? "Reported" : "Report Fraud" }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="filteredTransactions.length === 0" class="empty-state">
+      <mat-icon>receipt_long</mat-icon>
+      <h3>No transactions found</h3>
+      <p>You don't have any transactions yet.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Fraud Report Modal -->
+<div *ngIf="showFraudModal" class="modal-overlay" (click)="closeFraudModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <!-- Modal Header -->
+    <div class="modal-header">
+      <div class="modal-title">
+        <mat-icon class="warning-icon">shield</mat-icon>
+        <div>
+          <h2>Report Fraudulent Transaction</h2>
+          <p *ngIf="selectedTransaction">
+            Transaction: {{ selectedTransaction.merchant }} -
+            {{ formatCurrency(selectedTransaction.amount) }}
+          </p>
+        </div>
+      </div>
+      <button
+        type="button"
+        mat-icon-button
+        (click)="closeFraudModal()"
+        class="close-button"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <!-- Transaction Details Section -->
+    <div class="transaction-details-section" *ngIf="selectedTransaction">
+      <h3 class="details-title">Transaction Details</h3>
+      <div class="details-grid-smooth">
+        <div class="detail-row">
+          <span class="detail-label">ID:</span>
+          <span class="detail-value">{{
+            selectedTransaction.transactionId
+          }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Amount:</span>
+          <span class="detail-value">{{
+            formatCurrency(selectedTransaction.amount)
+          }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Merchant:</span>
+          <span class="detail-value">{{ selectedTransaction.merchant }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Date:</span>
+          <span class="detail-value">{{
+            formatDate(selectedTransaction.date)
+          }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Location:</span>
+          <span class="detail-value">{{ selectedTransaction.location }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Card:</span>
+          <span class="detail-value">{{ selectedTransaction.cardNumber }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Section -->
+    <form (ngSubmit)="submitFraudReport()" class="fraud-form-smooth">
+      <!-- Fraud Type Selection -->
+      <div class="form-group-smooth">
+        <label class="form-label-smooth"
+          >What type of fraud is this?
+          <span class="required-star">*</span></label
+        >
+        <select
+          class="form-select-smooth"
+          [(ngModel)]="fraudType"
+          name="fraudType"
+          id="fraudType"
+          aria-label="Select fraud type"
+          required
+        >
+          <option value="" disabled>Select the type of fraud</option>
+          <option
+            *ngFor="let option of fraudTypeOptions"
+            [value]="option.value"
+          >
+            {{ option.label }}
+          </option>
+        </select>
+        <div *ngIf="!fraudType" class="form-error-smooth">
+          Please select a fraud type
+        </div>
+      </div>
+
+      <!-- Additional Details -->
+      <div class="form-group-smooth">
+        <label class="form-label-smooth"
+          >Additional Details <span class="required-star">*</span></label
+        >
+        <textarea
+          class="form-textarea-smooth"
+          [(ngModel)]="fraudDescription"
+          name="fraudDescription"
+          rows="4"
+          placeholder="Please provide any additional information about this fraudulent transaction..."
+          required
+        >
+        </textarea>
+        <div *ngIf="!fraudDescription?.trim()" class="form-error-smooth">
+          Please provide additional details
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="form-actions-smooth">
+        <button
+          type="button"
+          class="btn-cancel-smooth"
+          (click)="closeFraudModal()"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="btn-submit-smooth"
+          [disabled]="!fraudType || !fraudDescription.trim()"
+        >
+          <mat-icon class="btn-icon">shield</mat-icon>
+          Submit Report
+        </button>
+      </div>
+    </form>
   </div>
 </div>
