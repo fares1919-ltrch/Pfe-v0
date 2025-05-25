@@ -49,9 +49,9 @@ interface DuplicateAccount {
           <div class="col-md-4">
             <div class="search-box">
               <i class="fas fa-search"></i>
-              <input 
-                type="text" 
-                class="form-control" 
+              <input
+                type="text"
+                class="form-control"
                 placeholder="Search by name or CIN..."
                 [(ngModel)]="searchTerm"
                 (input)="filterAccounts()"
@@ -102,8 +102,8 @@ interface DuplicateAccount {
                 <td>
                   <div class="match-indicator">
                     <div class="progress">
-                      <div 
-                        class="progress-bar" 
+                      <div
+                        class="progress-bar"
                         [class.bg-danger]="account.matchPercentage >= 90"
                         [class.bg-warning]="account.matchPercentage >= 80 && account.matchPercentage < 90"
                         [class.bg-info]="account.matchPercentage < 80"
@@ -512,7 +512,7 @@ export class DeduplicationsComponent {
     this.filteredAccounts = this.accounts.filter(account => {
       const matchesSearch = account.fullName.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
                           account.cin.toLowerCase().includes(this.searchTerm.toLowerCase());
-      
+
       const matchesPercentage = this.matchFilter === 'all' ? true :
         account.matchPercentage >= parseInt(this.matchFilter);
 
@@ -527,7 +527,7 @@ export class DeduplicationsComponent {
   isWithinDateRange(date: string, filter: string): boolean {
     const blockedDate = new Date(date);
     const today = new Date();
-    
+
     switch (filter) {
       case 'today':
         return blockedDate.toDateString() === today.toDateString();

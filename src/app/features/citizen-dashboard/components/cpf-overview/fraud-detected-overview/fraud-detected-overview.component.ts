@@ -1,15 +1,29 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { CitizenWithFraud } from '../cpf-overview.component';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-// Assuming Router is needed for navigation
-// import { Router } from '@angular/router'; // Uncomment and import if needed
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { NotificationService } from '../../../../../core/services/notification.service';
+import { CpfSimulationService } from '../../../../../core/services/cpf-simulation.service';
 
 @Component({
   selector: 'app-fraud-detected-overview',
   standalone: true,
-  imports: [CommonModule, MatIconModule, MatButtonModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatIconModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatProgressSpinnerModule
+  ],
   templateUrl: './fraud-detected-overview.component.html',
   styleUrls: ['./fraud-detected-overview.component.scss']
 })
@@ -26,10 +40,27 @@ export class FraudDetectedOverviewComponent implements OnInit {
 
   private _citizen: CitizenWithFraud | undefined;
 
-  // Placeholder services - replace with actual injected services
-  // private router: Router; // Uncomment if using actual service
+  // Contest fraud properties
+  showContestModal: boolean = false;
+  contestReason: string = '';
+  selectedContestType: string = '';
+  isSubmittingContest: boolean = false;
 
-  constructor(/* private router: Router */) { }
+  // Details modal properties
+  showDetailsModal: boolean = false;
+
+  contestTypes = [
+    { value: 'identity_verification', label: 'Identity Verification Issue' },
+    { value: 'false_positive', label: 'False Positive Detection' },
+    { value: 'data_error', label: 'Data Entry Error' },
+    { value: 'system_malfunction', label: 'System Malfunction' },
+    { value: 'other', label: 'Other Reason' }
+  ];
+
+  constructor(
+    private notificationService: NotificationService,
+    private simulationService: CpfSimulationService
+  ) { }
 
   ngOnInit(): void {
     // If no citizen data is provided via input, load placeholder data
@@ -58,14 +89,89 @@ export class FraudDetectedOverviewComponent implements OnInit {
   }
 
   contestFraud(): void {
-    if (!this.citizen || !this.citizen.identityNumber) {
-      console.warn('Contest fraud aborted: Citizen data or ID missing');
+    this.showContestModal = true;
+    this.contestReason = '';
+    this.selectedContestType = '';
+  }
+
+  closeContestModal(): void {
+    this.showContestModal = false;
+    this.contestReason = '';
+    this.selectedContestType = '';
+    this.isSubmittingContest = false;
+  }
+
+  async submitContestFraud(): Promise<void> {
+    if (!this.selectedContestType || !this.contestReason.trim()) {
+      this.notificationService.showWarning('Please select a contest type and provide a reason.');
       return;
     }
 
-    // This is a placeholder - replace with actual navigation
-    // this.router.navigate(["/fraud-contest", this.citizen.identityNumber]);
-    console.log('Contest fraud for citizen:', this.citizen.identityNumber);
+    if (!this.citizen || !this.citizen.identityNumber) {
+      this.notificationService.showError('Citizen data missing. Cannot submit contest.');
+      return;
+    }
+
+    this.isSubmittingContest = true;
+
+    try {
+      const response = await this.simulationService.contestFraud(this.contestReason).toPromise();
+
+      this.notificationService.showSuccess(
+        `Fraud contest submitted successfully! Contest ID: ${response?.data?.contestId}.
+        Estimated review time: ${response?.data?.estimatedReview}`
+      );
+
+      // Update fraud status to show contest is under review
+      if (this.citizen.fraudDetails) {
+        this.citizen.fraudDetails.status = 'appealed';
+      }
+
+      this.closeContestModal();
+    } catch (error: any) {
+      console.error('Error submitting fraud contest:', error);
+      this.notificationService.showError(
+        error.message || 'Failed to submit fraud contest. Please try again.'
+      );
+    } finally {
+      this.isSubmittingContest = false;
+    }
+  }
+
+  getFraudTypeLabel(): string {
+    const type = this.citizen?.fraudDetails?.type;
+    switch (type) {
+      case 'identity_theft':
+        return 'Identity Theft';
+      case 'duplicate_registration':
+        return 'Duplicate Registration';
+      case 'document_forgery':
+        return 'Document Forgery';
+      default:
+        return 'Unknown';
+    }
+  }
+
+  getFraudStatusLabel(): string {
+    const status = this.citizen?.fraudDetails?.status;
+    switch (status) {
+      case 'under_investigation':
+        return 'Under Investigation';
+      case 'confirmed':
+        return 'Confirmed';
+      case 'appealed':
+        return 'Appeal Submitted';
+      default:
+        return 'Unknown';
+    }
+  }
+
+  openDetailsModal(): void {
+    this.showDetailsModal = true;
+  }
+
+  closeDetailsModal(): void {
+    this.showDetailsModal = false;
   }
 
   // Add other methods specific to the fraud view if needed

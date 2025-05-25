@@ -57,9 +57,15 @@
         color="warn"
         class="action-btn"
         (click)="cancelRequest()"
+        [disabled]="isCancellingRequest"
       >
-        <mat-icon>cancel</mat-icon>
-        Cancel Request
+        <mat-spinner
+          *ngIf="isCancellingRequest"
+          diameter="20"
+          style="margin-right: 8px"
+        ></mat-spinner>
+        <mat-icon *ngIf="!isCancellingRequest">cancel</mat-icon>
+        {{ isCancellingRequest ? "Cancelling..." : "Cancel Request" }}
       </button>
     </div>
   </div>
@@ -94,15 +100,27 @@
             {{ citizen?.appointment?.status | uppercase }}
           </p>
 
-          <button
-            type="button"
-            mat-stroked-button
-            class="appointment-btn"
-            (click)="rescheduleAppointment()"
-          >
-            <mat-icon>event</mat-icon>
-            Reschedule Appointment
-          </button>
+          <div class="appointment-actions">
+            <button
+              type="button"
+              mat-stroked-button
+              class="appointment-btn change-btn"
+              (click)="rescheduleAppointment()"
+              *ngIf="canChangeAppointment()"
+            >
+              <mat-icon>event</mat-icon>
+              Change Date
+            </button>
+            <button
+              type="button"
+              mat-stroked-button
+              class="appointment-btn delete-btn"
+              (click)="deleteAppointment()"
+            >
+              <mat-icon>delete</mat-icon>
+              Delete
+            </button>
+          </div>
         </div>
 
         <!-- Next Steps -->
@@ -112,7 +130,7 @@
             <div class="step">
               <div class="step-number">1</div>
               <div class="step-text">
-                Attend appointment with required documents
+                Attend appointment in exact date and time
               </div>
             </div>
             <div class="step">
@@ -125,6 +143,216 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Date and Time Picker Modal -->
+  <div
+    class="modal-overlay-smooth"
+    *ngIf="showAppointmentModal"
+    (click)="closeAppointmentModal()"
+  >
+    <div
+      class="modal-content-smooth date-time-picker"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="modal-header-smooth">
+        <div class="modal-title-smooth">
+          <mat-icon class="calendar-icon-smooth">event</mat-icon>
+          <div>
+            <h2>Change Appointment Date & Time</h2>
+            <p>Select a new date and time for your appointment</p>
+          </div>
+        </div>
+        <button
+          type="button"
+          mat-icon-button
+          class="close-button-smooth"
+          (click)="closeAppointmentModal()"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <div class="modal-body-smooth">
+        <p class="modal-description-smooth">
+          Please select your preferred date and time. Make sure to choose a time
+          during business hours (9:00 AM - 5:00 PM).
+        </p>
+
+        <div class="datetime-section-smooth">
+          <!-- Date Selection -->
+          <div class="form-group-smooth">
+            <label class="form-label-smooth">
+              <mat-icon class="label-icon">calendar_today</mat-icon>
+              Select Date <span class="required-star">*</span>
+            </label>
+            <div class="date-input-wrapper">
+              <mat-form-field appearance="outline" class="date-field-smooth">
+                <input
+                  matInput
+                  [matDatepicker]="picker"
+                  [value]="selectedDate"
+                  (dateChange)="onDateSelected($event.value)"
+                  placeholder="Choose a date"
+                  readonly
+                />
+                <mat-datepicker-toggle
+                  matSuffix
+                  [for]="picker"
+                ></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+              </mat-form-field>
+            </div>
+            <div *ngIf="!selectedDate" class="form-error-smooth">
+              Please select a date
+            </div>
+          </div>
+
+          <!-- Time Selection -->
+          <div class="form-group-smooth">
+            <label class="form-label-smooth">
+              <mat-icon class="label-icon">schedule</mat-icon>
+              Enter Time <span class="required-star">*</span>
+            </label>
+            <input
+              class="form-input-smooth time-input"
+              type="text"
+              [(ngModel)]="selectedTime"
+              placeholder="e.g., 14:30"
+              (input)="validateTime($event)"
+              maxlength="5"
+            />
+            <div class="input-hint-smooth">Use 24-hour format (HH:mm)</div>
+            <div *ngIf="selectedTime && !isValidTime" class="form-error-smooth">
+              Please enter a valid time in HH:mm format
+            </div>
+            <div *ngIf="!selectedTime" class="form-error-smooth">
+              Please enter a time
+            </div>
+          </div>
+        </div>
+
+        <!-- Current vs New Appointment Display -->
+        <div class="appointment-comparison-smooth" *ngIf="citizen?.appointment">
+          <div class="comparison-item">
+            <h4>Current Appointment</h4>
+            <div class="appointment-info-smooth">
+              <div class="info-row">
+                <mat-icon>event</mat-icon>
+                <span>{{
+                  citizen?.appointment?.date | date : "dd/MM/yyyy"
+                }}</span>
+              </div>
+              <div class="info-row">
+                <mat-icon>schedule</mat-icon>
+                <span>{{ citizen?.appointment?.date | date : "HH:mm" }}</span>
+              </div>
+            </div>
+          </div>
+          <mat-icon class="arrow-icon">arrow_forward</mat-icon>
+          <div class="comparison-item">
+            <h4>New Appointment</h4>
+            <div class="appointment-info-smooth">
+              <div class="info-row">
+                <mat-icon>event</mat-icon>
+                <span>{{
+                  selectedDate
+                    ? (selectedDate | date : "dd/MM/yyyy")
+                    : "Not selected"
+                }}</span>
+              </div>
+              <div class="info-row">
+                <mat-icon>schedule</mat-icon>
+                <span>{{ selectedTime || "Not entered" }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer-smooth">
+        <button
+          type="button"
+          class="btn-cancel-smooth"
+          (click)="closeAppointmentModal()"
+          [disabled]="isUpdatingAppointment"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="btn-submit-smooth"
+          (click)="saveNewDateTime()"
+          [disabled]="
+            !selectedDate ||
+            !selectedTime ||
+            !isValidTime ||
+            isUpdatingAppointment
+          "
+        >
+          <mat-spinner
+            *ngIf="isUpdatingAppointment"
+            diameter="16"
+            class="btn-spinner"
+          ></mat-spinner>
+          <mat-icon *ngIf="!isUpdatingAppointment" class="btn-icon"
+            >event_available</mat-icon
+          >
+          {{ isUpdatingAppointment ? "Updating..." : "Save Changes" }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div
+    class="modal-overlay"
+    *ngIf="showDeleteConfirm"
+    (click)="cancelDeleteAppointment()"
+  >
+    <div
+      class="modal-content delete-confirm"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="modal-header">
+        <h2>Confirm Delete</h2>
+        <button
+          type="button"
+          class="close-button"
+          (click)="cancelDeleteAppointment()"
+        >
+          ×
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <p>Are you sure you want to delete this appointment?</p>
+        <p class="warning-text">This action cannot be undone.</p>
+      </div>
+
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="secondary-button"
+          (click)="cancelDeleteAppointment()"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="delete-button"
+          (click)="confirmDeleteAppointment()"
+          [disabled]="isDeletingAppointment"
+        >
+          <mat-spinner
+            *ngIf="isDeletingAppointment"
+            diameter="16"
+            style="margin-right: 8px"
+          ></mat-spinner>
+          {{ isDeletingAppointment ? "Deleting..." : "Delete" }}
+        </button>
       </div>
     </div>
   </div>

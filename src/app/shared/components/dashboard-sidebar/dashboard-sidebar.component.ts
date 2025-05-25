@@ -66,8 +66,7 @@ export class DashboardSidebarComponent {
       { icon: 'home', label: 'Home', route: '/home' },
       { icon: 'dashboard', label: 'Overview', route: '/manager-dashboard/dashboard' },
       { icon: 'group', label: 'Deduplications', route: '/manager-dashboard/deduplications' },
-      { icon: 'analytics', label: 'Complaints', route: '/manager-dashboard/complaints' },
-      { icon: 'settings', label: 'Frauds', route: '/manager-dashboard/frauds' },
+      { icon: 'warning', label: 'Fraud', route: '/manager-dashboard/fraud' },
       { icon: 'summarize', label: 'Citizens', route: '/manager-dashboard/citizens' }
     ]
   };

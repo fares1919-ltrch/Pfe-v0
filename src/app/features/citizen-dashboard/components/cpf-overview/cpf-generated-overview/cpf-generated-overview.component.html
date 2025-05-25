@@ -11,9 +11,15 @@
       color="primary"
       class="download-btn"
       (click)="exportCPFDocument()"
+      [disabled]="isDownloading"
     >
-      <mat-icon>download</mat-icon>
-      Download CPF Information
+      <mat-spinner
+        *ngIf="isDownloading"
+        diameter="20"
+        style="margin-right: 8px"
+      ></mat-spinner>
+      <mat-icon *ngIf="!isDownloading">download</mat-icon>
+      {{ isDownloading ? "Downloading..." : "Download CPF Information" }}
     </button>
   </div>
 
@@ -31,9 +37,17 @@
       <!-- CPF Number Section -->
       <div class="cpf-number-section">
         <p class="label">CPF Number</p>
-        <p class="value">{{ citizen?.cpf?.number }}</p>
-        <button type="button" mat-icon-button class="visibility-toggle">
-          <mat-icon>visibility</mat-icon>
+        <p class="value">{{ getMaskedCpfNumber() }}</p>
+        <button
+          type="button"
+          mat-icon-button
+          class="visibility-toggle"
+          (click)="toggleCpfVisibility()"
+          [title]="isCpfVisible ? 'Hide CPF Number' : 'Show CPF Number'"
+        >
+          <mat-icon>{{
+            isCpfVisible ? "visibility_off" : "visibility"
+          }}</mat-icon>
         </button>
       </div>
 
@@ -44,7 +58,13 @@
       </div>
 
       <!-- Action Button -->
-      <button type="button" mat-stroked-button color="warn" class="action-btn">
+      <button
+        type="button"
+        mat-stroked-button
+        color="warn"
+        class="action-btn"
+        (click)="openConsultingModal()"
+      >
         <mat-icon>support_agent</mat-icon>
         Request Consulting Demand
       </button>
@@ -103,5 +123,211 @@
     <app-cpf-document-content
       [documentData]="documentData"
     ></app-cpf-document-content>
+  </div>
+
+  <!-- Consulting Demand Modal -->
+  <div
+    class="modal-overlay-smooth"
+    *ngIf="showConsultingModal"
+    (click)="closeConsultingModal()"
+  >
+    <div
+      class="modal-content-smooth consulting-modal"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="modal-header-smooth">
+        <div class="modal-title-smooth">
+          <mat-icon class="support-icon-smooth">support_agent</mat-icon>
+          <div>
+            <h2>Request Consulting Demand</h2>
+            <p>Get professional assistance with your CPF-related questions</p>
+          </div>
+        </div>
+        <button
+          type="button"
+          mat-icon-button
+          class="close-button-smooth"
+          (click)="closeConsultingModal()"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <div class="modal-body-smooth">
+        <p class="modal-description-smooth">
+          Please describe your consulting request or the issue you need
+          assistance with. Our expert team will review your request and provide
+          personalized guidance.
+        </p>
+
+        <!-- Request Type Selection -->
+        <div class="form-group-smooth">
+          <label class="form-label-smooth"
+            >Request Type <span class="required-star">*</span></label
+          >
+          <select
+            class="form-select-smooth"
+            [(ngModel)]="consultingType"
+            [disabled]="isSubmittingConsulting"
+            id="consultingType"
+            aria-label="Select consulting type"
+            required
+          >
+            <option value="" disabled>
+              Select the type of assistance needed
+            </option>
+            <option value="document_verification">Document Verification</option>
+            <option value="status_inquiry">Status Inquiry</option>
+            <option value="technical_support">Technical Support</option>
+            <option value="general_guidance">General Guidance</option>
+            <option value="other">Other</option>
+          </select>
+          <div *ngIf="!consultingType" class="form-error-smooth">
+            Please select a request type
+          </div>
+        </div>
+
+        <!-- Detailed Description -->
+        <div class="form-group-smooth">
+          <label class="form-label-smooth"
+            >Detailed Description <span class="required-star">*</span></label
+          >
+          <textarea
+            class="form-textarea-smooth"
+            [(ngModel)]="consultingComment"
+            placeholder="Describe your request in detail. Include any relevant information that will help our team assist you better..."
+            rows="4"
+            maxlength="500"
+            [disabled]="isSubmittingConsulting"
+            required
+          ></textarea>
+          <div class="character-count-smooth">
+            {{ consultingComment.length }}/500 characters
+          </div>
+          <div *ngIf="!consultingComment.trim()" class="form-error-smooth">
+            Please provide a detailed description
+          </div>
+        </div>
+
+        <!-- Contact Preference -->
+        <div class="form-group-smooth">
+          <label class="form-label-smooth">Preferred Contact Method</label>
+          <select
+            class="form-select-smooth"
+            [(ngModel)]="contactPreference"
+            [disabled]="isSubmittingConsulting"
+            id="contactPreference"
+            aria-label="Select contact preference"
+          >
+            <option value="email">Email</option>
+            <option value="phone">Phone Call</option>
+            <option value="in_person">In-Person Meeting</option>
+          </select>
+        </div>
+
+        <div class="info-notice-smooth">
+          <mat-icon>info</mat-icon>
+          <span
+            >Response time: 1-3 business days. Urgent matters will be
+            prioritized.</span
+          >
+        </div>
+      </div>
+
+      <div class="modal-footer-smooth">
+        <button
+          type="button"
+          class="btn-cancel-smooth"
+          (click)="closeConsultingModal()"
+          [disabled]="isSubmittingConsulting"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="btn-submit-smooth"
+          (click)="submitConsultingDemand()"
+          [disabled]="
+            !consultingType ||
+            !consultingComment.trim() ||
+            isSubmittingConsulting
+          "
+        >
+          <mat-spinner
+            *ngIf="isSubmittingConsulting"
+            diameter="16"
+            class="btn-spinner"
+          ></mat-spinner>
+          <mat-icon *ngIf="!isSubmittingConsulting" class="btn-icon"
+            >send</mat-icon
+          >
+          {{ isSubmittingConsulting ? "Submitting..." : "Submit Request" }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Secret Key Modal -->
+  <div
+    class="modal-overlay"
+    *ngIf="showSecretKeyModal"
+    (click)="closeSecretKeyModal()"
+  >
+    <div
+      class="modal-content secret-key-modal"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="modal-header">
+        <h2>Enter Secret Key</h2>
+        <button
+          type="button"
+          class="close-button"
+          (click)="closeSecretKeyModal()"
+        >
+          ×
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <p class="modal-description">
+          Please enter your secret key to view the complete CPF number.
+        </p>
+
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Secret Key</mat-label>
+          <input
+            matInput
+            type="password"
+            [(ngModel)]="enteredSecretKey"
+            placeholder="Enter 4-digit secret key"
+            maxlength="4"
+            (keyup.enter)="verifySecretKey()"
+          />
+        </mat-form-field>
+
+        <div class="error-message" *ngIf="secretKeyError">
+          <mat-icon>error</mat-icon>
+          <span>{{ secretKeyError }}</span>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="secondary-button"
+          (click)="closeSecretKeyModal()"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="primary-button"
+          (click)="verifySecretKey()"
+          [disabled]="!enteredSecretKey || enteredSecretKey.length !== 4"
+        >
+          Verify Key
+        </button>
+      </div>
+    </div>
   </div>
 </div>

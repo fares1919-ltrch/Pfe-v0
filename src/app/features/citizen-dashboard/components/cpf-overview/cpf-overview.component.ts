@@ -8,9 +8,7 @@ import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { FormsModule } from '@angular/forms';
 import { PLATFORM_ID } from '@angular/core';
-import { CpfGeneratedOverviewComponent } from './cpf-generated-overview/cpf-generated-overview.component';
-import { CpfPendingOverviewComponent } from './cpf-pending-overview/cpf-pending-overview.component';
-import { FraudDetectedOverviewComponent } from './fraud-detected-overview/fraud-detected-overview.component';
+
 
 // Export interfaces for use in other components
 export interface CitizenWithCPF {
@@ -111,20 +109,13 @@ interface CPFStatus {
     MatIconModule,
     MatBadgeModule,
     MatDialogModule,
-    FormsModule,
-    CpfGeneratedOverviewComponent,
-    CpfPendingOverviewComponent,
-    FraudDetectedOverviewComponent
+    FormsModule
   ],
   templateUrl: './cpf-overview.component.html',
   styleUrls: ['./cpf-overview.component.css']
 })
 export class CPFOverviewComponent implements OnInit {
   @Input() citizenId: string | undefined;
-
-  // Properties for the case-specific views
-  citizen: CitizenWithCPF | CitizenWithoutCPF | CitizenWithFraud | undefined;
-  viewMode: "cpf_generated" | "cpf_pending" | "fraud_detected" | undefined;
 
   // Properties for the CPF overview
   cpfStatus: CPFStatus = {
@@ -149,48 +140,7 @@ export class CPFOverviewComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    if (this.citizenId) {
-      this.loadCitizenData();
-    }
-  }
-
-  determineViewMode(): void {
-    if (this.citizen) {
-      if ('fraudDetails' in this.citizen) {
-        this.viewMode = 'fraud_detected';
-      } else if ('cpf' in this.citizen && this.citizen.cpf?.number) {
-        this.viewMode = 'cpf_generated';
-      } else {
-        this.viewMode = 'cpf_pending';
-      }
-    }
-  }
-
-  loadCitizenData(): void {
-    // Placeholder data for demonstration
-    // In a real application, this would fetch data from a service
-
-    // For demonstration, we'll use the CPF generated case
-    this.citizen = {
-      fullName: "João Silva",
-      profileImage: "path/to/image.jpg",
-      identityNumber: "123456789",
-      cpf: {
-        number: "123.456.789-00",
-        issueDate: new Date(),
-        expiryDate: new Date(),
-        status: "active"
-      },
-      deduplicationStatus: "verified",
-      deduplicationDate: new Date(),
-      appointment: {
-        date: new Date(),
-        location: "Centre Rio de Janeiro",
-        officerName: "Maria Oliveira"
-      }
-    } as CitizenWithCPF;
-
-    this.determineViewMode();
+    // Component initialization logic can be added here if needed
   }
 
   formatDate(dateString: string): string {

@@ -1,0 +1,648 @@
+.fraud-complaints-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Roboto', sans-serif;
+  background: #f5f5f5;
+  min-height: 100vh;
+
+  // Ensure Material Design button colors work properly
+  ::ng-deep {
+    .mat-mdc-raised-button.mat-warn {
+      --mdc-protected-button-container-color: #f44336;
+      --mdc-protected-button-label-text-color: white;
+      background-color: #f44336 !important;
+      color: white !important;
+
+      &:hover:not(:disabled) {
+        background-color: #d32f2f !important;
+      }
+    }
+
+    .mat-mdc-raised-button.mat-primary {
+      --mdc-protected-button-container-color: #1976d2;
+      --mdc-protected-button-label-text-color: white;
+      background-color: #1976d2 !important;
+      color: white !important;
+
+      &:hover:not(:disabled) {
+        background-color: #1565c0 !important;
+      }
+    }
+  }
+}
+
+// Header Section
+.fraud-header {
+  background: #ffe6e8;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+  border: 1px solid #f0d7d9;
+
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+
+  .title-section {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+
+    .warning-icon {
+      color: #8b1c1c;
+      font-size: 28px;
+      width: 28px;
+      height: 28px;
+    }
+
+    h1 {
+      color: #8b1c1c;
+      font-size: 24px;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    p {
+      color: #b32a2a;
+      font-size: 14px;
+      margin: 5px 0 0 0;
+    }
+  }
+
+  .stats-cards {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+  }
+
+  .stat-card {
+    background: white;
+    border-radius: 8px;
+    padding: 15px 20px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    min-width: 80px;
+
+    .stat-value {
+      font-size: 24px;
+      font-weight: 700;
+      color: #8b1c1c;
+      margin-bottom: 5px;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #666;
+      font-weight: 500;
+    }
+  }
+}
+
+// Filters Section
+.filters-section {
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+
+  .search-container {
+    display: flex;
+    align-items: center;
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 10px 15px;
+    margin-bottom: 20px;
+    border: 1px solid #e9ecef;
+
+    mat-icon {
+      color: #6c757d;
+      margin-right: 10px;
+    }
+
+    .search-input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      outline: none;
+      font-size: 14px;
+      color: #333;
+
+      &::placeholder {
+        color: #6c757d;
+      }
+    }
+  }
+
+  .filter-buttons {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+    flex-wrap: wrap;
+
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      label {
+        font-weight: 600;
+        color: #333;
+        font-size: 14px;
+        min-width: 80px;
+      }
+
+      .filter-btn {
+        padding: 8px 16px;
+        border: 1px solid #dee2e6;
+        background: white;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 500;
+        color: #6c757d;
+        cursor: pointer;
+        transition: all 0.3s ease;
+
+        &:hover {
+          background: #f8f9fa;
+          border-color: #adb5bd;
+        }
+
+        &.active {
+          background: #007bff;
+          color: white;
+          border-color: #007bff;
+        }
+      }
+    }
+
+    .clear-filters-btn {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 8px 16px;
+      background: #6c757d;
+      color: white;
+      border: none;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: #5a6268;
+      }
+
+      mat-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+      }
+    }
+  }
+}
+
+// Loading Container
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+
+  p {
+    margin-top: 20px;
+    color: #6c757d;
+    font-size: 16px;
+  }
+}
+
+// No Reports Message
+.no-reports {
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: #6c757d;
+    margin-bottom: 20px;
+  }
+
+  h3 {
+    color: #333;
+    margin-bottom: 10px;
+  }
+
+  p {
+    color: #6c757d;
+    margin: 0;
+  }
+}
+
+// Reports Container
+.reports-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+// Fraud Report Card
+.fraud-report-card {
+  background: #fff0f2;
+  border: 1px solid #f0d7d9;
+  border-radius: 10px;
+  padding: 20px;
+  color: #8b1c1c;
+  position: relative;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  // Style for reports being affected by other actions
+  &.processing-related {
+    background: #fff9e6;
+    border-color: #ffd700;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+
+    .report-header {
+      .transaction-info {
+        .affected-indicator {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          background: #ff9800;
+          color: white;
+          font-size: 10px;
+          font-weight: 700;
+          text-transform: uppercase;
+          padding: 4px 8px;
+          border-radius: 4px;
+          letter-spacing: 0.5px;
+          margin-left: 8px;
+          animation: pulse 1.5s infinite;
+
+          mat-icon {
+            font-size: 12px;
+            width: 12px;
+            height: 12px;
+            animation: spin 2s linear infinite;
+          }
+        }
+      }
+    }
+  }
+
+  .report-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+
+    .transaction-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      .warning-icon {
+        color: #8b1c1c;
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+
+      .transaction-id {
+        font-weight: 600;
+        font-size: 14px;
+      }
+
+      .user-reported-badge {
+        background: #bb8b00;
+        color: white;
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        padding: 4px 8px;
+        border-radius: 4px;
+        letter-spacing: 0.5px;
+      }
+
+      .status-badge-inline {
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        padding: 4px 8px;
+        border-radius: 4px;
+        letter-spacing: 0.5px;
+        margin-left: 8px;
+
+        &.status-pending {
+          background: #ffc107;
+          color: #333;
+        }
+
+        &.status-investigating {
+          background: #17a2b8;
+          color: white;
+        }
+
+        &.status-resolved {
+          background: #28a745;
+          color: white;
+        }
+
+        &.status-dismissed {
+          background: #6c757d;
+          color: white;
+        }
+      }
+    }
+
+    .risk-badge {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 6px 12px;
+      border-radius: 20px;
+      letter-spacing: 0.5px;
+
+      &.risk-high {
+        background: #d71c1c;
+        color: white;
+      }
+
+      &.risk-medium {
+        background: #ff9800;
+        color: white;
+      }
+
+      &.risk-low {
+        background: #4caf50;
+        color: white;
+      }
+    }
+  }
+
+  .report-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-bottom: 20px;
+
+    .detail-item {
+      display: flex;
+      margin-bottom: 8px;
+      font-size: 14px;
+
+      .label {
+        font-weight: 600;
+        margin-right: 8px;
+        min-width: 120px;
+      }
+
+      .value {
+        color: #333;
+      }
+
+      .account-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 12px;
+        transition: all 0.3s ease;
+
+        .status-icon {
+          font-size: 14px;
+          width: 14px;
+          height: 14px;
+        }
+
+        &.account-active {
+          background: #1f9d58;
+          color: white;
+
+          .status-icon {
+            color: white;
+          }
+        }
+
+        &.account-suspended {
+          background: #ff9800;
+          color: white;
+
+          .status-icon {
+            color: white;
+          }
+        }
+
+        &.account-blocked {
+          background: #d71c1c;
+          color: white;
+
+          .status-icon {
+            color: white;
+          }
+        }
+
+        // Add animation for status changes
+        &[data-status="active"] {
+          animation: statusChange 0.5s ease-in-out;
+        }
+
+        &[data-status="blocked"] {
+          animation: statusChange 0.5s ease-in-out;
+        }
+      }
+    }
+  }
+
+  .user-report-details {
+    background: #fff9db;
+    border: 1px solid #f0e1a0;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+    font-size: 12px;
+    color: #8b6f00;
+    font-weight: 600;
+    line-height: 1.4;
+
+    p {
+      margin: 0 0 8px 0;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      strong {
+        font-weight: 700;
+      }
+    }
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+
+    .block-btn {
+      font-weight: 600;
+      font-size: 14px;
+      padding: 10px 20px;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+      min-width: 160px;
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      mat-icon {
+        margin-right: 8px;
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+      }
+
+      .button-spinner {
+        margin-right: 8px;
+
+        ::ng-deep .mat-mdc-progress-spinner circle {
+          stroke: currentColor;
+        }
+      }
+
+      // Force Material Design colors with higher specificity
+      &.mat-mdc-raised-button {
+        &.mat-warn {
+          --mdc-protected-button-container-color: #f44336 !important;
+          --mdc-protected-button-label-text-color: white !important;
+          background-color: #f44336 !important;
+          color: white !important;
+        }
+
+        &.mat-primary {
+          --mdc-protected-button-container-color: #1976d2 !important;
+          --mdc-protected-button-label-text-color: white !important;
+          background-color: #1976d2 !important;
+          color: white !important;
+        }
+      }
+    }
+  }
+
+
+}
+
+// Animations
+@keyframes statusChange {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .fraud-complaints-container {
+    padding: 15px;
+  }
+
+  .fraud-header {
+    .header-content {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .stats-cards {
+      width: 100%;
+      justify-content: space-between;
+    }
+
+    .stat-card {
+      flex: 1;
+      min-width: 70px;
+    }
+  }
+
+  .filters-section {
+    .filter-buttons {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 15px;
+
+      .filter-group {
+        flex-wrap: wrap;
+      }
+    }
+  }
+
+  .fraud-report-card {
+    .report-header {
+      .transaction-info {
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+    }
+
+    .report-details {
+      grid-template-columns: 1fr;
+      gap: 15px;
+    }
+
+    .action-buttons {
+      .block-btn {
+        width: 100%;
+        min-width: unset;
+      }
+    }
+  }
+}
