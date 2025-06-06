@@ -12,9 +12,11 @@
   margin-left: 250px;
   transition: margin-left 0.3s ease, padding 0.3s ease;
   padding: 2rem;
+  padding-top: 90px;
 
   &.sidebar-collapsed {
     margin-left: 70px;
+    padding-top: 90px;
   }
 }
 

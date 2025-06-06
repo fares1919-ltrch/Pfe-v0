@@ -5,40 +5,76 @@
     <div class="date-filter">
       <mat-form-field appearance="outline" class="date-picker">
         <mat-label>Select Date</mat-label>
-        <input matInput [matDatepicker]="picker" 
-               [(ngModel)]="selectedDate"
-               (dateChange)="onDateChange($event)"
-               [min]="minDate"
-               [max]="maxDate"
-               placeholder="Choose a date">
+        <input
+          matInput
+          [matDatepicker]="picker"
+          [(ngModel)]="selectedDate"
+          (dateChange)="onDateChange($event)"
+          [min]="minDate"
+          [max]="maxDate"
+          placeholder="Choose a date"
+        />
         <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
         <mat-datepicker #picker></mat-datepicker>
       </mat-form-field>
       <div class="reschedule-actions" *ngIf="isRescheduling">
-        <button mat-icon-button color="primary" (click)="confirmRescheduling()" class="action-button">
+        <button
+          mat-icon-button
+          color="primary"
+          (click)="confirmRescheduling()"
+          class="action-button"
+        >
           <mat-icon>check</mat-icon>
         </button>
-        <button mat-icon-button color="warn" (click)="cancelRescheduling()" class="action-button">
+        <button
+          mat-icon-button
+          color="warn"
+          (click)="cancelRescheduling()"
+          class="action-button"
+        >
           <mat-icon>close</mat-icon>
         </button>
       </div>
-      <button mat-icon-button *ngIf="!isRescheduling" (click)="startRescheduling()" class="reschedule-button">
+      <button
+        mat-icon-button
+        *ngIf="!isRescheduling"
+        (click)="startRescheduling()"
+        class="reschedule-button"
+      >
         <mat-icon>event</mat-icon>
       </button>
     </div>
   </div>
 
+  <!-- 🔥 SOCKET TEST: CPF Notifications Section (NEW) -->
+  <div
+    class="dashboard-card cpf-notifications-section"
+    style="margin-bottom: 24px; border: 2px solid #10b981"
+  >
+    <app-cpf-notifications></app-cpf-notifications>
+  </div>
+
   <!-- Statistics Cards -->
   <div class="stats-grid">
-    <div class="stat-card" *ngFor="let stat of stats" [style.--card-color]="stat.color">
+    <div
+      class="stat-card"
+      *ngFor="let stat of stats"
+      [style.--card-color]="stat.color"
+    >
       <div class="stat-icon">
         <mat-icon [style.color]="stat.color">{{ stat.icon }}</mat-icon>
       </div>
       <div class="stat-content">
         <h3>{{ stat.title }}</h3>
         <div class="stat-value">{{ stat.value }}</div>
-        <div class="stat-trend" [class.trend-up]="stat.trendDirection === 'up'" [class.trend-down]="stat.trendDirection === 'down'">
-          <mat-icon>{{ stat.trendDirection === 'up' ? 'trending_up' : 'trending_down' }}</mat-icon>
+        <div
+          class="stat-trend"
+          [class.trend-up]="stat.trendDirection === 'up'"
+          [class.trend-down]="stat.trendDirection === 'down'"
+        >
+          <mat-icon>{{
+            stat.trendDirection === "up" ? "trending_up" : "trending_down"
+          }}</mat-icon>
           <span>{{ stat.trend }}%</span>
         </div>
       </div>
@@ -54,10 +90,16 @@
         <div class="progress-item" *ngFor="let item of progressItems">
           <div class="progress-header">
             <span class="progress-label">{{ item.label }}</span>
-            <span class="progress-value">{{ item.value }}/{{ item.total }}</span>
+            <span class="progress-value"
+              >{{ item.value }}/{{ item.total }}</span
+            >
           </div>
           <div class="progress-bar">
-            <div class="progress-fill" [style.width]="getProgressPercentage(item)" [style.background-color]="item.color"></div>
+            <div
+              class="progress-fill"
+              [style.width]="getProgressPercentage(item)"
+              [style.background-color]="item.color"
+            ></div>
           </div>
         </div>
       </div>
@@ -78,7 +120,9 @@
             </div>
             <div class="activity-details">
               <span class="activity-citizen">{{ activity.citizen }}</span>
-              <span class="activity-status" [style.color]="activity.color">{{ activity.status }}</span>
+              <span class="activity-status" [style.color]="activity.color">{{
+                activity.status
+              }}</span>
             </div>
           </div>
         </div>
@@ -90,19 +134,19 @@
       <h2>Quick Statistics</h2>
       <div class="stats-grid-small">
         <div class="stat-item">
-          <div class="stat-circle" style="--stat-color: #7FB3D5">
+          <div class="stat-circle" style="--stat-color: #7fb3d5">
             <span>85%</span>
           </div>
           <span>Approval Rate</span>
         </div>
         <div class="stat-item">
-          <div class="stat-circle" style="--stat-color: #82E0AA">
+          <div class="stat-circle" style="--stat-color: #82e0aa">
             <span>92%</span>
           </div>
           <span>On-Time Delivery</span>
         </div>
         <div class="stat-item">
-          <div class="stat-circle" style="--stat-color: #F5B7B1">
+          <div class="stat-circle" style="--stat-color: #f5b7b1">
             <span>78%</span>
           </div>
           <span>Customer Satisfaction</span>
@@ -129,4 +173,4 @@
       </div>
     </div>
   </div>
-</div> 
+</div>

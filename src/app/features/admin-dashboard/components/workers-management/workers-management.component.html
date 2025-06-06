@@ -1,0 +1,103 @@
+<div class="dashboard-header-block">
+  <mat-icon class="dashboard-header-icon">supervisor_account</mat-icon>
+  <span class="dashboard-header-title">Manage Officers and Managers</span>
+</div>
+
+<div class="workers-management-container">
+  <div class="filters">
+    <label>
+      Role:
+      <select [(ngModel)]="filterRole" (change)="onFilterChange()">
+        <option value="">All</option>
+        <option value="manager">Manager</option>
+        <option value="officer">Officer</option>
+      </select>
+    </label>
+    <label>
+      Status:
+      <select [(ngModel)]="filterStatus" (change)="onFilterChange()">
+        <option value="">All</option>
+        <option value="active">Active</option>
+        <option value="blocked">Blocked</option>
+        <option value="pending">Pending</option>
+      </select>
+    </label>
+    <input
+      type="text"
+      [(ngModel)]="search"
+      (input)="onFilterChange()"
+      placeholder="Search by name, username, or email..."
+    />
+  </div>
+  <table class="workers-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let worker of filteredWorkers">
+        <td>
+          {{
+            worker.firstName || worker.lastName
+              ? worker.firstName + " " + worker.lastName
+              : worker.username
+          }}
+        </td>
+        <td>{{ worker.email }}</td>
+        <td>{{ worker.role === "manager" ? "Manager" : "Officer" }}</td>
+        <td>
+          <span
+            [ngClass]="{
+              'status-active': worker.status === 'active',
+              'status-blocked': worker.status === 'blocked',
+              'status-pending': worker.status === 'pending'
+            }"
+          >
+            {{
+              worker.status === "active"
+                ? "Active"
+                : worker.status === "blocked"
+                ? "Blocked"
+                : worker.status === "pending"
+                ? "Pending"
+                : worker.status
+            }}
+          </span>
+        </td>
+        <td>
+          <div class="action-buttons-row">
+            <button
+              *ngIf="worker.status === 'pending'"
+              (click)="activate(worker)"
+              class="action-btn activate"
+            >
+              Activate
+            </button>
+            <button
+              *ngIf="worker.status === 'active'"
+              (click)="block(worker)"
+              class="action-btn block"
+            >
+              Block
+            </button>
+            <button
+              *ngIf="worker.status === 'blocked'"
+              (click)="unblock(worker)"
+              class="action-btn unblock"
+            >
+              Unblock
+            </button>
+            <button (click)="delete(worker)" class="action-btn delete">
+              Delete
+            </button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

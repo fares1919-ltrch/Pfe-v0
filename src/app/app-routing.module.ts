@@ -64,6 +64,11 @@ export const routes: Routes = [
     loadChildren: () => import('./features/manager-dashboard/manager.routes')
       .then(m => m.MANAGER_ROUTES)
   },
+  {
+    path: 'admin',
+    loadChildren: () => import('./features/admin-dashboard/admin-dashboard.routes')
+      .then(m => m.ADMIN_ROUTES)
+  },
 
   // Public home route - This should be the LAST route since it has the '' catch-all
   {

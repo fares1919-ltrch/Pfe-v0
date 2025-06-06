@@ -11,9 +11,10 @@ type MenuItem = {
   label: string;
   route: string;
   queryParams?: { [key: string]: string };
+  description?: string;
 };
 
-type UserRole = 'citizen' | 'officer' | 'manager';
+type UserRole = 'citizen' | 'officer' | 'manager' | 'admin';
 
 type MenuItems = {
   [key in UserRole]: MenuItem[];
@@ -44,30 +45,38 @@ export class DashboardSidebarComponent {
 
   menuItems: MenuItems = {
     citizen: [
-      { icon: 'home', label: 'Home', route: '/home' },
-      { icon: 'dashboard', label: 'Overview', route: '/citizen-dashboard/dashboard' },
-      { icon: 'account_balance', label: 'Transactions', route: '/citizen-dashboard/transactions' },
-      { icon: 'description', label: 'Cpf Request', route: '/citizen-dashboard/cpf-request' },
-      { icon: 'event', label: 'My Appointment', route: '/citizen-dashboard/appointment' },
-      { icon: 'credit_card', label: 'Generated CPF', route: '/citizen-dashboard/overview/generated' },
-      { icon: 'watch_later', label: 'Pending CPF', route: '/citizen-dashboard/overview/pending' },
-      { icon: 'warning', label: 'Fraud Detected', route: '/citizen-dashboard/overview/fraud' }
+      { icon: 'home', label: 'Home', route: '/home', description: 'Main home page' },
+      { icon: 'dashboard', label: 'Overview', route: '/citizen-dashboard/dashboard', description: 'Dashboard overview' },
+      { icon: 'account_balance', label: 'Transactions', route: '/citizen-dashboard/transactions', description: 'Transaction history' },
+      { icon: 'description', label: 'Request CPF', route: '/citizen-dashboard/cpf-request', description: 'Apply for a new CPF document' },
+      { icon: 'event', label: 'My Appointments', route: '/citizen-dashboard/appointment', description: 'View appointments' },
+      { icon: 'credit_card', label: 'Generated CPF', route: '/citizen-dashboard/overview/generated', description: 'Generated CPF cards' },
+      { icon: 'warning', label: 'Fraud Detected', route: '/citizen-dashboard/overview/fraud', description: 'Fraud alerts' },
     ],
     officer: [
-      { icon: 'home', label: 'Home', route: '/home' },
-      { icon: 'dashboard', label: 'Overview', route: '/officer-dashboard/dashboard' },
-      // { icon: 'description', label: 'Requests', route: '/officer-dashboard/requests' },
-      { icon: 'assignment_turned_in', label: 'Requests', route: '/officer-dashboard/approvals' },
-      { icon: 'event_available', label: 'Appointments', route: '/officer-dashboard/appointments' },
-      { icon: 'people', label: 'citizens', route: '/officer-dashboard/citizens' },
-      // { icon: 'people', label: 'dataSubmission', route: '/officer-dashboard/data-submission/:userId/:appointmentId' },
-      ],
+      { icon: 'home', label: 'Home', route: '/home', description: 'Main home page' },
+      { icon: 'dashboard', label: 'Dashboard', route: '/officer-dashboard/dashboard', description: 'Officer dashboard overview' },
+
+      // Main functionality components
+      { icon: 'assignment_turned_in', label: 'Requests', route: '/officer-dashboard/approvals', description: 'Manage appointment requests' },
+      { icon: 'event_available', label: 'Appointments', route: '/officer-dashboard/appointments', description: 'Manage appointments' },
+
+      // User management
+      { icon: 'people', label: 'Citizens', route: '/officer-dashboard/citizens', description: 'Manage citizen records' },
+
+      // Additional components (uncomment to test)
+      { icon: 'notification_important', label: 'CPF Notifications', route: '/officer-dashboard/cpf-notifications', description: 'CPF notifications' },
+      { icon: 'upload_file', label: 'Data Submission', route: '/officer-dashboard/data-submission', description: 'Submit biometric data' },
+    ],
     manager: [
-      { icon: 'home', label: 'Home', route: '/home' },
-      { icon: 'dashboard', label: 'Overview', route: '/manager-dashboard/dashboard' },
-      { icon: 'group', label: 'Deduplications', route: '/manager-dashboard/deduplications' },
-      { icon: 'warning', label: 'Fraud', route: '/manager-dashboard/fraud' },
-      { icon: 'summarize', label: 'Citizens', route: '/manager-dashboard/citizens' }
+      { icon: 'home', label: 'Home', route: '/home', description: 'Main home page' },
+      { icon: 'dashboard', label: 'Overview', route: '/manager-dashboard/dashboard', description: 'Manager dashboard' },
+      { icon: 'group', label: 'Deduplications', route: '/manager-dashboard/deduplications', description: 'Handle duplicate records' },
+      { icon: 'warning', label: 'Fraud', route: '/manager-dashboard/fraud', description: 'Fraud management' },
+      { icon: 'summarize', label: 'Citizens', route: '/manager-dashboard/citizens', description: 'Citizen management' }
+    ],
+    admin: [
+      { icon: 'supervisor_account', label: 'Workers Management', route: '/admin/workers-management', description: 'Manage managers and officers' }
     ]
   };
 

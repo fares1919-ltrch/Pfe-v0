@@ -1,0 +1,146 @@
+.workers-management-container {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  padding: 2rem;
+  margin: 2rem auto;
+  max-width: 98%;
+  width: 98%;
+}
+
+h2 {
+  margin-bottom: 1.5rem;
+  color: #2c3e50;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.filters {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+.filters label {
+  font-size: 1rem;
+  color: #34495e;
+}
+.filters input, .filters select {
+  margin-left: 0.5rem;
+  padding: 0.4em 0.8em;
+  border: 1px solid #dbeafe;
+  border-radius: 5px;
+  font-size: 1em;
+  background: #f4f8fb;
+}
+
+.workers-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+}
+.workers-table th, .workers-table td {
+  border: 1px solid #e5e7eb;
+  padding: 0.7em 1em;
+  text-align: left;
+}
+.workers-table th {
+  background: #f5f7fa;
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+.status-active {
+  background: #e6fbe8;
+  color: #1a7f37;
+  padding: 0.2em 0.8em;
+  border-radius: 1em;
+  font-size: 0.95em;
+}
+.status-blocked {
+  background: #ffeaea;
+  color: #c0392b;
+  padding: 0.2em 0.8em;
+  border-radius: 1em;
+  font-size: 0.95em;
+}
+.status-pending {
+  background: #fff7d6;
+  color: #b8860b;
+  padding: 0.2em 0.8em;
+  border-radius: 1em;
+  font-size: 0.95em;
+}
+
+.action-btn {
+  margin-right: 0.3em;
+  padding: 0.3em 0.9em;
+  border: none;
+  border-radius: 0.3em;
+  cursor: pointer;
+  font-size: 0.98em;
+  transition: background 0.2s;
+}
+.action-btn.activate {
+  background: #1a7f37;
+  color: #fff;
+}
+.action-btn.block {
+  background: #b8860b;
+  color: #fff;
+}
+.action-btn.unblock {
+  background: #3498db;
+  color: #fff;
+}
+.action-btn.delete {
+  background: #c0392b;
+  color: #fff;
+}
+.action-btn:focus {
+  outline: 2px solid #333;
+}
+
+.action-buttons-row {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5em;
+}
+
+@media (max-width: 700px) {
+  .workers-management-container {
+    padding: 1rem;
+  }
+  .filters {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.7rem;
+  }
+  .workers-table th, .workers-table td {
+    padding: 0.5em 0.5em;
+    font-size: 0.95em;
+  }
+}
+
+.dashboard-header-block {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  padding: 1.2rem 2rem;
+  margin: 2rem auto 0 auto;
+  max-width: 98%;
+  width: 98%;
+}
+.dashboard-header-icon {
+  font-size: 2.2rem;
+  color: #3b4cca;
+  margin-right: 1rem;
+}
+.dashboard-header-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #232946;
+}

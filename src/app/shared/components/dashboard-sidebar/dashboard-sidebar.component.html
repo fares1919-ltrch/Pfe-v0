@@ -12,6 +12,7 @@
           [queryParams]="item.queryParams"
           routerLinkActive="active"
           [routerLinkActiveOptions]="{ exact: item.route === '/' }"
+          [title]="item.description || item.label"
         >
           <span class="material-icons">{{ item.icon }}</span>
           <span class="menu-label">{{ item.label }}</span>
@@ -20,7 +21,7 @@
     </ul>
   </nav>
 
-  <div class="sidebar-footer">
+  <div class="sidebar-footer" *ngIf="userRole !== 'admin'">
     <button class="logout-btn" (click)="logout()" data-tooltip="Logout">
       <span class="material-icons">logout</span>
       <span>Logout</span>

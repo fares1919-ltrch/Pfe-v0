@@ -8,7 +8,7 @@ export const CITIZEN_ROUTES: Routes = [
     children: [
       {
         path: 'dashboard',
-        loadComponent: () => import('./components/cpf-overview/cpf-overview.component')
+        loadComponent: () => import('./components/Dashboard Overview/cpf-overview.component')
           .then(m => m.CPFOverviewComponent)
       },
       {
@@ -18,7 +18,7 @@ export const CITIZEN_ROUTES: Routes = [
       },
       {
         path: 'cpf-request',
-        loadComponent: () => import('./components/cpf-request/cpf-request.component')
+        loadComponent: () => import('./components/Appointment Request/cpf-request.component')
           .then(m => m.CpfRequestComponent)
       },
       {
@@ -28,23 +28,23 @@ export const CITIZEN_ROUTES: Routes = [
       },
       {
         path: 'appointment',
-        loadComponent: () => import('./components/appointements/appointements.component')
+        loadComponent: () => import('./components/Appointements Consulting/appointements.component')
           .then(m => m.AppointementsComponent)
       },
       {
         path: 'overview/generated',
-        loadComponent: () => import('./components/cpf-overview/cpf-generated-overview/cpf-generated-overview.component')
+        loadComponent: () => import('./components/Dashboard Overview/cpf-generated-overview/cpf-generated-overview.component')
           .then(m => m.CpfGeneratedOverviewComponent)
       },
       {
-        path: 'overview/pending',
-        loadComponent: () => import('./components/cpf-overview/cpf-pending-overview/cpf-pending-overview.component')
-          .then(m => m.CpfPendingOverviewComponent)
+        path: 'overview/fraud',
+        loadComponent: () => import('./components/Dashboard Overview/fraud-detected-overview/fraud-detected-overview.component')
+          .then(m => m.FraudDetectedOverviewComponent)
       },
       {
-        path: 'overview/fraud',
-        loadComponent: () => import('./components/cpf-overview/fraud-detected-overview/fraud-detected-overview.component')
-          .then(m => m.FraudDetectedOverviewComponent)
+        path: 'notifications',
+        loadComponent: () => import('./components/all-notifications/all-notifications.component')
+          .then(m => m.AllNotificationsComponent)
       }
     ]
   }

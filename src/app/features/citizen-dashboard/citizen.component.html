@@ -6,14 +6,13 @@
   <div class="dashboard-content" [class.sidebar-collapsed]="!isSidebarOpen">
     <app-dashboard-header
       [userRole]="'Citizen'"
-      [username]="tokenStorage.getUser()?.username "
+      [username]="tokenStorage.getUser()?.username"
       [isSidebarCollapsed]="!isSidebarOpen"
       (toggleSidebar)="toggleSidebar()"
     ></app-dashboard-header>
     <main class="main-content">
       <router-outlet></router-outlet>
       <app-chatbot></app-chatbot>
-
     </main>
   </div>
 </div>

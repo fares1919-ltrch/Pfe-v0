@@ -1,204 +1,94 @@
 # Sprint 2 "Gérer Rendez-vous" - État d'avancement
 
-Ce document résume ce qui est déjà implémenté et ce qu'il reste à faire pour compléter le sprint 2 "Gérer Rendez-vous" conformément au rapport.
+Ce document résume ce qui est déjà implémenté pour le sprint 2 "Gérer Rendez-vous", aligné avec la logique actuelle du code.
 
 ## Ce qui est déjà implémenté
 
 ### Backend
 
 #### Modèles
-1. **Modèle Appointment** (`back/models/appointment.model.js`)
-   ```javascript
-   const Appointment = mongoose.model(
-     "Appointment",
-     new mongoose.Schema({
-       userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-       officerId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-       cpfRequestId: { type: mongoose.Schema.Types.ObjectId, ref: "CpfRequest", required: true },
-       appointmentDate: { type: Date, required: true },
-       status: {
-         type: String,
-         enum: ["scheduled", "completed", "cancelled", "missed"],
-         default: "scheduled"
-       },
-       notes: String,
-       location: { type: mongoose.Schema.Types.ObjectId, ref: "Center", required: true },
-       createdAt: { type: Date, default: Date.now }
-     })
-   );
-   ```
 
-2. **Modèle Center** (`back/models/center.model.js`)
-   ```javascript
-   const Center = mongoose.model(
-     "Center",
-     new mongoose.Schema({
-       name: { type: String, required: true },
-       address: {
-         street: { type: String, required: true },
-         city: { type: String, required: true },
-         state: { type: String, required: true },
-         postalCode: { type: String, required: true },
-         lon: { type: Number, required: true },
-         lat: { type: Number, required: true }
-       },
-       region: { type: String, required: true },
-       capacity: {
-         daily: { type: Number, required: true },
-         hourly: { type: Number, required: true }
-       },
-       workingHours: { /* Heures d'ouverture par jour */ },
-       status: { type: String, enum: ["active", "inactive", "maintenance"], default: "active" }
-     })
-   );
-   ```
+1.  **Modèle Appointment** (`backend/app/models/appointment.model.js`)
 
-3. **Modèle CenterSchedule** (`back/models/centerSchedule.model.js`)
-   - Gère les disponibilités des centres par mois et par jour
-   - Stocke les créneaux réservés
+    - Status enum: `["scheduled", "completed", "cancelled", "missed"]` (default "scheduled").
+    - Includes `userId`, `officerId`, `cpfRequestId`, `appointmentDate`, `notes`, `location`, `createdAt`, `updatedAt`, `service`.
 
-#### Contrôleurs
-1. **AppointmentController** (`back/controllers/appointment.controller.js`)
-   - Fonctions implémentées:
-     - `getAppointmentByRequestId`: Récupérer un rendez-vous par ID de demande CPF
-     - `rescheduleAppointment`: Reprogrammer un rendez-vous
-     - `deleteAppointment`: Supprimer un rendez-vous
-     - `createAppointement`: Créer un rendez-vous
-     - `getTodayAppointments`: Obtenir les rendez-vous du jour
-     - `getUpcomingAppointments`: Obtenir les rendez-vous à venir
-     - `cancelAppointment`: Annuler un rendez-vous
-     - `completeAppointment`: Marquer un rendez-vous comme terminé
+2.  **Modèle Center** (`backend/app/models/center.model.js`)
 
-#### Routes
-1. **Appointment Routes** (`back/routes/appointment.routes.js`)
-   - Routes pour les citoyens:
-     - `GET /api/appointments/by-request/:cpfRequestId`: Récupérer un rendez-vous par ID de demande
-   - Routes pour les officiers:
-     - `DELETE /api/appointments/:id`: Supprimer un rendez-vous
-     - `POST /api/appointments/createScheduleAppointment/:requestId`: Créer un rendez-vous
-     - `PUT /api/appointments/reschedule/:requestId`: Reprogrammer un rendez-vous
-     - `GET /api/appointments/today`: Obtenir les rendez-vous du jour
-     - `GET /api/appointments/upcoming`: Obtenir les rendez-vous à venir
-     - `PUT /api/appointments/cancel/:appointmentId`: Annuler un rendez-vous
-     - `PUT /api/appointments/complete/:appointmentId`: Marquer un rendez-vous comme terminé
+    - Includes `name`, `address` (structured), `region`, `capacity`, `workingHours`, `status`.
+
+3.  **Modèle CenterSchedule** (`backend/app/models/centerSchedule.model.js`)
+    - Manages center availability and reserved slots by month and day.
+
+#### Contrôleurs (`backend/app/controllers/appointment.controller.js`)
+
+- Implemented functions:
+  - `createAppointement`: Schedules an appointment for a CPF request, sets appointment status to `scheduled`, updates center schedule, and sets linked CPF request status to `approved`.
+  - `getAppointmentsByUser`: Retrieves appointments for the logged-in citizen.
+  - `rescheduleAppointment`: Reschedules an appointment (used for `cancelled` status in frontend), sets new date, updates appointment status to `scheduled`, updates center schedule, updates linked CPF request date and status (to `approved` if completed).
+  - `deleteAppointment`: Deletes an appointment (hard delete), sets linked CPF request status to `pending`.
+  - `validateAppointment`: Officer action. Sets appointment status to `scheduled` and linked CPF Request status to `approved`.
+  - `rejectAppointment`: Officer action. Sets appointment status to `cancelled` and linked CPF Request status to `rejected`.
+  - `getAllAppointmentsOfficer`: Retrieves appointments for officers with filters (status, date, center) and pagination.
+  - `getTodayAppointments`: Retrieves appointments for the current day.
+  - `getUpcomingAppointments`: Retrieves upcoming appointments.
+  - `cancelAppointment`: Sets appointment status to `cancelled`.
+  - `completeAppointment`: Sets appointment status to `completed` and linked CPF Request status to `completed`.
+  - `missAppointment`: Sets appointment status to `missed`.
+  - `getAppointmentByRequestId`: Retrieves an appointment by CPF request ID.
+
+#### Routes (`backend/app/routes/appointment.routes.js`)
+
+- Implemented routes:
+  - Citizen: `GET /api/appointments/user`, `DELETE /api/appointments/:id`, `PUT /api/appointments/reschedule/:requestId`, `PUT /api/appointments/cancel/:appointmentId`, `PUT /api/appointments/complete/:appointmentId`, `PUT /api/appointments/missed/:appointmentId`, `GET /api/appointments/by-request/:cpfRequestId`, `GET /api/appointments/today`, `GET /api/appointments/upcoming`.
+  - Officer: `GET /api/officer/appointments`, `PUT /api/officer/appointments/:id/validate`, `PUT /api/officer/appointments/:id/reject`, `POST /api/appointments/createScheduleAppointment/:requestId` (also used by officer/system).
 
 ### Frontend
 
-#### Services
-1. **AppointmentService** (`Front/app/core/services/appointment.service.ts`)
-   - Interface Appointment définie avec les champs nécessaires
-   - Méthodes pour interagir avec l'API des rendez-vous
+#### Services (`src/app/core/services/appointment.service.ts`)
 
-2. **CenterService** (`Front/app/core/services/center.service.ts`)
-   - Interface Center définie avec les champs nécessaires
-   - Méthodes pour récupérer les centres et leurs disponibilités
+- `AppointmentService` includes methods corresponding to implemented backend routes (e.g., `getUserAppointments`, `deleteAppointment`, `rescheduleRejectedAppointment`, `validateAppointment`, `rejectAppointment`, `getAllAppointmentsOfficer`, etc.).
+- The `Appointment` interface reflects the `scheduled`, `completed`, `cancelled`, `missed` statuses and includes `cpfRequestId` which can be a populated object.
 
-#### Composants
-1. **Citizen - Appointments Component** (`Front/app/features/citizen-dashboard/components/appointements/appointements.component.ts` et `.html`)
-   - Interface pour afficher les rendez-vous du citoyen
-   - Fonctionnalités de recherche et de rafraîchissement
+#### Services (`src/app/core/services/center.service.ts`)
 
-2. **Citizen - CPF Request Component** (`Front/app/features/citizen-dashboard/components/cpf-request/cpf-request.component.ts` et `.html`)
-   - Interface pour soumettre une demande de CPF avec sélection de centre et de date
-   - Intégration de carte pour sélectionner un centre
-   - Calendrier pour choisir une date de rendez-vous
+- `CenterService` includes methods to get centers and availability.
 
-3. **Officer - Appointments Component** (`Front/app/features/officer-dashboard/components/appointments/appointments.component.ts` et `.html`)
-   - Interface pour afficher les rendez-vous du jour et à venir
-   - Fonctionnalités pour annuler ou compléter un rendez-vous
+#### Components
 
-4. **Officer - Requests Component** (`Front/app/features/officer-dashboard/components/requests/requests.component.ts` et `.html`)
-   - Interface pour gérer les demandes de CPF et les rendez-vous associés
+1.  **Citizen - Appointments Component** (`src/app/features/citizen-dashboard/components/appointements/appointements.component.ts` and `.html`)
 
-## Ce qu'il reste à faire
+    - Displays citizen's appointments fetched via `getAppointments`. Includes search and refresh.
+    - Provides view details, delete, and reschedule buttons (reschedule enabled for `cancelled` status).
 
-### Backend
+2.  **Citizen - CPF Request Component** (`src/app/features/citizen-dashboard/components/cpf-request/cpf-request.component.ts` and `.html`)
 
-#### Modèles à modifier
-1. **Appointment Model** (`back/models/appointment.model.js`)
-   - Modifier le champ `status` pour inclure les valeurs "pending", "validated", "rejected" conformément au rapport
-   ```javascript
-   status: {
-     type: String,
-     enum: ["pending", "validated", "rejected"],
-     default: "pending"
-   }
-   ```
+    - Handles CPF request submission including center and date selection for appointment.
 
-#### Contrôleurs à ajouter/modifier
-1. **AppointmentController** (`back/controllers/appointment.controller.js`)
-   - Ajouter une fonction `validateAppointment` pour valider un rendez-vous
-   - Ajouter une fonction `rejectAppointment` pour rejeter un rendez-vous
-   - Modifier `createAppointement` pour utiliser le statut "pending" par défaut
-   - Ajouter une fonction `getAppointmentsByUser` pour récupérer les rendez-vous d'un citoyen
+3.  **Officer - Requests Component** (`src/app/features/officer-dashboard/components/requests/requests.component.ts` and `.html`)
 
-#### Routes à ajouter
-1. **Appointment Routes** (`back/routes/appointment.routes.js`)
-   - Ajouter une route `GET /api/appointments` pour les citoyens
-   - Ajouter une route `PUT /api/appointments/:id` pour permettre aux citoyens de modifier leurs rendez-vous rejetés
-   - Ajouter une route `PUT /api/officer/appointments/:id/validate` pour valider un rendez-vous
-   - Ajouter une route `PUT /api/officer/appointments/:id/reject` pour rejeter un rendez-vous
-   - Ajouter une route `GET /api/officer/appointments` avec des options de filtrage
+    - **Integrated appointment management for officers.** Displays a list of appointments using `getAllAppointmentsOfficer` with filters.
+    - Provides Validate/Reject buttons for appointments where the linked CPF Request is in `pending` status.
 
-### Frontend
+4.  **Officer - Appointments Component** (`src/app/features/officer-dashboard/components/appointments/appointments.component.ts` and `.html`)
+    - Displays Today's and Upcoming appointments (using `getTodayAppointements` and `getUpcomingAppointements`). Provides cancel/complete/missed actions.
 
-#### Services à modifier
-1. **AppointmentService** (`Front/app/core/services/appointment.service.ts`)
-   - Ajouter des méthodes pour les nouvelles routes:
-     ```typescript
-     validateAppointment(id: string): Observable<any> {
-       return this.http.put(`/api/officer/appointments/${id}/validate`, {});
-     }
-     
-     rejectAppointment(id: string): Observable<any> {
-       return this.http.put(`/api/officer/appointments/${id}/reject`, {});
-     }
-     
-     getUserAppointments(): Observable<any> {
-       return this.http.get('/api/appointments');
-     }
-     
-     rescheduleRejectedAppointment(id: string, data: any): Observable<any> {
-       return this.http.put(`/api/appointments/${id}`, data);
-     }
-     ```
+## Ce qu'il reste à faire (Potential Areas for Review/Refinement)
 
-#### Composants à modifier/ajouter
+Based on the current code and comparing it to the initial plan and LaTeX, these points could be considered:
 
-1. **Citizen - Appointments Component** (`Front/app/features/citizen-dashboard/components/appointements/appointements.component.ts` et `.html`)
-   - Ajouter la fonctionnalité de suppression de rendez-vous
-   - Ajouter la fonctionnalité de modification de date pour les rendez-vous rejetés
-   - Améliorer l'affichage des statuts des rendez-vous
+1.  **Citizen Delete Action:** The current implementation performs a hard delete of the appointment and sets the linked CPF request to `pending`. Review if a status change (e.g., to `cancelled`) would be a more appropriate behavior from a user perspective and system consistency, especially since 'cancelled' status exists and is used elsewhere.
+2.  **Citizen Reschedule Trigger Status:** The frontend currently allows rescheduling for `cancelled` appointments, while the initial LaTeX mentioned `rejected`. Confirm the intended status that permits citizen rescheduling.
+3.  **Full Pagination/Filtering in Officer Requests:** While filtering is started and basic pagination logic is present in the component, ensure the backend `getAllAppointmentsOfficer` fully supports pagination and all necessary filters (date, center) as needed for a comprehensive officer view.
+4.  **Backend Data Population:** Verify that necessary data (like `user`, `locationDetails`, `cpfRequestId` with status) is consistently populated in backend responses used by frontend components.
+5.  **Frontend UI/UX:** Refine the frontend interfaces based on the implemented logic and requirements (e.g., clearer status displays, date/time pickers for rescheduling, full filter forms in officer view).
 
-2. **Citizen - CPF Request Component** (`Front/app/features/citizen-dashboard/components/cpf-request/cpf-request.component.ts` et `.html`)
-   - Améliorer l'interface de sélection de centre sur la carte
-   - Améliorer l'interface de sélection de date et de créneau horaire
+## Alignement avec la documentation existante
 
-3. **Officer - Appointments Management Component** (à créer)
-   - Créer un nouveau composant `Front/app/features/officer-dashboard/components/manage-appointments/manage-appointments.component.ts` et `.html`
-   - Implémenter l'interface de gestion des rendez-vous avec filtres
-   - Ajouter des boutons explicites pour valider ou rejeter les rendez-vous
+Le code actuel est principalement aligné avec les diagrammes de séquence révisés concernant la mise à jour des statuts des demandes CPF par les officiers via les rendez-vous. Les principales différences se situent par rapport au plan d'implémentation initial (changement des valeurs de statut de rendez-vous, emplacement de la gestion des rendez-vous par l'officier) et potentiellement sur le comportement de suppression/annulation côté citoyen et le statut déclencheur de la reprogrammation.
 
-## Alignement avec le rapport
+## Priorités (pour la documentation ou le développement futur)
 
-Pour aligner complètement le code avec le rapport du chapitre 3, il faut:
-
-1. **Terminologie**:
-   - Utiliser les statuts "pending", "validated", "rejected" au lieu de "scheduled", "completed", "cancelled", "missed"
-   - Renommer les fonctions et variables pour correspondre à la terminologie du rapport
-
-2. **Flux de travail**:
-   - S'assurer que le flux de soumission de rendez-vous suit le diagramme de séquence "Créer rendez-vous"
-   - S'assurer que le flux de validation/rejet suit le diagramme de séquence "Approuver rendez-vous"
-
-3. **Interfaces utilisateur**:
-   - Adapter les interfaces pour correspondre aux descriptions des cas d'utilisation du rapport
-   - Implémenter tous les scénarios décrits dans le rapport (soumettre, consulter, supprimer, changer date, planifier, valider, rejeter, filtrer)
-
-## Priorités d'implémentation
-
-1. Modifier le modèle Appointment pour utiliser les bons statuts
-2. Ajouter les routes et contrôleurs manquants
-3. Modifier les composants existants pour les aligner avec le rapport
-4. Créer les nouveaux composants nécessaires
-5. Tester l'ensemble du flux de travail pour s'assurer qu'il correspond aux diagrammes de séquence
+1.  Assurer que la documentation (LaTeX, Markdown) reflète précisément la logique implémentée (statuts, flux, responsabilités des contrôleurs, structure des composants).
+2.  Décider si les points restants à faire (notamment le comportement de suppression/annulation citoyen et le statut de reprogrammation) nécessitent des ajustements dans le code ou simplement une clarification dans la documentation.
+3.  Finaliser les interfaces utilisateur et les fonctionnalités de filtrage/pagination si elles ne sont pas complètes.

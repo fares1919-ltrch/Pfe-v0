@@ -1,7 +1,21 @@
 <header class="dashboard-header" [class.collapsed]="isSidebarCollapsed">
+  <!-- Add backdrop when notifications panel is open -->
+  <div
+    class="notification-backdrop"
+    *ngIf="notificationsOpen"
+    (click)="toggleNotifications($event)"
+  ></div>
+
   <div class="header-left">
-    <button class="menu-toggle" (click)="onMenuClick()" *ngIf="!alwaysShowSidebar" [class.active]="!isSidebarCollapsed">
-      <span class="material-icons">{{ isSidebarCollapsed ? 'menu_open' : 'menu' }}</span>
+    <button
+      class="menu-toggle"
+      (click)="onMenuClick()"
+      *ngIf="!alwaysShowSidebar"
+      [class.active]="!isSidebarCollapsed"
+    >
+      <span class="material-icons">{{
+        isSidebarCollapsed ? "menu_open" : "menu"
+      }}</span>
     </button>
     <div class="header-title">
       <h1>{{ userRole | titlecase }} Dashboard</h1>
@@ -9,23 +23,27 @@
   </div>
 
   <div class="header-right">
-    <div class="search-bar">
+    <div class="search-bar" *ngIf="userRole !== 'admin'">
       <input type="text" placeholder="Search anything..." />
       <span class="material-icons">search</span>
     </div>
 
-    <div class="header-actions">
-      <button class="notification-btn" aria-label="Notifications">
-        <span class="material-icons">notifications</span>
-        <span class="notification-badge">3</span>
-      </button>
+    <div class="header-actions" *ngIf="userRole !== 'admin'">
+      <!-- Real-Time Notifications -->
+      <app-real-time-notifications
+        [userRole]="userRole"
+      ></app-real-time-notifications>
 
       <div class="user-profile" (click)="toggleDropdown()">
         <img [src]="userPhotoUrl" alt="User avatar" />
         <span class="username">{{ username }}</span>
-        <span class="material-icons" [style.transform]="dropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)'">expand_more</span>
-        
-        <div *ngIf="dropdownOpen" class="profile-dropdown">
+        <span
+          class="material-icons"
+          [style.transform]="dropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)'"
+          >expand_more</span
+        >
+
+        <div *ngIf="dropdownOpen" class="profile-dropdown" [@fadeInOut]>
           <button class="dropdown-item" (click)="goToProfile()">
             <span class="material-icons">person</span>
             My Profile
@@ -38,9 +56,14 @@
             <span class="material-icons">help_outline</span>
             Help Center
           </button>
-          <button class="dropdown-item" style="color: #dc2626;" (click)="logout()" [disabled]="isLoggingOut">
+          <button
+            class="dropdown-item"
+            style="color: #dc2626"
+            (click)="logout()"
+            [disabled]="isLoggingOut"
+          >
             <span class="material-icons">logout</span>
-            {{ isLoggingOut ? 'Logging out...' : 'Logout' }}
+            {{ isLoggingOut ? "Logging out..." : "Logout" }}
           </button>
         </div>
       </div>

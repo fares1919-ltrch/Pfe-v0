@@ -1,0 +1,546 @@
+// Professional CPF Document Styling
+.cpf-document-container {
+  font-family: 'Times New Roman', serif;
+  background: #fff;
+  padding: 10px;
+  border: 2px solid #222;
+  border-radius: 4px;
+  max-width: 700px;
+  margin: 0 auto;
+  box-shadow: none;
+  position: relative;
+
+  &::before {
+    display: none;
+  }
+
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  // Document Header
+  .header {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    gap: 8px;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 2px solid #444;
+    margin-bottom: 10px;
+    background: #fff;
+    border-radius: 4px;
+    padding: 8px;
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      .logo {
+        width: 40px;
+        height: 40px;
+        object-fit: contain;
+        border: 1px solid #444;
+        border-radius: 50%;
+        padding: 2px;
+        background: #fff;
+      }
+
+      .republic-info {
+        .republic-name {
+          font-size: 8px;
+          font-weight: bold;
+          color: #222;
+          margin: 0;
+          line-height: 1.2;
+        }
+
+        .ministry, .department {
+          font-size: 7px;
+          color: #666;
+          margin: 1px 0;
+          line-height: 1.1;
+        }
+      }
+    }
+
+    .title-center {
+      text-align: center;
+
+      h1 {
+        font-size: 14px;
+        font-weight: bold;
+        color: #222;
+        margin: 0 0 2px 0;
+        letter-spacing: 0.5px;
+      }
+
+      h2 {
+        font-size: 10px;
+        color: #444;
+        margin: 0 0 5px 0;
+        font-style: italic;
+      }
+
+      .document-number {
+        background: #222;
+        color: #fff;
+        padding: 2px 6px;
+        border-radius: 10px;
+        display: inline-block;
+
+        .doc-label {
+          font-size: 7px;
+          margin-right: 2px;
+        }
+
+        .doc-value {
+          font-size: 8px;
+          font-weight: bold;
+        }
+      }
+    }
+
+    .header-right {
+      text-align: right;
+
+      .generation-info {
+        margin-bottom: 5px;
+
+        p {
+          font-size: 7px;
+          margin: 2px 0;
+          color: #444;
+        }
+      }
+    }
+  }
+
+  // Section Styling
+  .section {
+    margin-bottom: 10px;
+    padding: 8px;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: none;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    .section-title {
+      margin-bottom: 8px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid #444;
+
+      h3 {
+        font-size: 10px;
+        font-weight: bold;
+        color: #222;
+        margin: 0;
+        letter-spacing: 0.2px;
+      }
+    }
+  }
+
+  // Personal Information Section
+  .personal-info {
+    .personal-content {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 10px;
+      align-items: start;
+
+      .photo-container {
+        text-align: center;
+
+        .photo {
+          width: 50px;
+          height: 60px;
+          object-fit: cover;
+          border: 1px solid #444;
+          border-radius: 4px;
+          box-shadow: none;
+        }
+
+        .photo-info {
+          margin-top: 2px;
+
+          .photo-date {
+            font-size: 7px;
+            color: #666;
+            margin: 0;
+          }
+
+          .photo-date-value {
+            font-size: 7px;
+            font-weight: bold;
+            color: #222;
+            margin: 1px 0 0 0;
+          }
+        }
+      }
+
+      .personal-details {
+        .detail-row {
+          display: grid;
+          grid-template-columns: 1fr 2fr;
+          gap: 5px;
+          padding: 2px 0;
+          border-bottom: 1px dotted #bbb;
+
+          &:last-child {
+            border-bottom: none;
+          }
+
+          .label {
+            font-size: 8px;
+            font-weight: bold;
+            color: #444;
+          }
+
+          .value {
+            font-size: 8px;
+            color: #222;
+            font-weight: 500;
+          }
+        }
+      }
+    }
+  }
+
+  // CPF Information Section
+  .cpf-info {
+    .cpf-content {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: start;
+
+      .cpf-main-info {
+        .cpf-number-container {
+          background: #222;
+          color: #fff;
+          padding: 4px 8px;
+          border-radius: 4px;
+          margin-bottom: 5px;
+          text-align: center;
+
+          .cpf-label {
+            display: block;
+            font-size: 8px;
+            margin-bottom: 2px;
+            opacity: 0.9;
+          }
+
+          .cpf-number {
+            font-size: 12px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            font-family: 'Courier New', monospace;
+          }
+        }
+
+        .cpf-details-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 5px;
+
+          .cpf-detail {
+            .label {
+              display: block;
+              font-size: 7px;
+              font-weight: bold;
+              color: #444;
+              margin-bottom: 1px;
+            }
+
+            .value {
+              font-size: 8px;
+              color: #222;
+              font-weight: 500;
+
+              &.status-active {
+                color: #222;
+                font-weight: bold;
+              }
+            }
+          }
+        }
+      }
+
+      .qr-section {
+        text-align: center;
+
+        .qr-code {
+          width: 40px;
+          height: 40px;
+          border: 1px solid #444;
+          border-radius: 4px;
+          background: #fff;
+          padding: 2px;
+        }
+
+        .qr-label {
+          font-size: 7px;
+          color: #444;
+          margin: 2px 0 0 0;
+        }
+      }
+    }
+  }
+
+  // Collection Information Section
+  .collection-info {
+    .collection-content {
+      .collection-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 5px;
+
+        .collection-detail {
+          .label {
+            display: block;
+            font-size: 7px;
+            font-weight: bold;
+            color: #444;
+            margin-bottom: 1px;
+          }
+
+          .value {
+            font-size: 8px;
+            color: #222;
+            font-weight: 500;
+          }
+        }
+      }
+    }
+  }
+
+  // Biometric Information Section
+  .biometric-info {
+    .biometric-content {
+      .biometric-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 5px;
+        margin-bottom: 5px;
+
+        .biometric-detail {
+          &.full-width {
+            grid-column: 1 / -1;
+          }
+
+          .label {
+            display: block;
+            font-size: 7px;
+            font-weight: bold;
+            color: #444;
+            margin-bottom: 2px;
+          }
+
+          .value {
+            font-size: 8px;
+            color: #222;
+            font-weight: 500;
+          }
+
+          .biometric-types {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 3px;
+            margin-top: 2px;
+
+            .biometric-type {
+              background: #eee;
+              color: #222;
+              padding: 2px 4px;
+              border-radius: 6px;
+              font-size: 7px;
+              font-weight: 500;
+            }
+          }
+        }
+      }
+
+      .security-notice {
+        background: #f5f5f5;
+        border: 1px solid #ccc;
+        border-radius: 2px;
+        padding: 3px;
+
+        p {
+          font-size: 7px;
+          color: #444;
+          margin: 0;
+        }
+      }
+    }
+  }
+
+  // Footer Section
+  .footer {
+    margin-top: 10px;
+    border-top: 2px solid #444;
+    padding-top: 8px;
+
+    .footer-content {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 8px;
+      margin-bottom: 5px;
+
+      .legal-section {
+        .legal-text {
+          font-size: 7px;
+          color: #222;
+          line-height: 1.2;
+          margin-bottom: 5px;
+          text-align: justify;
+        }
+
+        .verification-section {
+          .verification-title {
+            font-size: 7px;
+            color: #222;
+            margin: 0 0 2px 0;
+          }
+
+          .verification-url {
+            font-size: 7px;
+            margin: 2px 0;
+
+            a {
+              color: #222;
+              text-decoration: none;
+
+              &:hover {
+                text-decoration: underline;
+              }
+            }
+          }
+
+          .contact-info {
+            font-size: 7px;
+            color: #444;
+            margin: 2px 0 0 0;
+          }
+        }
+      }
+
+      .footer-stamps {
+        text-align: center;
+
+        .official-stamp {
+          width: 40px;
+          height: 40px;
+          border: 1px solid #444;
+          border-radius: 50%;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          background: #fff;
+
+          .stamp-content {
+            text-align: center;
+
+            .stamp-title {
+              font-size: 7px;
+              font-weight: bold;
+              color: #222;
+              margin: 0;
+              line-height: 1;
+            }
+
+            .stamp-subtitle {
+              font-size: 6px;
+              color: #444;
+              margin: 1px 0;
+              line-height: 1;
+            }
+
+            .stamp-date {
+              font-size: 8px;
+              font-weight: bold;
+              color: #222;
+              margin: 1px 0 0 0;
+            }
+          }
+        }
+      }
+    }
+
+    .footer-bottom {
+      text-align: center;
+      padding-top: 5px;
+      border-top: 1px solid #bbb;
+
+      .document-id {
+        font-size: 7px;
+        color: #444;
+        margin: 0;
+        font-family: 'Courier New', monospace;
+      }
+    }
+  }
+}
+
+// Print Styles
+@media print {
+  .cpf-document-container {
+    box-shadow: none;
+    border: 1px solid #000;
+    margin: 0;
+    padding: 8px;
+    background: #fff;
+
+    &::before {
+      display: none;
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .cpf-document-container {
+    padding: 5px;
+    margin: 5px;
+
+    .header {
+      grid-template-columns: 1fr;
+      gap: 5px;
+      text-align: center;
+
+      .header-left {
+        justify-content: center;
+      }
+
+      .header-right {
+        text-align: center;
+      }
+    }
+
+    .personal-info .personal-content {
+      grid-template-columns: 1fr;
+      gap: 5px;
+      text-align: center;
+    }
+
+    .cpf-info .cpf-content {
+      grid-template-columns: 1fr;
+      gap: 5px;
+    }
+
+    .collection-info .collection-grid,
+    .biometric-info .biometric-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .footer .footer-content {
+      grid-template-columns: 1fr;
+      gap: 5px;
+    }
+  }
+}

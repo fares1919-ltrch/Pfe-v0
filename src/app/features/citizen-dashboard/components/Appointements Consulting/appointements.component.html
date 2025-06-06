@@ -1,0 +1,284 @@
+<div class="appointments-container">
+  <!-- Header -->
+  <div class="header">
+    <h1>My Appointments</h1>
+  </div>
+
+  <!-- Loading state -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Loading your appointments...</p>
+  </div>
+
+  <!-- Error state -->
+  <div *ngIf="error && !isLoading" class="error-container">
+    <div class="error-icon">❌</div>
+    <h2>Something went wrong</h2>
+    <p>{{ error }}</p>
+    <button class="primary-button" (click)="loadAppointments()">
+      Try Again
+    </button>
+  </div>
+
+  <!-- Empty state -->
+  <div
+    *ngIf="!isLoading && !error && filteredAppointments.length === 0"
+    class="empty-container"
+  >
+    <div class="empty-icon">📅</div>
+    <h2>No appointments found</h2>
+    <p>You don't have any appointments scheduled at this time.</p>
+  </div>
+
+  <!-- Appointments list -->
+  <div
+    *ngIf="!isLoading && !error && filteredAppointments.length > 0"
+    class="appointments-list"
+  >
+    <div class="appointment-cards">
+      <div
+        *ngFor="let appointment of filteredAppointments"
+        class="appointment-card"
+      >
+        <div class="appointment-status" [ngClass]="appointment.status">
+          <span class="status-indicator"></span>
+          {{ appointment.status | titlecase }}
+        </div>
+        <div class="appointment-content">
+          <div class="appointment-flex-container">
+            <div class="appointment-info">
+              <div class="appointment-service">
+                <h3>ID Verification Appointment</h3>
+                <span>Ref: {{ appointment._id | slice : 0 : 8 }}</span>
+              </div>
+              <div class="appointment-details">
+                <div class="detail">
+                  <i class="fas fa-calendar-alt"></i>
+                  <span>{{ formatDate(appointment.appointmentDate) }}</span>
+                </div>
+                <div class="detail">
+                  <i class="fas fa-clock"></i>
+                  <span>{{ formatTime(appointment.appointmentDate) }}</span>
+                </div>
+                <div class="detail">
+                  <i class="fas fa-map-marker-alt"></i>
+                  <span>{{
+                    appointment.center?.name || "Loading center information..."
+                  }}</span>
+                </div>
+                <div class="detail" *ngIf="appointment.center?.address">
+                  <i class="fas fa-location-arrow"></i>
+                  <span>
+                    {{ appointment.center?.address?.street || "" }},
+                    {{ appointment.center?.address?.city || "" }},
+                    {{ appointment.center?.address?.state || "" }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Next Steps Section -->
+            <div
+              class="next-steps"
+              *ngIf="
+                appointment.status === 'pending' ||
+                appointment.status === 'validated'
+              "
+            >
+              <h4>Next Steps</h4>
+              <div class="steps-container">
+                <div class="step">
+                  <div class="step-number">
+                    <i class="fas fa-calendar-check"></i>
+                  </div>
+                  <div class="step-text">
+                    Attend appointment in exact date and time
+                  </div>
+                </div>
+                <div class="step">
+                  <div class="step-number">
+                    <i class="fas fa-fingerprint"></i>
+                  </div>
+                  <div class="step-text">Biometric data collection</div>
+                </div>
+                <div class="step">
+                  <div class="step-number">
+                    <i class="fas fa-id-card"></i>
+                  </div>
+                  <div class="step-text">Verification and CPF generation</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="appointment-actions">
+            <ng-container
+              *ngIf="
+                appointment.status === 'pending' ||
+                appointment.status === 'validated'
+              "
+            >
+              <button
+                class="action-button change-date"
+                (click)="openRescheduleModal(appointment)"
+                *ngIf="!isPastAppointment(appointment.appointmentDate)"
+              >
+                <i class="fas fa-calendar-alt"></i>
+                Reschedule
+              </button>
+              <button
+                class="action-button delete"
+                (click)="openCancelModal(appointment)"
+                *ngIf="!isPastAppointment(appointment.appointmentDate)"
+              >
+                <i class="fas fa-times-circle"></i>
+                Cancel
+              </button>
+            </ng-container>
+            <ng-container *ngIf="appointment.status === 'rejected'">
+              <div class="warning-text">
+                <i class="fas fa-exclamation-triangle"></i>
+                This appointment was rejected by an officer
+              </div>
+            </ng-container>
+            <ng-container *ngIf="appointment.status === 'missed'">
+              <div class="warning-text">
+                <i class="fas fa-exclamation-triangle"></i>
+                You missed this appointment
+              </div>
+            </ng-container>
+            <ng-container *ngIf="appointment.status === 'completed'">
+              <div class="detail" style="color: #2e7d32">
+                <i class="fas fa-check-circle"></i>
+                <span
+                  >Completed on {{ formatDate(appointment.updatedAt) }}</span
+                >
+              </div>
+            </ng-container>
+            <ng-container *ngIf="appointment.status === 'cancelled'">
+              <div class="detail" style="color: #757575">
+                <i class="fas fa-ban"></i>
+                <span
+                  >Cancelled on {{ formatDate(appointment.updatedAt) }}</span
+                >
+              </div>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reschedule Modal -->
+  <div *ngIf="showRescheduleModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Reschedule Appointment</h2>
+        <button class="close-button" (click)="closeRescheduleModal()">
+          &times;
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="selected-datetime">
+          <div class="datetime-display">
+            <div class="datetime-item">
+              <i class="fas fa-calendar-alt"></i>
+              <div>
+                <strong>Current Date:</strong>
+                <span *ngIf="selectedAppointment">{{
+                  formatDate(selectedAppointment.appointmentDate)
+                }}</span>
+                <span *ngIf="!selectedAppointment">Not set</span>
+              </div>
+            </div>
+            <div class="datetime-item">
+              <i class="fas fa-clock"></i>
+              <div>
+                <strong>Current Time:</strong>
+                <span *ngIf="selectedAppointment">{{
+                  formatTime(selectedAppointment.appointmentDate)
+                }}</span>
+                <span *ngIf="!selectedAppointment">Not set</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <h3>Select New Date and Time</h3>
+        <div>
+          <mat-form-field appearance="fill">
+            <mat-label>Choose a date</mat-label>
+            <input
+              matInput
+              [matDatepicker]="picker"
+              [min]="minDate"
+              [(ngModel)]="newDate"
+            />
+            <mat-hint>MM/DD/YYYY</mat-hint>
+            <mat-datepicker-toggle
+              matSuffix
+              [for]="picker"
+            ></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
+        </div>
+        <div>
+          <mat-form-field appearance="fill">
+            <mat-label>Choose a time</mat-label>
+            <mat-select [(ngModel)]="newTime">
+              <mat-option *ngFor="let time of availableTimes" [value]="time">
+                {{ time }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="secondary-button" (click)="closeRescheduleModal()">
+          Cancel
+        </button>
+        <button
+          class="primary-button"
+          [disabled]="!newDate || !newTime || isRescheduling"
+          (click)="rescheduleAppointment()"
+        >
+          <span *ngIf="isRescheduling">Rescheduling...</span>
+          <span *ngIf="!isRescheduling">Confirm Reschedule</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cancel Modal -->
+  <div *ngIf="showCancelModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Cancel Appointment</h2>
+        <button class="close-button" (click)="closeCancelModal()">
+          &times;
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to cancel this appointment?</p>
+        <div class="warning-text">
+          <i class="fas fa-exclamation-triangle"></i>
+          This action cannot be undone. You'll need to create a new appointment
+          if needed.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="secondary-button" (click)="closeCancelModal()">
+          Keep Appointment
+        </button>
+        <button
+          class="delete-button"
+          [disabled]="isCancelling"
+          (click)="cancelAppointment()"
+        >
+          <span *ngIf="isCancelling">Cancelling...</span>
+          <span *ngIf="!isCancelling">Cancel Appointment</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

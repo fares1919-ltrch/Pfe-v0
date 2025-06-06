@@ -1,4 +1,4 @@
-\chapter{Release 3 :« Gérer CPF » }
+\chapter{Release 3 :« Gérer CPF \& transactions et fraudes» }
 \label{chap_sprint3}
 \addcontentsline{toc}{section}{Introduction}
 \section*{Introduction}
@@ -7,16 +7,18 @@ Après avoir clôturé la deuxième release dédiée à la gestion des rendez-vo
 
 Dans ce chapitre, nous décrivons l'organisation et le backlog du sprint « Gérer CPF », puis nous abordons la phase d'analyse et la solution conceptuelle en illustrant les interactions entre les acteurs et le système à l'aide de divers diagrammes. Nous détaillons particulièrement le processus automatisé de déduplication biométrique et de génération de CPF qui s'exécute après la collecte des données biométriques lors des rendez-vous. Enfin, nous mettons en lumière la mise en œuvre concrète à travers les interfaces utilisateur pour les citoyens, les officiers et les managers.
 
-\section{Sprint 3 : « Gérer CPF »}
+\subsection {Sprint 3 : « Gérer CPF »}
 Dans cette section, nous décrivons le développement du système de gestion des CPF, qui constitue le cœur de notre application d'identité. Ce système permet la collecte sécurisée des données biométriques, la vérification automatique de l'unicité des identités via un processus de déduplication, et la génération des numéros CPF pour les citoyens brésiliens vérifiés.
-\subsection{Organisation}
+\subsubsection{Organisation}
 Le tableau 5.1 ci-dessous donne un aperçu détaillé sur le Backlog du sprint « Gérer CPF ».
 
 \begin{longtable}{|>{\centering\arraybackslash}p{0.7cm}|>{\arraybackslash}p{5cm}|>{\centering\arraybackslash}p{1.3cm}|>{\arraybackslash}p{6.5cm}|>{\centering\arraybackslash}p{1cm}|}
-\caption{Backlog du sprint 3 : « Gérer CPF »} \label{tab:backlog} \\
+\caption{\centering Backlog du sprint 3 : « Gérer CPF »}
+\label{tab:backlog} \\
 
 \hline
-\textbf{ID} & \textbf{User Story} & \textbf{ID} & \textbf{Tâche} & \textbf{Durée /j} \\
+\rowcolor{gray!30}
+ID & User Story & ID & Tâche & Durée /j \\
 \hline
 \endfirsthead
 
@@ -29,74 +31,47 @@ Le tableau 5.1 ci-dessous donne un aperçu détaillé sur le Backlog du sprint �
 \hline
 \endlastfoot
 
-% User Story 6.1
-\multirow{3}{0.7cm}{6.1} & \multirow{3}{5cm}{En tant que citoyen, je peux consulter mon numéro CPF et son statut, effectuer des actions comme le blocage en cas de fraude et recevoir des notifications des transactions basées sur mon numéro CPF.}
-& 6.1.1 & Implémenter une interface frontend pour afficher le numéro CPF et son statut pour le citoyen. & 1 \\
+\multirow{3}{0.7cm}{7.1} & \multirow{3}{4cm}{En tant qu'officier de police, je peux téléverser et enregistrer les données biométriques des citoyens lors des rendez-vous.} & 7.1.1 & Créer les interfaces pour le téléversement sécurisé des données biométriques. & 1 \\
 \cline{3-5}
-& & 6.1.2 & Développer une API backend sécurisée (via JWT) pour récupérer le numéro CPF et son statut pour le citoyen authentifié. & 1 \\
+& & 7.1.2 & Développer les API pour recevoir et stocker les données biométriques avec chiffrement. & 1 \\
 \cline{3-5}
-& & 6.1.3 & Ajouter une fonctionnalité de notification des transactions liées au CPF (par e-mail ou via l'interface utilisateur). & 1 \\
+& & 7.1.3 & Tester les fonctionnalités de capture et téléversement des données biométriques. & 1 \\
 \hline
 
-% User Story 6.2
-\multirow{3}{0.7cm}{6.2} & \multirow{3}{5cm}{En tant que manager CPF, je peux consulter et gérer les fraudes liées aux comptes.}
-& 6.2.1 & Implémenter une interface frontend pour afficher et examiner les cas potentiels de fraude détectés par déduplication. & 1 \\
+\multirow{3}{0.7cm}{7.3} & \multirow{3}{4cm}{En tant que manager, je peux consulter les résultats de déduplication détectés dans la base.} & 7.3.1 & Créer les interfaces pour afficher les résultats de déduplication avec filtres. & 1 \\
 \cline{3-5}
-& & 6.2.2 & Développer une API backend pour récupérer et gérer les rapports de fraude (incluant statuts et historique). & 1 \\
+& & 7.3.2 & Développer les API pour récupérer les résultats de déduplication avec traçabilité. & 1 \\
 \cline{3-5}
-& & 6.2.3 & Ajouter des fonctionnalités de gestion des fraudes (ex. : blocage, marquage des comptes, notifications aux parties concernées). & 1 \\
+& & 7.3.3 & Tester les fonctionnalités de consultation des déduplications. & 1 \\
 \hline
 
-% User Story 6.3
-\multirow{3}{0.7cm}{6.3} & \multirow{3}{5cm}{En tant que manager, je peux gérer les réclamations des demandes de blocage.}
-& 6.3.1 & Implémenter une interface frontend pour afficher et traiter les réclamations de blocage de CPF (avec filtres par statut et date). & 1 \\
+\multirow{3}{0.7cm}{6.4} & \multirow{3}{4cm}{En tant que citoyen, je peux consulter les détails de mon CPF, et télécharger mon certificat CPF.} & 6.4.1 & Créer les interfaces pour afficher le numéro CPF et son état de génération (en attente, généré, frauduleux) avec possibilité de masquage/affichage. & 1 \\
 \cline{3-5}
-& & 6.3.2 & Développer une API backend pour gérer les réclamations de blocage, incluant l'historique et les statuts. & 1 \\
+& & 6.4.2 & Développer les API pour récupérer le CPF et son état de génération (en attente, généré, frauduleux) pour le citoyen authentifié. & 1 \\
 \cline{3-5}
-& & 6.3.3 & Configurer des tests unitaires pour valider les processus de gestion des réclamations (ex. : validation des statuts, traçabilité). & 1 \\
+& & 6.4.3 & Tester les fonctionnalités de consultation et téléchargement du CPF. & 1 \\
 \hline
 
-% User Story 6.4
-\multirow{3}{0.7cm}{6.4} & \multirow{3}{5cm}{En tant que manager CPF ou officier de police, je peux consulter la liste des citoyens avec des filtres par statut (actif, suspendu, bloqué) et par état de génération du CPF et effectuer des actions (blocage).}
-& 6.4.1 & Implémenter une interface frontend pour consulter la liste des citoyens avec filtres (statut : actif, suspendu, bloqué ; état de génération : en attente, généré, rejeté). & 1 \\
+\multirow{3}{0.7cm}{6.5} & \multirow{3}{5cm}{En tant qu’officier de police, je peux consulter la liste des rendez-vous plannifiées.}
+& 6.5.1 & Créer les interfaces pour consulter la liste des citoyens avec filtres avancés. & 1 \\
 \cline{3-5}
-& & 6.4.2 & Développer une API backend pour récupérer la liste des citoyens avec pagination et filtres. & 1 \\
+& & 6.5.2 & Développer les API pour récupérer la liste des citoyens avec filtres. & 1 \\
 \cline{3-5}
-& & 6.4.3 & Ajouter des fonctionnalités de gestion (ex. : blocage, mise à jour de statut) dans l'interface de consultation. & 1 \\
-\hline
-
-% User Story 6.5
-\multirow{3}{0.7cm}{6.5} & \multirow{3}{5cm}{En tant que manager, je peux consulter les déduplications détectées dans la base.}
-& 6.5.1 & Implémenter une interface frontend pour afficher les résultats de déduplication avec filtres (ex. : type de doublon, date de détection). & 1 \\
-\cline{3-5}
-& & 6.5.2 & Développer une API backend pour récupérer les résultats de déduplication avec traçabilité. & 1 \\
-\cline{3-5}
-& & 6.5.3 & Configurer des notifications pour alerter les managers des nouveaux cas de déduplication détectés. & 1 \\
-\hline
-
-% User Story 6.6
-\multirow{3}{0.7cm}{6.6} & \multirow{3}{5cm}{En tant qu’officier de police, je peux téléverser et enregistrer les données biométriques des citoyens (empreintes digitales, image faciale, iris).}
-& 6.6.1 & Implémenter une interface frontend pour le téléversement sécurisé des données biométriques (visage, empreintes digitales, iris). & 1 \\
-\cline{3-5}
-& & 6.6.2 & Développer une API backend pour recevoir et stocker les données biométriques avec chiffrement. & 1 \\
-\cline{3-5}
-& & 6.6.3 & Intégrer des contrôles de qualité automatiques (ex. : netteté, lisibilité) lors de la capture des données biométriques. & 1 \\
+& & 6.5.3 & Tester les fonctionnalités de consultation et filtrage des citoyens. & 1 \\
 \hline
 
 \end{longtable}
 
-\subsection{Analyse}
+\subsubsection{Analyse}
 Durant cette phase d'analyse, nous approfondissons les diverses fonctionnalités en les accompagnant de leurs cas d'utilisation respectifs.
-\subsubsection{Diagrammes de cas d'utilisation}
-Nous présentons dans cette partie les différents cas d'utilisation raffinés.\\
 
-\textbf{– Raffinement de cas d'utilisation « Gérer CPF »}\\
+\subsubsection{– Raffinement de cas d'utilisation « Gérer CPF »}\\
 La Figure 5.1 montre le raffinement de cas d'utilisation « Gérer CPF » mettant en lumière
-les interactions entre les citoyens, les officiers et les managers dans le processus de gestion des CPF.
+les interactions entre les citoyens, les officiers et les managers dans le processus de gestion du CPF.
 
 \begin{figure}[H]
 \centering
-\includegraphics[scale=0.65]{chapitre4/gerer_cpf_usecase.png}
+\includegraphics[width = 15 cm  ]{assetschap4/gererCPFUC.drawio_cropped.pdf}
 \caption{ Sprint 3 - Diagramme de cas d'utilisation « Gérer CPF ». }
 \end{figure}
 
@@ -107,6 +82,7 @@ détaille le scénario nominal ainsi que les enchaînements alternatifs.
 \caption{\centering Description textuelle du cas d'utilisation « Gérer CPF »}
 \label{tab:backlog} \\
 \hline
+\rowcolor{gray!30}
 \textbf{Cas d'utilisation} & Gérer CPF \\
 \hline
 \endfirsthead
@@ -119,184 +95,781 @@ détaille le scénario nominal ainsi que les enchaînements alternatifs.
 
 \hline \hline
 \endlastfoot
- \textbf{Acteur}  & Citoyen, Officer de Police, Manager CPF\\
+ \textbf{Acteur}  & Citoyen, Officier de Police, Manager CPF\\
 \hline
 \textbf{Résumé} &
 \begin{itemize}[label=]
-  \item\textbf{Scénario 1: Téléverser données biométriques}
-  \item L'officier de police peut téléverser les données biométriques d'un citoyen lors d'un rendez-vous.
-  \item\textbf{Scénario 2: Vérifier déduplication}
-  \item Le système vérifie automatiquement si les données biométriques correspondent à une identité existante.
-  \item\textbf{Scénario 3: Générer CPF}
-  \item Le système génère automatiquement un numéro CPF pour les citoyens vérifiés.
-  \item\textbf{Scénario 4: Consulter CPF}
-  \item Le citoyen peut consulter son numéro CPF et son statut.
-  \item\textbf{Scénario 5: Télécharger CPF}
-  \item Le citoyen peut télécharger son certificat CPF.
-  \item\textbf{Scénario 6: Consulter liste citoyens}
-  \item Le manager CPF et l'officier de police peuvent consulter la liste des citoyens avec des filtres par statut (actif, suspendu, bloqué) et par état de génération du CPF.
+  \item\textbf{Scénario 1: Consulter CPF}
+  \item Le citoyen brésilien peut consulter les détails de son numéro CPF.
+  \item\textbf{Scénario 2: Télécharger CPF}
+  \item Le citoyen brésilien peut télécharger son certificat CPF.
+  \item\textbf{Scénario 3: Consulter Rendez-vous Plannifiées}
+  \item L'officier de police peut consulter les rendez-vous plannfiiées .
+  \item\textbf{Scénario 4: Téléverser données biométriques}
+  \item L'officier de police peut téleverser les données biométriques des citoyens.
 \end{itemize}\\
+\hline
 
+
+
+
+
+\textbf{}&
+\begin{itemize}[label=]
+ \item\textbf{Scénario 5: Consulter Déduplications}
+  \item Le manager peut consulter les déduplications et leurs détails.
+  \item\textbf{Scénario 6: Filtrer Déduplications CPF}
+  \item Le manager peut filtrer les déduplications selon plusieurs critéres.
+\end{itemize}
 \hline
 \textbf{Pré-conditions} &
 \begin{itemize}[label=]
-  \item\textbf{Scénario 1: Téléverser données biométriques}
- \item L'officier de police est authentifié.
- \item Le rendez-vous avec le citoyen est validé et en cours.
- \item\textbf{Scénario 2: Vérifier déduplication}
- \item Les données biométriques ont été téléversées.
- \item\textbf{Scénario 3: Générer CPF}
- \item La vérification de déduplication est terminée sans correspondance.
- \item\textbf{Scénario 4: Consulter CPF}
- \item Le citoyen est authentifié.
- \item Le citoyen possède un CPF généré.
- \item\textbf{Scénario 5: Télécharger CPF}
- \item Le citoyen est authentifié.
- \item Le citoyen possède un CPF généré.
- \item\textbf{Scénario 6: Consulter liste citoyens}
- \item Le manager CPF ou l'officier de police est authentifié.
-\end{itemize} \\
-
+  \item\textbf{Scénario 1: Consulter CPF}
+  \item Le citoyen brésilien doit etre authetifié.
+  \item\textbf{Scénario 2: Télécharger CPF}
+  \item Le scénario 1  « Consulter CPF »est bien exécuté .
+  \item\textbf{Scénario 3: Consulter Rendez-vous Plannifiées}
+  \item L'officier de police doit etre authetifié.
+  \item\textbf{Scénario 4: Téléverser données biométriques}
+  \item Le scénario  « Consulter Rendez-vous Plannifiées» est bien exécuté.
+  \item\textbf{Scénario 5: Consulter Déduplications}
+  \item Le manager doit étre authentifié.
+  \item\textbf{Scénario 6: Filtrer Déduplications CPF}
+  \item Le scénario  « Consulter déduplications» est bien exécuté.
+ \end{itemize} \\
 \hline
 \textbf{Description de scénario nominal }  &
 \begin{itemize}[label=]
-  \item\textbf{Scénario 1: Téléverser données biométriques}
- \item{1-} L'officier de police accède à l'interface de collecte biométrique.
- \item{2-} L'officier capture la photo du visage du citoyen.
- \item{3-} L'officier capture les empreintes digitales du citoyen.
- \item{4-} L'officier capture les scans d'iris du citoyen.
- \item{5-} L'officier vérifie la qualité des données biométriques.
- \item{6-} L'officier soumet les données biométriques.
- \item{7-} Le système enregistre les données et lance automatiquement le processus de déduplication.
- \item\textbf{Scénario 2: Vérifier déduplication}
- \item{1-} Le système reçoit les données biométriques.
- \item{2-} Le système envoie les données à l'API de déduplication.
- \item{3-} L'API compare les données avec la base existante.
- \item{4-} L'API renvoie les résultats de la comparaison.
- \item{5-} Si aucune correspondance n'est trouvée, le système marque l'identité comme vérifiée.
- \item{6-} Si des correspondances sont trouvées, le système ajoute l'identité à la liste des cas potentiels de fraude.
+ \item\textbf{Scénario 1: Consulter CPF}
+  \item Le system charge et affiche l'interface de CPF .
+  \item\textbf{Scénario 2: Télécharger CPF}
+  \item 1- Le citoyen brésilien clique sur le bouton "download CPF information".
 \end{itemize} \\
-\hline
-\textbf{}&
-\begin{itemize}[label=]
-  \item\textbf{Scénario 3: Générer CPF}
- \item{1-} Le système vérifie que l'identité est marquée comme vérifiée.
- \item{2-} Le système génère un numéro CPF unique selon l'algorithme brésilien.
- \item{3-} Le système crée un certificat CPF avec les informations du citoyen.
- \item{4-} Le système enregistre le CPF dans la base de données.
- \item{5-} Le système notifie le citoyen de la disponibilité de son CPF.
- \item\textbf{Scénario 4: Consulter CPF}
- \item{1-} Le citoyen accède à son tableau de bord.
- \item{2-} Le système affiche le numéro CPF et son statut.
- \item{3-} Le système affiche l'historique des transactions liées au CPF.
- \item\textbf{Scénario 5: Télécharger CPF}
- \item{1-} Le citoyen clique sur "Télécharger CPF".
- \item{2-} Le système génère un document PDF sécurisé contenant le certificat CPF.
- \item{3-} Le système propose le téléchargement du document au citoyen.
-\end{itemize}\\
-\hline
-\textbf{}&
-\begin{itemize}[label=]
-  \item\textbf{Scénario 6: Consulter liste citoyens}
- \item{1-} Le manager CPF ou l'officier de police accède à l'interface de gestion des citoyens.
- \item{2-} Le système affiche la liste des citoyens avec pagination.
- \item{3-} Le manager ou l'officier peut filtrer la liste par statut (actif, suspendu, bloqué).
- \item{4-} Le manager ou l'officier peut filtrer par état de génération du CPF (en attente, généré, rejeté).
- \item{5-} Le manager ou l'officier peut sélectionner un citoyen pour voir ses détails.
- \item{6-} Le système affiche les informations détaillées du citoyen sélectionné, y compris son historique de statut.
-\end{itemize}\\
 
+
+
+
+
+
+
+
+
+
+\hline
+\textbf{}&
+\begin{itemize}[label=]
+ \item 2- Le system télécharge la certificat CPF
+  \item 3- Le certificat est enregistré dans l'appareil personnel du citoyen
+ \item\textbf{Scénario 3: Consulter Rendez-vous Plannifiées}
+  \item 1- L'officier de police clique sur Appointement.
+  \item 2- Le system charge et affiche l'interface avec les rendez-vous plannifiées
+  \item\textbf{Scénario 4: Téléverser données biométriques}
+  \item 1- L'officier de police choisit le rendez-vous désiré et clique sur upload
+  \item 2- Le system charge et affiche l'interface de téléversement
+  \item 3- L'officier de police clique sur le champs de l'image faciale
+ \item 4- Le system affiche la boite de dialoque
+  \item 5- L'officier de police choisit l'image et clique sur "ouvrir"
+  \item 6- Le system sauvegarde l'image
+  \item 7- L'officier de police refait cette etape 12 fois en totale pour l'iris et pour l'empreinte
+  \item 8- Le system sauvegrade tout les images localement
+  \item 9- L'officier de police clique sur "submit"
+  \item 10- Le system verifie l'etat des image s'ils existent il les sauvegrade dans la base"deduplication" , sinon un numero cpf est généré et les données sont enregistrés dans la base externe
+  \item\textbf{Scénario 5: Consulter Déduplications}
+  \item 1- Le manager clique sur "déduplications"
+  \item 2- Le system charge et affiche lea liste de déduplications
+  \item\textbf{Scénario 6: Filtrer Déduplications CPF}
+  \item 1- Le manager clique sur les options de filtrage
+  \item 2- Le system affiche la liste selon les options choisies
+\end{itemize}\\
 \hline
 \textbf{Enchaînements Alternatifs} &
 \begin{itemize}[label=]
-  \item\textbf{Scénario 1: Téléverser données biométriques}
- \item{5.1-} La qualité des données biométriques est insuffisante : le système affiche un message d'erreur et demande de recapturer les données.
- \item\textbf{Scénario 2: Vérifier déduplication}
- \item{4.1-} Erreur de communication avec l'API : le système met la vérification en attente et notifie l'administrateur.
- \item\textbf{Scénario 3: Générer CPF}
- \item{1.1-} L'identité n'est pas vérifiée : le système bloque la génération et notifie le manager.
- \item\textbf{Scénario 5: Télécharger CPF}
- \item{1.1-} Le CPF est bloqué : le système affiche un message d'erreur expliquant la situation.
+\item\textbf{Scénario 1: Consulter CPF}
+
+  \item\textbf{Scénario 4: Téléverser données biométriques}
+  \item 1- L'officier de police ne selectionne pas 1 photo facial , 2 iris et 10 empreinte
+  \item 2- retourne à l'etape 3 du scénario nominal
+
 \end{itemize} \\
+
+
+
 \hline
 \textbf{Post-conditions } &
 \begin{itemize}[label=]
-  \item\textbf{Scénario 1: Téléverser données biométriques}
- \item Les données biométriques sont enregistrées dans le système.
- \item\textbf{Scénario 2: Vérifier déduplication}
- \item L'identité est marquée comme vérifiée ou ajoutée à la liste des cas potentiels de fraude.
- \item\textbf{Scénario 3: Générer CPF}
- \item Un numéro CPF unique est généré et associé au citoyen.
- \item\textbf{Scénario 5: Télécharger CPF}
- \item Le citoyen obtient un document officiel contenant son CPF.
- \item\textbf{Scénario 6: Consulter liste citoyens}
- \item Le manager ou l'officier visualise la liste des citoyens selon les critères de filtrage.
-\end{itemize} \\
+  \item\textbf{Scénario 4: Téléverser données biométriques}
+  \item dés données doivent etre soit sauvegardées dans déduplications, soit sauvegardées dans la base externe de données biométriques
+\end{itemize}
 \end{longtable}
 
-\subsection{Conception}
+
+
+
+\subsubsection{Conception}
 Dans cette section, nous présentons l'étude conceptuelle des données par la présentation du
 diagramme de classes et des diagrammes d'interactions.
-\subsubsection{Diagramme de classes}
+\subsubsubsection{Diagramme de classes}
 La figure 5.3 décrit le diagramme de classes que nous avons utilisé pour développer le sprint « Gérer CPF ».
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=18 cm, height= 25cm]{chapitre4/gerer_cpf_class.png}
+\includegraphics[width=\linewidth,height=21cm]{assetschap4/sprint3CPFClass.png}
 \caption{ Sprint 3 - Diagramme de classes « Gérer CPF ». }
 \end{figure}
 
-\subsubsection{Diagrammes d'interaction détaillés}
+\subsubsubsection{Diagrammes d'interaction détaillés}
 Dans cette sous-section, nous présentons quelques diagrammes de séquences qui détaillent
 l'interaction entre la partie front-end et la partie back-end du sprint « Gérer CPF ».\\
 
+
+
+
+\textbf{– Diagramme d'interaction « Consulter Rendez-vous Plannifiées »}\\
+Ce diagramme illustre le processus de consultation des rendez-vous valide de ce jour là afin de téléverser les données biométriques d'un citoyen.
+\begin{figure}[H]
+\centering
+\includegraphics[height = 14 cm , width=15 cm ]{assetschap4/SeqConsulterRendez-vousPlannifiés.drawio (1)_cropped.pdf}
+\caption{ Sprint 3 - Diagramme d'interaction « Consulter Rendez-vous Plannifiées ». }
+\end{figure}
+
+
+
 \textbf{– Diagramme d'interaction « Téléverser Données Biométriques »}\\
-La fonction "Téléverser Données Biométriques" permet à un officier de police de capturer et d'enregistrer les données biométriques d'un citoyen lors d'un rendez-vous validé. L'officier capture les différentes données biométriques (visage, empreintes, iris), vérifie leur qualité, puis les soumet au système. Le backend reçoit ces données, les valide, les stocke de manière sécurisée, puis déclenche automatiquement le processus de déduplication. Une fois le processus terminé, le système notifie l'officier du résultat et, en cas de succès, lance la génération du CPF.
-
+La fonction "Téléverser Données Biométriques" permet à un officier de police de téléverser les données biométriques d'un citoyen lors d'un rendez-vous validé. L'officier téléverse les données biométriques(visage, empreintes, iris) puis les soumet au système. Le backend reçoit ces données, les valide, les stocke de manière sécurisée, puis déclenche automatiquement le processus de déduplication et de géneration de CPF .Une fois terminé,le system notifie l'officier du résultat .
 \begin{figure}[H]
 \centering
-\includegraphics[scale=0.7]{chapitre4/televerse_biometric_sequence.png}
-\caption{ Sprint 3 - Diagramme d'interaction « Téléverser Données Biométriques ». }
+\includegraphics[height = 23 cm , width=18 cm ]{assetschap4/SeqTeleverserBiommetriques.drawio (2).png}
+\caption{ Sprint 3 - Diagramme d'interaction « Téléverser données biométriques ». }
 \end{figure}
 
-\textbf{– Diagramme d'interaction « Vérification Déduplication et Génération CPF »}\\
-Ce diagramme illustre le processus automatique qui se déclenche après le téléversement des données biométriques. Le système envoie les données à l'API de déduplication qui les compare avec la base existante. Si aucune correspondance n'est trouvée, le système marque l'identité comme vérifiée et génère automatiquement un numéro CPF unique selon l'algorithme brésilien. Le système crée ensuite un certificat CPF, l'enregistre dans la base de données, et notifie le citoyen de la disponibilité de son CPF. Si des correspondances sont trouvées, le système ajoute l'identité à la liste des cas potentiels de fraude pour examen par un manager.
 
+
+
+\textbf{– Diagramme d'interaction «Consulter CPF »}\\
+La fonction "Consulter CPF" permet au citoyen brésilien de consulter les détails de son CPF.
 \begin{figure}[H]
 \centering
-\includegraphics[scale=0.7]{chapitre4/deduplication_cpf_sequence.png}
-\caption{ Sprint 3 - Diagramme d'interaction « Vérification Déduplication et Génération CPF ». }
+\includegraphics[width=17 cm , height = 9 cm]{assetschap4/seqConsulterMonCPF.drawio (1)_cropped.pdf}
+\caption{ Sprint 3 - Diagramme d'interaction « Consulter CPF ». }
 \end{figure}
 
-\subsection{Réalisation}
+
+
+
+
+\textbf{– Diagramme d'interaction « Consulter Déduplications »}\\
+La fonction "Consulter Déduplication" permet au manager de consulter tous les détails des Déduplications.
+\begin{figure}[H]
+\centering
+\includegraphics[height = 9 cm ,width=17 cm]{assetschap4/SeqConsuDedupp.drawio_cropped.pdf}
+\caption{ Sprint 3 - Diagramme d'interaction « Consulter Déduplications ». }
+\end{figure}
+
+
+
+
+\textbf{– Diagramme d'interaction « Télécharger CPF »}\\
+La fonction "Télécharger CPF" permet de télécharger tous les détails d'un CPF généré.
+\begin{figure}[H]
+\centering
+\includegraphics[height = 22 cm ,width=17 cm]{assetschap4/seqTelechargerCPF.drawio_cropped.pdf}
+\caption{ Sprint 3 - Diagramme d'interaction « Télécharger CPF ». }
+\end{figure}
+
+
+
+
+
+
+
+\textbf{– Diagramme d'interaction « Filtrer Déduplications »}\\
+La fonction "Filtrer Déduplication" permet au manager de filtrer les déduplications afin de faciliter visualiser les détails des records.
+\begin{figure}[H]
+\centering
+\includegraphics[height= 17 cm, width=15 cm]{assetschap4/seqFiltrerDedup.drawio_cropped.pdf}
+\caption{ Sprint 3 - Diagramme d'interaction « Filtrer Déduplications ». }
+\end{figure}
+
+
+
+
+\subsubsection{Réalisation}
 Après avoir analysé le sprint 3 et achevé la phase de conception, cette section présente les
 interfaces homme-machine élaborées durant ce sprint.\\
 
+
+
+
+
+
+
+
+
+
+\textbf{– Interfaces du cas d'utilisation « Consulter Rendez-vous Plannifiées »}\\
+L'interface consultation des rendez-vous filtrée par la date rélle de ce jour permet à l'officier de police d'avoir la possibilité de téléverser les rendez-vous de ce jour en cliquant sur le bouton "upload"
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth,height=8cm]{assetschap4/cpf realisation/rendez-vousPlannifie.png}
+\caption{ Sprint 3 - Interface « Consulter Rendez-vous Plannifiées » }
+\label{fig:5.9}
+\end{figure}
+
+
+
+
+
 \textbf{– Interfaces du cas d'utilisation « Téléverser Données Biométriques »}\\
-L'interface de collecte biométrique permet à l'officier de police de capturer les différentes données biométriques du citoyen de manière structurée et sécurisée. L'interface inclut des outils de capture pour la photo du visage, les empreintes digitales et les scans d'iris, ainsi que des indicateurs de qualité pour s'assurer que les données capturées répondent aux normes requises.
+L'interface de collecte biométrique permet à l'officier de police de capturer les différentes données biométriques du citoyen de manière structurée et sécurisée,voir la ~\hyperref[fig:5.9]{figure 5.9}.
+L'interface inclut des outils de capture pour la photo du visage, les empreintes digitales "voir la ~\hyperref[fig:5.10]{figure 5.10}" et les scans d'iris "voir la ~\hyperref[fig:5.11]{figure 5.11}", ainsi que des indicateurs de qualité pour s'assurer que les données capturées répondent aux normes requises.
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth,height=8cm]{assetschap4/cpf realisation/face_and_interface.jpeg}
+\caption{ Sprint 3 - Interface « téléverser face image » }
+\label{fig:5.9}
+\end{figure}
+
 
 \begin{figure}[H]
 \centering
-\includegraphics[scale=0.8]{chapitre4/biometric_capture_interface.png}
-\caption{ Sprint 3 - Interface « Téléverser Données Biométriques » }
+\includegraphics[width=\linewidth,height=9cm]{assetschap4/cpf realisation/fingers.jpeg}
+\caption{ Sprint 3 - Interface « Téléverser fingerprints » }
+\label{fig:5.10}
 \end{figure}
+
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth,height=9cm]{assetschap4/cpf realisation/iris.jpeg}
+\caption{ Sprint 3 - Interface « Téléverser iris » }
+\label{fig:5.11}
+\end{figure}
+
+
+
+
+
+\textbf{– Interfaces du cas d'utilisation « Télécharger CPF »}\\
+Le citoyen peut visualiser son numéro CPF (voir la ~\hyperref[fig:5.12]{figure 5.12}), consulter l'état des générations et télécharger le certificat, comme le montre la ~\hyperref[fig:5.13]{figure 5.13}.
+S'il tente une fraude, la ~\hyperref[fig:5.14]{figure 5.14} illustre la différence d'état du citoyen.
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth,height=24cm]{assetschap4/cpf realisation/telecharger cpf_page-0001.jpg}
+\caption{ Sprint 3 - Interface « Télécharger CPF » }
+\label{fig:5.12}
+\end{figure}
+
+
+
+
+
+\textbf{– Interfaces du cas d'utilisation « Consulter Déduplications »}\\
+La fonctionnalité "Consulter Déduplication" permet au manager de consulter les détails des données biométriques dédupliquées .
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth , height = 8 cm]{assetschap4/cpf realisation/consulte_dedup.jpeg}
+\caption{ Sprint 3 - Interface « Consulter Déduplications» }
+\label{fig:5.12}
+\end{figure}
+
+
+\textbf{– Interfaces du cas d'utilisation « Filtrer Déduplication »}\\
+La fonctionnalité "Filtrer Déduplication" permet au manager de Filtrer les déduplications selon pourcentage de similarité , la date , le nom du citoyen ou Id du citoyen.
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth , height = 8 cm]{assetschap4/cpf realisation/filtreNom.png}
+\caption{ Sprint 3 - Interface « Filtrer Déduplications» }
+\label{fig:5.12}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth , height = 8 cm]{assetschap4/cpf realisation/filtrePourcen.png}
+\caption{ Sprint 3 - Interface « Filtrer Déduplications» }
+\label{fig:5.12}
+\end{figure}
+
+
 
 \textbf{– Interfaces du cas d'utilisation « Consulter CPF »}\\
-L'interface de consultation CPF permet au citoyen de visualiser son numéro CPF, son statut, et l'historique des transactions associées. Elle offre également des fonctionnalités pour télécharger le certificat CPF et signaler d'éventuelles transactions frauduleuses.
+La fonctionnalité "Consulter CPF" permet au citoyen brésilien de consulter le statut de son CPF si généré ou frauduleux.
 
 \begin{figure}[H]
 \centering
-\includegraphics[scale=0.67]{chapitre4/cpf_dashboard_interface.png}
-\caption{ Sprint 3 - Interface « Consulter CPF » }
+\includegraphics[width=\linewidth,height=12 cm]{assetschap4/cpf realisation/fraud_cpf.jpeg}
+\caption{ Sprint 3 - Interface « Consulter CPF en cas "frauduleux"» }
+\label{fig:5.13}
 \end{figure}
 
-\textbf{– Interfaces du cas d'utilisation « Consulter liste citoyens »}\\
-L'interface de consultation des citoyens permet au manager CPF et à l'officier de police de visualiser et de filtrer la liste complète des citoyens. Elle offre des fonctionnalités de pagination et de filtrage par statut (actif, suspendu, bloqué) et par état de génération du CPF (en attente, généré, rejeté). L'interface permet également de sélectionner un citoyen pour afficher ses informations détaillées, y compris son historique de statut et les éventuels cas de déduplication ou de fraude associés.
+
+
 
 \begin{figure}[H]
 \centering
-\includegraphics[scale=0.67]{chapitre4/citizen_list_interface.png}
+\includegraphics[width=\linewidth,height=14 cm]{assetschap4/cpf realisation/generated_cpf.jpeg}
+\caption{ Sprint 3 - Interface « Consulter CPF en cas "généré"» }
+\label{fig:5.13}
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\newpage  % Force une nouvelle page
+\subsection{Sprint 4 : « Gérer Transactions et Fraudes »}
+Dans cette section, nous décrivons le développement du système de gestion des transactions et fraudes, qui complète notre application d'identité. Ce système permet aux citoyens de consulter leurs transactions basées sur leur CPF, de signaler des fraudes, et aux managers de gérer les cas de fraude détectés.
+\subsubsection{Organisation}
+Le tableau 5.1 ci-dessous donne un aperçu détaillé sur le Backlog du sprint « Gérer Transactions et Fraudes ».
+
+\begin{longtable}{|>{\centering\arraybackslash}p{0.7cm}|>{\arraybackslash}p{5cm}|>{\centering\arraybackslash}p{1.3cm}|>{\arraybackslash}p{6.5cm}|>{\centering\arraybackslash}p{1cm}|}
+\caption{Backlog du sprint 4 : « Gérer Transactions et Fraudes » } \label{tab:backlog} \\
+\hline
+\rowcolor{gray!30}
+\textbf{ID} & \textbf{User Story} & \textbf{ID} & \textbf{Tâche} & \textbf{Durée /j} \\
+\hline
+\endfirsthead
+\hline
+\endhead
+\hline
+\endfoot
+\hline
+\endlastfoot
+% User Story 6.1
+\multirow{3}{0.7cm}{6.3} & \multirow{3}{5cm}{En tant que citoyen brésilien, je peux gérer mes transactions basées sur mon CPF, notamment consulter et signaler les frauduleuses.}
+& 6.3.1 & Implémenter une interface frontend pour afficher l'historique des transactions liées au CPF du citoyen connecté. & 1.5 \\
+\cline{3-5}
+& & 6.3.2 & Développer une API backend sécurisée (via JWT) pour récupérer les transactions du citoyen basées sur son CPF. & 1 \\
+\cline{3-5}
+& & 6.3.3 & Ajouter une fonctionnalité permettant au citoyen de signaler une transaction comme frauduleuse (interface + API). & 1.5 \\
+\hline
+% User Story 6.2
+\multirow{3}{0.7cm}{6.1} & \multirow{3}{5cm}{En tant que manager CPF, je peux consulter et gérer les fraudes liées aux comptes.}
+& 6.1.1 & Implémenter une interface frontend pour le manager permettant de consulter les rapports de fraude et transactions signalées. & 1.5 \\
+\cline{3-5}
+& & 6.1.2 & Développer une API backend pour récupérer et traiter les signalements de fraude (statuts, historique, actions). & 1 \\
+\cline{3-5}
+& & 6.1.3 & Ajouter des fonctionnalités de gestion des fraudes (blocage/déblocage des comptes et filtrage des fraudes). & 1.5 \\
+\hline
+% User Story 6.3
+\multirow{3}{0.7cm}{6.3} & \multirow{3}{5cm}{En tant que manager CPF ou officier de police, je peux consulter la liste des citoyens avec des filtres par statut (active, suspended, pending) et par état de génération du CPF et par déduplications.}
+& 6.3.1 & Implémenter une interface frontend avec filtres avancés pour consulter la liste des citoyens (statut, état CPF, doublons détectés). & 1.5 \\
+\cline{3-5}
+& & 6.3.2 & Développer une API backend pour la gestion des citoyens avec filtrage. & 1 \\
+\cline{3-5}
+& & 6.3.3 & Implémenter le système de détection et gestion des doublons/déduplications avec interface de résolution. & 2 \\
+\hline
+\end{longtable}
+
+\subsubsection{Analyse}
+Durant cette phase d'analyse, nous approfondissons les diverses fonctionnalités en les accompagnant de leurs cas d'utilisation respectifs.
+
+\textbf{– Raffinement de cas d'utilisation « Gérer Transactions et Fraudes »}\\
+La Figure 5.1 montre le raffinement de cas d'utilisation « Gérer Transactions et Fraudes» mettant en lumière les interactions entre les citoyens, les officiers et les managers dans le processus de gestion des CPF.
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.65]{assetschap4/GérerTransEtFraudeUC.drawio_cropped.pdf}
+\caption{ Sprint 3 - Diagramme de cas d'utilisation « Gérer Transactions et Fraudes ». }
+\end{figure}
+
+Le Tableau 5.2 représente une description textuelle du cas d'utilisation « Gérer Transactions et Fraudes ». Il
+détaille le scénario nominal ainsi que les enchaînements alternatifs.
+
+\begin{longtable}{|>{\arraybackslash}p{4.2cm}|>{\arraybackslash}p{12.5cm}|}
+\caption{\centering Description textuelle du cas d'utilisation « Gérer Transactions et Fraudes »}
+\label{tab:backlog} \\
+\hline
+\rowcolor{gray!30}
+\textbf{Cas d'utilisation} & Gérer Transactions et Fraudes \\
+\hline
+\endfirsthead
+
+\hline
+\endhead
+
+\hline
+\endfoot
+
+\hline \hline
+\endlastfoot
+ \textbf{Acteur}  & Citoyen, Officier de Police, Manager CPF\\
+\hline
+\textbf{Résumé} &
+\begin{itemize}[label=]
+  \item\textbf{Scénario 1: Gérer Transactions Basées CPF}
+  \item Le citoyen brésilien gère ses transactions basées sur son CPF.
+  \item\textbf{Scénario 2: Consulter Transactions}
+  \item Le citoyen brésilien peut consulter ses transactions.
+  \item\textbf{Scénario 3: Signaler Transactions}
+  \item Le citoyen brésilien peut signaler une transaction suspecte.
+  \item\textbf{Scénario 4: Consulter Liste Citoyens}
+  \item Le manager et l'officier de police peuvent consulter la liste des citoyens.
+  \item\textbf{Scénario 5: Filtrer Liste Citoyens}
+  \item Le manager et l'officier de police peuvent filtrer la liste des citoyens.
+
+\end{itemize}\\
+
+\hline
+
+
+\textbf{}&
+\begin{itemize}[label=]
+\item\textbf{Scénario 6: Gérer Fraudes}
+  \item Le manager peut gérer les fraudes.
+  \item\textbf{Scénario 7: Consulter Fraudes}
+  \item Le manager peut consulter les fraudes.
+  \item\textbf{Scénario 8: Filtrer Fraudes}
+  \item Le manager peut filtrer la liste des fraudes.
+  \item\textbf{Scénario 9: Bloquer compte bancaire}
+  \item Le manager peut bloquer un compte bancaire déclaré.
+  \item\textbf{Scénario 10: Débloquer compte bancaire}
+  \item Le manager peut débloquer un compte bancaire.
+
+\end{itemize}\\
+\hline
+\textbf{Pré-conditions} &
+\begin{itemize}[label=]
+ \item\textbf{Scénario 1: Gérer Transactions Basées CPF}
+  \item Le citoyen brésilien est authentifié.
+    \item Le citoyen brésilien clique sur "Transactions".
+  \item\textbf{Scénario 2: Consulter Transactions}
+  \item Le scénario 1 « Gérer Transactions Basées CPF » est bien exécuté.
+  \item\textbf{Scénario 3: Signaler Transactions}
+   \item Le scénario 2 « Consulter Transactions » est bien exécuté.
+     \item Le système affiche l'interface.
+  \item\textbf{Scénario 4: Consulter Liste Citoyens}
+  \item Le manager et l'officier de police sont authentifiés.
+    \item Le manager et l'officier de police cliquent sur "citizens".
+
+\end{itemize} \\
+\hline
+\textbf{}&
+\begin{itemize}[label=]
+  \item\textbf{Scénario 5: Filtrer Liste Citoyens}
+  \item Le scénario 4 « Consulter Liste Citoyens » est bien exécuté.
+  \item Le système affiche l'interface.
+  \item\textbf{Scénario 6: Gérer Fraudes}
+  \item Le manager est authentifié.
+  \item Le manager clique sur "Frauds".
+   \item\textbf{Scénario 7: Consulter Fraudes}
+  \item Le scénario 6 « Gérer Fraudes » est bien exécuté.
+   \item\textbf{Scénario 8: Filtrer Fraudes}
+   \item Le scénario 7 « Consulter Fraudes » est bien exécuté.
+    \item Le système affiche l'interface.
+   \item\textbf{Scénario 9: Bloquer compte bancaire}
+   \item Le scénario 7 « Consulter Fraudes » est bien exécuté.
+   \item Le système affiche l'interface.
+   \item\textbf{Scénario 10: Débloquer compte bancaire}
+   \item Le scénario 7 « Consulter Fraudes » est bien exécuté.
+    \item Le système affiche l'interface.
+\end{itemize}\\
+\hline
+\textbf{Description de scénario nominal}&
+\begin{itemize}[label=]
+  \item\textbf{Scénario 1: Gérer Transactions Basées CPF}
+  \item Le système fait appel au cas d'utilisation "Consulter Transactions".
+  \item\textbf{Scénario 2: Consulter Transactions}
+  \item Le citoyen brésilien peut consulter ses transactions.
+  \item\textbf{Scénario 3: Signaler Transactions}
+  \item Le citoyen brésilien peut signaler une transaction suspecte.
+\end{itemize}
+\hline
+
+
+
+
+
+\textbf{} &
+\begin{itemize}[label=]
+  \item\textbf{Scénario 4: Consulter Liste Citoyens}
+  \item Le manager et l'officier de police accèdent à l'interface "citizens".
+  \item{2-} Le système affiche la liste des citoyens.
+  \item 3-L’acteur parcourt la liste des citoyens pour consulter les détails.
+  \item 4- L’acteur sélectionne un citoyen spécifique pour obtenir plus d’informations si nécessaire
+  \item\textbf{Scénario 5: Filtrer Liste Citoyens}
+  \item L'acteur clique sur l'option de filtrage.
+  \item Le système affiche la liste d'options de filtrage.
+  \item L'acteur choisit le critère désiré.
+  \item\textbf{Scénario 6: Gérer Fraudes}
+  \item Le système fait appel au cas d'utilisation "Consulter Fraudes".
+   \item\textbf{Scénario 7: Consulter Fraudes}
+  \item Le manager accède à l'interface "Frauds".
+  \item{2-} Le système affiche la liste des fraudes.
+  \item 3-L’acteur parcourt la liste des fraudes pour consulter les détails.
+   \item\textbf{Scénario 8: Filtrer Fraudes}
+   \item L'acteur choisit les critères de filtrage.
+    \item Le système affiche la liste filtrée.
+
+   \item\textbf{Scénario 9: Bloquer comptes bancaires}
+  \item Le manager clique sur le bouton "Block Account".
+   \item\textbf{Scénario 10: Débloquer comptes bancaires}
+  \item Le manager clique sur le bouton "Unblock Account".
+\end{itemize} \\
+
+\hline
+\textbf{Enchaînements Alternatifs} &
+\begin{itemize}[label=]
+  \item\textbf{Scénario 3: Signaler Transactions}
+  \item Le citoyen Brésilien ne saisit pas la cause ou ne choisit pas le type de fraude ou annule l'envoie de la demande .
+   \end{itemize} \\
+\hline
+\textbf{Post-conditions } &
+\begin{itemize}[label=]
+   \item\textbf{Scénario 9: Bloquer compte banquaire}
+  \item Le compte est met à jour en bloqué dans la base de données.
+   \item\textbf{Scénario 10: Débloquer compte banquaire}
+   \item Le compte est met à jour en active dans la base de données.
+\end{itemize} \\
+\end{longtable}
+
+\subsubsection{Conception}
+Dans cette section, nous présentons l'étude conceptuelle des données par la présentation du
+diagramme de classes et des diagrammes d'interactions.
+\subsubsection{Diagramme de classes}
+La figure 5.3 décrit le diagramme de classes que nous avons utilisé pour développer le sprint « Gérer Transactions et fraudes ».
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=18 cm, height= 25cm]{assetschap4/transFrauds/sprint4fraudTransClass.drawio.png}
+\caption{ Sprint 3 - Diagramme de classes « Gérer Transactions et fraudes ». }
+\end{figure}
+
+\textbf{Diagrammes d'interaction détaillés}
+Dans cette sous-section, nous présentons quelques diagrammes de séquences qui détaillent
+l'interaction entre la partie front-end et la partie back-end du sprint « Gérer Transactions et fraudes ».\\
+
+
+
+
+\textbf{– Diagramme d'interaction «Gérer Fraudes »}\\
+La fonction "Gérer Fraudes" permet au manager de gérer les fraudes .
+\begin{figure}[H]
+\centering
+\includegraphics[width = 17 cm , height = 7 cm]{assetschap4/transFrauds/seqGérerFrauds.drawio (1)_cropped.pdf}
+\caption{ Sprint 3 - Diagramme d'interaction « Gérer Fraudes ». }
+\end{figure}
+
+
+
+
+\textbf{– Diagramme d'interaction «Consulter Fraudes »}\\
+La fonction "Consulter Fraudes" permet au manager de consulter les détails des fraudes .
+\begin{figure}[H]
+\centering
+\includegraphics[width = 17 cm , height = 8 cm]{assetschap4/transFrauds/SeqConsulterFrauds.drawio_cropped.pdf}
+\caption{ Sprint 3 - Diagramme d'interaction « Consulter Fraudes ». }
+\end{figure}
+
+
+
+
+\textbf{– Diagramme d'interaction «Bloquer Compte Banquaire »}\\
+La fonction "Bloquer Compte Banquaire" permet au manager de bloquer les comptes banquaires selon une demande recu de la part d'un citoyen.
+\begin{figure}[H]
+\centering
+\includegraphics[width = 17 cm , height = 8 cm]{assetschap4/transFrauds/SeqBlockAccount(Frauds).drawio_cropped.pdf}
+\caption{ Sprint 3 - Diagramme d'interaction « Bloquer Compte Banquaire ». }
+\end{figure}
+
+
+
+
+\textbf{– Diagramme d'interaction «Débloquer Compte Banquaire»}\\
+La fonction "Débloquer Compte Banquaire" permet au manager de débloquer un compte banquaire.
+\begin{figure}[H]
+\centering
+\includegraphics[width = 17 cm , height = 9 cm]{assetschap4/transFrauds/seqUnblock(fraud).drawio (1)_cropped.pdf}
+\caption{ Sprint 3 - Diagramme d'interaction « Débloquer Compte Banquaire ». }
+\end{figure}
+
+
+
+
+\textbf{– Diagramme d'interaction «Gérer Transactions Basées CPF »}\\
+La fonction "Gérer Transactions Basées CPF" permet au cityen brésilien de gére son numéro CPF tout en ayant l'accées à ses transactions.
+\begin{figure}[H]
+\centering
+\includegraphics[width = 17 cm , height = 8 cm]{assetschap4/transFrauds/SeqTransactionBaseeCPF.drawio_cropped.pdf}
+\caption{ Sprint 3 - Diagramme d'interaction « Gérer Transactions Basées CPF ». }
+\end{figure}
+
+
+
+
+
+
+\textbf{– Diagramme d'interaction «Consulter Transactions »}\\
+La fonction "Consulter Transactions" permet au cityen brésilien de consulter ses transactions liées au comptes banquaires de son numéro CPF.
+\begin{figure}[H]
+\centering
+\includegraphics[width = 17 cm , height = 9 cm]{assetschap4/transFrauds/SeqConsulterMesTransactions.drawio_cropped.pdf}
+\caption{ Sprint 3 - Diagramme d'interaction « Gérer Transactions Basées CPF ». }
+\end{figure}
+
+
+
+
+\textbf{– Diagramme d'interaction «Signaler Transactions »}\\
+La fonction "Signaler Transactions" permet au citoyen brésilien d'envoyer une demande de signale en cas de transaction frauduleuse .
+\begin{figure}[H]
+\centering
+\includegraphics[width = 17 cm , height = 21 cm]{assetschap4/transFrauds/SeqSignalerTransaction.drawio (1)_cropped.pdf}
+\caption{ Sprint 3 - Diagramme d'interaction « Signaler Transactions ». }
+\end{figure}
+
+
+
+
+
+\textbf{– Diagramme d'interaction «Consulter Citoyens »}\\
+La fonction "Consulter Citoyens" permet au manager et à l'officier de police de consulter tout les détails des citoyens .
+\begin{figure}[H]
+\centering
+\includegraphics[width = 17 cm , height = 17 cm]{assetschap4/transFrauds/SeqConsulterCitizens.drawio_cropped.pdf}
+\caption{ Sprint 3 - Diagramme d'interaction « Consulter Citoyens ». }
+\end{figure}
+
+
+
+
+
+\textbf{– Diagramme d'interaction «Filtrer Citoyens »}\\
+La fonction "Filtrer" permet au manager et à l'officier de police de filtrer la liste  des citoyens selon plusieurs critéres.
+\begin{figure}[H]
+\centering
+\includegraphics[width = 17 cm , height = 14 cm]{assetschap4/transFrauds/seqFiltrerCitoyens.drawio (1)_cropped.pdf}
+\caption{ Sprint 3 - Diagramme d'interaction « Filtrer Citoyens ». }
+\end{figure}
+
+
+
+
+\subsubsection{Réalisation}
+Après avoir analysé le sprint 3 et achevé la phase de conception, cette section présente les
+interfaces homme-machine élaborées durant ce sprint.\\
+%A3ml hadhi
+comme le montre la~\hyperref[fig:5.27]{ figure 5.27}
+
+
+\textbf{– Interfaces du cas d'utilisation « Consulter frauds »}\\
+L'interface de consultation des fraudes permet au manager de gérer les fraudes en ayant la possibilité pour bloquer et débloquer les comptes banquaires et pour visualiser les détails de chaque demande de fraudes.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width= 17 cm , height = 24 cm]{assetschap4/transFrauds/realisation/consulte fraud.png}
+    \caption{ Sprint 4 - Interface « consulter frauds »}
+    \label{fig:5.27}
+\end{figure}
+
+
+
+
+
+
+
+
+\textbf{– Message de succées lors de blocage d'un compte banquaire}\\
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[]{assetschap4/transFrauds/realisation/blocked.png}
+    \caption{ Sprint 4 - Interface « consulter frauds »}
+    \label{fig:5.27}
+\end{figure}
+
+\textbf{– Message de succées lors de déblocage d'un compte banquaire}\\
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[]{assetschap4/transFrauds/realisation/unblocked.png}
+    \caption{ Sprint 4 - Interface « consulter frauds »}
+    \label{fig:5.27}
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+
+
+
+\textbf{– Interfaces du cas d'utilisation « Filtrer frauds »}\\
+L'interface de filtrage des frauds selon plusieurs critére tel que "Risk Level" et "Status" .
+\begin{figure}[H]
+    \centering
+
+    \includegraphics[ width = 17 cm , height = 12 cm ]{assetschap4/transFrauds/realisation/filtre.png}
+    \caption{ Sprint 4 - Interface « Filtrer frauds »}
+    \label{fig:5.27}
+\end{figure}
+
+
+\textbf{– Interfaces du cas d'utilisation « Consulter Transactions »}\\
+L'interface de consultation des transactions permet au citoyen brésilien de visualiser ses transactions associées à ses comptes banquaires. Elle offre également des fonctionnalités pour demande un blocage en cas de transactions frauduleuse tout en cliquant sur le bouton "Report Fraud".
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth  ]{assetschap4/transFrauds/realisation/consulte transaction.png}
+    \caption{Sprint 4 - Interface « consulter transactions »}
+    \label{fig:5.28}
+\end{figure}
+
+
+
+
+\textbf{– Interfaces du cas d'utilisation «signaler Transactions »}\\
+L'interface du signale de transaction permet au citoyen brésilien de reporter une transaction frauduleuse tout en choisissant le type de fraud et saisissant un commentaire , aprés avoir remplit le formilaire , le citoyen brésilien clique sur le bouton  "Submit Report".
+\begin{figure}[H]
+    \centering
+    \includegraphics[ ]{assetschap4/transFrauds/realisation/repport transaction.jpeg}
+    \caption{Sprint 4 - Interface « signaler transactions »}
+    \label{fig:5.29}
+\end{figure}
+
+
+
+
+\textbf{– Interfaces du cas d'utilisation « Consulter liste citoyens »}\\
+L'interface de consultation des citoyens permet au manager CPF et à l'officier de police de visualiser et de filtrer la liste complète des citoyens. Elle offre des fonctionnalités de pagination et de filtrage par statut (actif, suspendu, bloqué) et par état de génération du CPF (en attente, généré, frauduleux). L'interface permet également de sélectionner un citoyen pour afficher ses informations détaillées, y compris son historique de statut et les éventuels cas de déduplication ou de fraude associés,comme le montre la ~\hyperref[fig:5.15]{figure 5.15}.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{assetschap4/cpf realisation/consulte citizens.jpeg}
 \caption{ Sprint 3 - Interface « Consulter liste citoyens » }
+\label{fig:5.14}
 \end{figure}
 
 \addcontentsline{toc}{section}{Conclusion}

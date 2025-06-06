@@ -5,6 +5,11 @@ import { Router } from '@angular/router';
 import { TokenStorageService } from '../services/token-storage.service';
 import { AuthService } from '../services/auth.service';
 
+/**
+ * ErrorInterceptor
+ * Handles HTTP errors globally for Sprint 1. Manages token refresh on 401, redirects on 403, and standardizes error messages.
+ * Maps to backend error responses and authentication flows.
+ */
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
   const tokenStorage = inject(TokenStorageService);

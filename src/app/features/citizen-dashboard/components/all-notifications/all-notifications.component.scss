@@ -1,0 +1,147 @@
+.all-notifications-container {
+  max-width: 650px;
+  margin: 48px auto;
+  background: #f8fafc;
+  border-radius: 22px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.13);
+  padding: 0 0 32px 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.all-notifications-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 36px 36px 20px 36px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.all-notifications-header h2 {
+  margin: 0;
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: #1e293b;
+}
+
+.mark-all-btn {
+  background: #e0e7ff;
+  color: #3730a3;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 1.08rem;
+  padding: 10px 28px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.mark-all-btn:disabled {
+  background: #f3f4f6;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.notifications-list {
+  max-height: 65vh;
+  overflow-y: auto;
+  padding: 0 36px;
+}
+
+.notification-row {
+  background: #fff;
+  border-bottom: 1px solid #f0f0f0;
+  padding: 26px 0 20px 0;
+  cursor: pointer;
+  border-left: 4px solid transparent;
+  transition: background 0.2s, border-color 0.2s;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.notification-row.unread {
+  background: #f1f5fd;
+  border-left: 4px solid #3b82f6;
+}
+.notification-row:hover {
+  background: #e8eefd;
+}
+
+.notif-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 7px;
+  position: relative;
+}
+
+.notif-title {
+  font-weight: 800;
+  color: #1e293b;
+  font-size: 1.18rem;
+}
+
+.notif-time {
+  font-size: 13px;
+  color: #64748b;
+  margin-left: 16px;
+}
+
+.delete-btn {
+  opacity: 0;
+  background: none;
+  border: none;
+  color: #e11d48;
+  margin-left: 18px;
+  cursor: pointer;
+  transition: opacity 0.2s, color 0.2s;
+  font-size: 1.3rem;
+  display: flex;
+  align-items: center;
+}
+.notification-row:hover .delete-btn {
+  opacity: 1;
+}
+.delete-btn:hover {
+  color: #be123c;
+  background: #fef2f2;
+  border-radius: 50%;
+}
+
+.notif-message {
+  font-size: 1.04rem;
+  color: #374151;
+  line-height: 1.5;
+  margin-left: 2px;
+}
+
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 0;
+}
+
+.no-notifications {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 0;
+  color: #b0b7c3;
+}
+
+.no-notifications mat-icon {
+  font-size: 60px;
+  height: 60px;
+  width: 60px;
+  margin-bottom: 20px;
+}
+
+.no-notifications p {
+  margin: 0;
+  font-size: 20px;
+}

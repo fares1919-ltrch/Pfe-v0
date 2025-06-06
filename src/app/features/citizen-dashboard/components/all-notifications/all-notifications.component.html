@@ -1,0 +1,44 @@
+<div class="all-notifications-container">
+  <div class="all-notifications-header">
+    <h2>All Notifications</h2>
+    <button
+      class="mark-all-btn"
+      [disabled]="!hasUnread"
+      (click)="markAllAsRead()"
+    >
+      Mark all as read
+    </button>
+  </div>
+  <div *ngIf="loading" class="loading-spinner">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+  <div *ngIf="!loading && notifications.length === 0" class="no-notifications">
+    <mat-icon>notifications_off</mat-icon>
+    <p>No notifications yet</p>
+  </div>
+  <div *ngIf="!loading && notifications.length > 0" class="notifications-list">
+    <div
+      *ngFor="let notification of notifications"
+      class="notification-row"
+      [class.unread]="!notification.read"
+      (click)="markAsRead(notification._id)"
+    >
+      <div class="notif-title-row">
+        <span class="notif-title">{{
+          notification.title || "Notification"
+        }}</span>
+        <span class="notif-time">{{ getTimeAgo(notification.createdAt) }}</span>
+        <button
+          class="delete-btn"
+          (click)="
+            deleteNotification(notification._id); $event.stopPropagation()
+          "
+          mat-icon-button
+        >
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+      <div class="notif-message">{{ notification.message }}</div>
+    </div>
+  </div>
+</div>

@@ -1,11 +1,11 @@
 import { Component, OnInit } from "@angular/core";
 import { CommonModule } from '@angular/common';
-import { UserService } from "../../core/services/user.service";
 import { DashboardHeaderComponent } from "../../shared/components/dashboard-header/dashboard-header.component";
 import { DashboardSidebarComponent } from "../../shared/components/dashboard-sidebar/dashboard-sidebar.component";
 import { TokenStorageService } from "../../core/services/token-storage.service";
 import { Router, RouterOutlet } from "@angular/router";
-import { CpfRequest } from "../../core/services/cpf-request.service";
+import { AppointmentService } from "../../core/services/appointment.service";
+import { ProfileService } from '../../core/services/profile.service';
 
 
 @Component({
@@ -20,8 +20,8 @@ export class OfficerComponent implements OnInit {
   isSidebarOpen = true;
 
   constructor(
-    public userService: UserService,
     public tokenStorage: TokenStorageService,
+    private profileService: ProfileService,
     private router: Router
   ) {
     // Retrieve sidebar state from localStorage
@@ -40,11 +40,11 @@ export class OfficerComponent implements OnInit {
       return;
     }
 
-    this.userService.getOfficerBoard().subscribe({
-      next: data => {
-        this.content = data;
+    this.profileService.getUserProfile().subscribe({
+      next: (user: any) => {
+        this.content = user;
       },
-      error: err => {
+      error: (err: any) => {
         if (err.status === 401 || err.status === 403) {
           this.tokenStorage.signOut();
           this.router.navigate(['/auth/login']);

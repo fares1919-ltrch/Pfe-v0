@@ -658,97 +658,58 @@ button {
 
     .profile-image-container {
       text-align: center;
-
-      .profile-image {
-        width: 160px;
-        height: 160px;
-        border-radius: 50%;
-        object-fit: cover;
-        margin-bottom: 1.25rem;
-        border: 3px solid rgba(255, 255, 255, 0.1);
-        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
-        transition: all 0.4s ease;
-        animation: profileImageAppear 1s cubic-bezier(0.26, 1.04, 0.54, 1) forwards;
-
-        &:hover {
-          border-color: $primary-accent;
-          transform: scale(1.05);
-          box-shadow: 0 12px 20px rgba(0, 0, 0, 0.3);
+      margin-bottom: 1.5rem;
+      .image-wrapper {
+        position: relative;
+        display: inline-block;
+        margin-bottom: 0.5rem;
+        width: 120px;
+        height: 120px;
+        .profile-image {
+          width: 120px;
+          height: 120px;
+          border-radius: 50%;
+          object-fit: cover;
+          border: 2.5px solid rgba(255, 255, 255, 0.13);
+          box-shadow: 0 4px 10px rgba(0,0,0,0.18);
+          transition: all 0.3s;
+          background: #232323;
         }
-
-        @keyframes profileImageAppear {
-          0% {
-            opacity: 0;
-            transform: scale(0.8);
-          }
-          60% {
-            transform: scale(1.05);
-          }
-          100% {
-            opacity: 1;
-            transform: scale(1);
-          }
+        .image-halo {
+          position: absolute;
+          inset: 0;
+          border-radius: 50%;
+          pointer-events: none;
+          background: radial-gradient(circle, rgba($primary-accent, 0.22) 0%, rgba($primary-accent, 0.09) 60%, rgba($primary-accent, 0) 100%);
+          z-index: 1;
+          opacity: 0.7;
+          transition: opacity 0.4s;
         }
-      }
-
-      .image-upload {
-        .hidden {
-          display: none;
-        }
-
-        .upload-btn {
-          display: inline-flex;
+        .delete-photo-btn {
+          position: absolute;
+          left: 50%;
+          bottom: 8px;
+          transform: translateX(-50%);
+          background: rgba($danger-accent, 0.92);
+          color: #fff;
+          border: none;
+          border-radius: 50%;
+          width: 34px;
+          height: 34px;
+          display: flex;
           align-items: center;
           justify-content: center;
-          padding: 0.6rem 1.2rem;
-          background: rgba($primary-accent, 0.8);
-          color: white;
-          border-radius: 8px;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+          z-index: 2;
           cursor: pointer;
-          transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-          box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
-          backdrop-filter: blur(5px);
-          line-height: 1.2;
-
-          .btn-icon {
-            margin-right: 8px;
-            position: relative;
-            top: -1px;
+          transition: background 0.2s, box-shadow 0.2s;
+          .material-icons {
+            font-size: 20px;
           }
-
           &:hover {
-            background: $primary-accent;
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.25);
-            transform: translateY(-2px);
+            background: $danger-accent;
+            box-shadow: 0 4px 12px rgba($danger-accent, 0.25);
           }
-
-          &:active {
-            transform: translateY(1px);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-          }
-        }
-      }
-
-      .upload-progress {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        margin-top: 0.75rem;
-        color: $text-secondary;
-
-        .spinner {
-          width: 1.75rem;
-          height: 1.75rem;
-          border: 2px solid rgba(255, 255, 255, 0.1);
-          border-top-color: $primary-accent;
-          border-left-color: $primary-accent;
-          border-radius: 50%;
-          animation: spinnerRotate 1s linear infinite;
-        }
-
-        @keyframes spinnerRotate {
-          to { transform: rotate(360deg); }
         }
       }
     }
@@ -1610,5 +1571,23 @@ button, .upload-btn, .close-alert {
     .btn-icon {
       font-size: 1.25rem;
     }
+  }
+}
+
+.default-avatar-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: #232323;
+  color: #b4b4b4;
+  font-size: 72px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.18);
+  border: 2.5px solid rgba(255,255,255,0.13);
+  .material-icons {
+    font-size: 72px;
+    line-height: 120px;
   }
 }

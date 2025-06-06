@@ -19,6 +19,11 @@ const httpOptions = {
   withCredentials: true
 }
 
+/**
+ * AuthService
+ * Handles all authentication-related API calls for Sprint 1.
+ * Maps directly to backend /api/auth and /api/password endpoints.
+ */
 @Injectable({
   providedIn: 'root'
 })

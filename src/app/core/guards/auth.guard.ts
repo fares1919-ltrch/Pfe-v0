@@ -1,4 +1,9 @@
 // core/guards/auth.guard.ts
+/**
+ * AuthGuard
+ * Protects routes based on authentication and role for Sprint 1.
+ * Handles token, user, and role checks, as well as special cases for profile page refresh and logout.
+ */
 import { CanActivateFn, Router } from '@angular/router';
 import { inject } from '@angular/core';
 import { TokenStorageService } from '../services/token-storage.service';

@@ -2,7 +2,6 @@ import { Component, OnInit, HostListener, ElementRef, QueryList, ViewChildren, A
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, AsyncValidatorFn, ValidationErrors } from '@angular/forms';
 import { TokenStorageService } from '../../../core/services/token-storage.service';
-import { UserService } from '../../../core/services/user.service';
 import { ProfileService } from '../../../core/services/profile.service';
 import { HttpEvent, HttpEventType, HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -85,7 +84,6 @@ export class BodyComponent implements OnInit, AfterViewInit {
 
   constructor(
     private tokenStorage: TokenStorageService,
-    private userService: UserService,
     private profileService: ProfileService,
     private fb: FormBuilder,
     private router: Router,
@@ -236,8 +234,8 @@ export class BodyComponent implements OnInit, AfterViewInit {
       if (!control.value) {
         return of(null);
       }
-      return this.userService.checkIdentityNumber(control.value).pipe(
-        map(isAvailable => isAvailable ? null : { notUnique: true }),
+      return this.profileService.checkIdentityNumberUnique(control.value).pipe(
+        map(isUnique => isUnique ? null : { notUnique: true }),
         catchError(() => of(null))
       );
     };
@@ -824,5 +822,21 @@ export class BodyComponent implements OnInit, AfterViewInit {
           this.router.navigate(['/auth/login']);
         });
     }
+  }
+
+  onDeleteProfilePhoto(): void {
+    this.profileImageUrl = 'assets/images/default-profile.jpg';
+    this.profileForm.patchValue({ photo: '' });
+    // Use FormData for the updateProfile call
+    const formData = new FormData();
+    formData.append('photo', '');
+    this.profileService.updateProfile(formData).subscribe({
+      next: () => {
+        this.showAlert('Profile photo deleted.', 'success');
+      },
+      error: () => {
+        this.showAlert('Failed to delete profile photo.', 'error');
+      }
+    });
   }
 }

@@ -7,6 +7,8 @@ import { FormsModule } from '@angular/forms';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatFormFieldModule } from '@angular/material/form-field'; // Already imported
 import { MatInputModule } from '@angular/material/input'; // Add if using an input
+import { CPFNotificationsComponent } from '../cpf-notifications/cpf-notifications.component';
+
 interface StatCard {
   title: string;
   value: number;
@@ -27,14 +29,15 @@ interface ProgressItem {
   selector: 'app-dashboard',
   standalone: true,
   imports: [
-    CommonModule, 
-    MatIconModule, 
-    MatDatepickerModule, 
+    CommonModule,
+    MatIconModule,
+    MatDatepickerModule,
     MatNativeDateModule,
     FormsModule,
     MatSnackBarModule,
     MatFormFieldModule,
-    MatInputModule
+    MatInputModule,
+    CPFNotificationsComponent
   ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
@@ -150,7 +153,7 @@ export class DashboardComponent implements OnInit {
   onDateChange(event: any) {
     const selectedDate = new Date(event.value);
     const today = new Date();
-    
+
     // Reset time part for comparison
     today.setHours(0, 0, 0, 0);
     selectedDate.setHours(0, 0, 0, 0);
@@ -192,14 +195,14 @@ export class DashboardComponent implements OnInit {
       this.showDateErrorSnackbar();
       return;
     }
-    
+
     this.snackBar.open('Appointment rescheduled successfully', 'Close', {
       duration: 3000,
       horizontalPosition: 'center',
       verticalPosition: 'bottom',
       panelClass: ['success-snackbar']
     });
-    
+
     this.isRescheduling = false;
   }
-} 
+}

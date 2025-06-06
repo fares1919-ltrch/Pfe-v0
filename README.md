@@ -456,7 +456,7 @@ A robust backend API built with Node.js, Express, and MongoDB that provides auth
 - Password reset functionality
 - Session management
 - Role-based authorization (User, Manager, Officer)
-- CPF request and approval workflow
+- Appointment submission and approval workflow
 - Appointment scheduling and management
 - Biometric data collection and verification
 - Biometric deduplication with external API integration
@@ -708,3 +708,93 @@ curl -X PUT http://localhost:8080/api/profile \
 ## License
 
 This project is licensed under the ISC License.
+
+# CPF Management System
+
+## Appointment Management Sprint
+
+This sprint implements a comprehensive appointment management system for citizens and officers. The system enables citizens to schedule, reschedule, and cancel appointments at government service centers, while officers can validate, reject, complete, and manage appointments.
+
+## Features
+
+- **For Citizens:**
+
+  - Schedule appointments at service centers
+  - View upcoming and past appointments
+  - Reschedule appointments
+  - Cancel appointments
+  - View appointment status
+
+- **For Officers:**
+  - View pending appointments that need validation
+  - Validate or reject appointments
+  - Mark appointments as completed after service
+  - Mark appointments as missed if citizens don't attend
+  - View detailed appointment information
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js (v14+)
+- MongoDB
+- Angular CLI
+
+### Installation
+
+1. Clone the repository
+2. Install backend dependencies:
+   ```
+   cd backend
+   npm install
+   ```
+3. Install frontend dependencies:
+   ```
+   npm install
+   ```
+
+### Running the Application
+
+1. Start the backend server:
+   ```
+   cd backend
+   npm start
+   ```
+2. Start the frontend application:
+   ```
+   ng serve
+   ```
+3. Navigate to `http://localhost:4200` in your browser
+
+## Detailed API Documentation
+
+For detailed API documentation, please see [Appointment Endpoints Documentation](./docs/appointment-endpoints.md).
+
+## Testing Accounts
+
+### Citizen Account
+
+- **Username**: khalil
+- **Password**: Admin123!
+
+### Officer Account
+
+- **Username**: officer
+- **Password**: Citizen@123
+
+## Project Structure
+
+- `/backend` - Node.js backend API
+- `/src` - Angular frontend
+  - `/app/features/citizen-dashboard/components/appointements` - Citizen appointment management
+  - `/app/features/officer-dashboard/components/appointments` - Officer appointment management
+  - `/app/features/officer-dashboard/components/approvals` - Officer appointment approval
+  - `/app/core/services/appointment.service.ts` - Appointment service for API communication
+
+## Workflow
+
+1. Citizens create appointments through their dashboard
+2. Officers validate or reject pending appointments
+3. Validated appointments appear in the officer's appointment list
+4. After the appointment date, officers mark them as completed or missed
+5. Citizens can track the status of their appointments

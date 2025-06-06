@@ -525,3 +525,71 @@ input[type="search"] {
     padding-left: 80px;
   }
 }
+
+// Update the notifications panel z-index
+.notifications-panel {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 70px;
+  z-index: 9999; // Significantly increase z-index to ensure it's above everything
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+  max-height: 500px;
+  width: 350px;
+}
+
+// Update profile dropdown styles for consistency
+.profile-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  min-width: 200px;
+  z-index: 50;
+  overflow: hidden;
+  
+  .dropdown-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    width: 100%;
+    border: none;
+    background: none;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #1e293b;
+    gap: 10px;
+    
+    &:hover {
+      background-color: #f8fafc;
+    }
+    
+    &:active {
+      background-color: #f1f5f9;
+    }
+    
+    .material-icons {
+      font-size: 18px;
+    }
+    
+    &:not(:last-child) {
+      border-bottom: 1px solid #f1f5f9;
+    }
+  }
+}
+
+// Add backdrop styles to ensure notifications panel is on top
+.notification-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.3);
+  z-index: 9000;
+  backdrop-filter: blur(2px);
+}

@@ -1,0 +1,144 @@
+name: Security Scan
+
+on:
+  schedule:
+    # Run security scan daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - 'package*.json'
+      - 'backend/package*.json'
+
+jobs:
+  security-scan:
+    name: Comprehensive Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18.x'
+        
+    # Frontend Security Scan
+    - name: Install frontend dependencies
+      run: npm ci
+      
+    - name: Run frontend security audit
+      run: |
+        npm audit --audit-level=moderate --json > frontend-audit.json || true
+        
+    - name: Frontend Snyk scan
+      uses: snyk/actions/node@master
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      with:
+        args: --severity-threshold=medium --json > frontend-snyk.json
+        
+    # Backend Security Scan
+    - name: Install backend dependencies
+      working-directory: ./backend
+      run: npm ci
+      
+    - name: Run backend security audit
+      working-directory: ./backend
+      run: |
+        npm audit --audit-level=moderate --json > ../backend-audit.json || true
+        
+    - name: Backend Snyk scan
+      uses: snyk/actions/node@master
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      with:
+        args: --severity-threshold=medium --file=backend/package.json --json > backend-snyk.json
+        
+    # Code Quality Scan
+    - name: Run CodeQL Analysis
+      uses: github/codeql-action/init@v2
+      with:
+        languages: javascript
+        
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v2
+      
+    # OWASP Dependency Check
+    - name: Run OWASP Dependency Check
+      uses: dependency-check/Dependency-Check_Action@main
+      with:
+        project: 'Identity-Secure'
+        path: '.'
+        format: 'ALL'
+        args: >
+          --enableRetired
+          --enableExperimental
+          --failOnCVSS 7
+          
+    - name: Upload OWASP results
+      uses: actions/upload-artifact@v4
+      with:
+        name: owasp-dependency-check-results
+        path: reports/
+        
+    # Security Report Generation
+    - name: Generate security report
+      run: |
+        echo "# Security Scan Report" > security-report.md
+        echo "Generated on: $(date)" >> security-report.md
+        echo "" >> security-report.md
+        
+        echo "## Frontend Vulnerabilities" >> security-report.md
+        if [ -f frontend-audit.json ]; then
+          jq -r '.vulnerabilities | length' frontend-audit.json >> security-report.md
+        fi
+        
+        echo "## Backend Vulnerabilities" >> security-report.md
+        if [ -f backend-audit.json ]; then
+          jq -r '.vulnerabilities | length' backend-audit.json >> security-report.md
+        fi
+        
+    - name: Upload security artifacts
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: security-scan-results
+        path: |
+          *-audit.json
+          *-snyk.json
+          security-report.md
+          
+    # Notify on critical vulnerabilities
+    - name: Check for critical vulnerabilities
+      run: |
+        critical_count=0
+        
+        if [ -f frontend-audit.json ]; then
+          frontend_critical=$(jq -r '.vulnerabilities | map(select(.severity == "critical")) | length' frontend-audit.json)
+          critical_count=$((critical_count + frontend_critical))
+        fi
+        
+        if [ -f backend-audit.json ]; then
+          backend_critical=$(jq -r '.vulnerabilities | map(select(.severity == "critical")) | length' backend-audit.json)
+          critical_count=$((critical_count + backend_critical))
+        fi
+        
+        echo "Total critical vulnerabilities: $critical_count"
+        
+        if [ $critical_count -gt 0 ]; then
+          echo "::error::Critical security vulnerabilities found!"
+          exit 1
+        fi
+        
+    - name: Notify security team
+      if: failure()
+      uses: 8398a7/action-slack@v3
+      with:
+        status: failure
+        text: '🚨 Critical security vulnerabilities detected in Identity Secure!'
+        fields: repo,message,commit,author,action,eventName,ref,workflow
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SECURITY_SLACK_WEBHOOK_URL }}

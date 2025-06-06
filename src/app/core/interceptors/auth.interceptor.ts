@@ -11,6 +11,11 @@ const AUTH_API = `${API_BASE_URL}/api/auth/`;
 const PASSWORD_API = `${API_BASE_URL}/api/password/`;
 const TEST_API = `${API_BASE_URL}/api/test/`;
 
+/**
+ * AuthInterceptor
+ * Attaches JWT tokens to outgoing requests, handles token refresh, and manages authentication state for Sprint 1.
+ * Skips token for public/auth endpoints. Handles Google logout. Maps to backend /api/auth endpoints.
+ */
 export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, next: HttpHandlerFn) => {
   const tokenService = inject(TokenStorageService);
   const authService = inject(AuthService);

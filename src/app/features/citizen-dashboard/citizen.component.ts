@@ -1,11 +1,12 @@
 import { Component, OnInit } from "@angular/core";
 import { CommonModule } from '@angular/common';
-import { UserService } from "../../core/services/user.service";
 import { DashboardSidebarComponent } from "../../shared/components/dashboard-sidebar/dashboard-sidebar.component";
 import { DashboardHeaderComponent } from "../../shared/components/dashboard-header/dashboard-header.component";
 import { TokenStorageService } from "../../core/services/token-storage.service";
 import { Router ,RouterOutlet} from "@angular/router";
 import { ChatbotComponent } from "../chatbot/chatbot.component";
+import { ProfileService } from '../../core/services/profile.service';
+
 @Component({
   selector: 'app-citizen-dashboard',
   standalone: true,
@@ -19,7 +20,7 @@ export class CitizenComponent implements OnInit {
 
   constructor(
     public tokenStorage: TokenStorageService,
-    private userService: UserService,
+    private profileService: ProfileService,
     private router: Router
   ) { }
 
@@ -31,18 +32,11 @@ export class CitizenComponent implements OnInit {
       return;
     }
 
-    this.userService.getUserBoard().subscribe({
-      next: data => {
-        this.content = data;
-      },
-      error: err => {
-        if (err.status === 401 || err.status === 403) {
-          this.tokenStorage.signOut();
-          this.router.navigate(['/auth/login']);
-        }
-        this.content = JSON.parse(err.error).message;
-      }
-    });
+    // Example:
+    // this.profileService.getUserProfile().subscribe({
+    //   next: (user) => { /* handle user info */ },
+    //   error: (err) => { /* handle error */ }
+    // });
   }
 
   toggleSidebar(): void {

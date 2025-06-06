@@ -1,0 +1,226 @@
+<!-- approvals.component.html -->
+<div class="approvals-container">
+  <div class="header">
+    <h2>Appointment Approvals</h2>
+    <div class="refresh-controls">
+      <button
+        class="refresh-button"
+        matTooltip="Refresh List"
+        (click)="refreshPage()"
+        aria-label="Refresh appointments list"
+      >
+        <i class="fas fa-sync-alt"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="status-filter">
+    <div class="filter-label">Filter Status:</div>
+    <div class="filter-options">
+      <button
+        [ngClass]="{ active: selectedStatus === 'all' }"
+        (click)="selectedStatus = 'all'; applyFilter()"
+      >
+        All
+      </button>
+      <button
+        [ngClass]="{ active: selectedStatus === 'pending' }"
+        (click)="selectedStatus = 'pending'; applyFilter()"
+      >
+        Pending
+      </button>
+      <button
+        [ngClass]="{ active: selectedStatus === 'validated' }"
+        (click)="selectedStatus = 'validated'; applyFilter()"
+      >
+        Validated
+      </button>
+      <button
+        [ngClass]="{ active: selectedStatus === 'rejected' }"
+        (click)="selectedStatus = 'rejected'; applyFilter()"
+      >
+        Rejected
+      </button>
+    </div>
+  </div>
+
+  <div class="table-container">
+    <ng-container *ngIf="!isLoading && filteredDataSource.data.length > 0">
+      <table
+        mat-table
+        [dataSource]="filteredDataSource"
+        class="mat-elevation-z8"
+      >
+        <!-- Citizen Name Column -->
+        <ng-container matColumnDef="username">
+          <th mat-header-cell *matHeaderCellDef>Citizen</th>
+          <td mat-cell *matCellDef="let element">{{ element.username }}</td>
+        </ng-container>
+
+        <!-- Center Name Column -->
+        <ng-container matColumnDef="centername">
+          <th mat-header-cell *matHeaderCellDef>Center</th>
+          <td mat-cell *matCellDef="let element">{{ element.centername }}</td>
+        </ng-container>
+
+        <!-- Address Column -->
+        <ng-container matColumnDef="address">
+          <th mat-header-cell *matHeaderCellDef>Address</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.address }}
+          </td>
+        </ng-container>
+
+        <!-- Status Column -->
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let element">
+            <span class="status-badge" [ngClass]="element.status">
+              {{ element.status | titlecase }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Created At Column -->
+        <ng-container matColumnDef="createdAt">
+          <th mat-header-cell *matHeaderCellDef>Submitted</th>
+          <td mat-cell *matCellDef="let element">
+            {{ formatDate(element.createdAt) }}
+          </td>
+        </ng-container>
+
+        <!-- Meeting Date Column -->
+        <ng-container matColumnDef="meetingDate">
+          <th mat-header-cell *matHeaderCellDef>Appointment Date</th>
+          <td mat-cell *matCellDef="let element">
+            {{ formatDate(element.meetingDate) }}
+          </td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Actions</th>
+          <td mat-cell *matCellDef="let element">
+            <div class="action-buttons">
+              <ng-container *ngIf="element.status === 'pending'">
+                <button
+                  class="approve-button"
+                  matTooltip="Validate Appointment"
+                  (click)="handleAction(element, 'approve')"
+                  aria-label="Validate this appointment"
+                >
+                  <i class="fas fa-check"></i>
+                </button>
+                <button
+                  class="reject-button"
+                  matTooltip="Reject Appointment"
+                  (click)="handleAction(element, 'reject')"
+                  aria-label="Reject this appointment"
+                >
+                  <i class="fas fa-times"></i>
+                </button>
+              </ng-container>
+              <ng-container *ngIf="element.status !== 'pending'">
+                <span class="status-indicator" [ngClass]="element.status">
+                  <i
+                    class="fas"
+                    [ngClass]="{
+                      'fa-check-circle': element.status === 'validated',
+                      'fa-times-circle': element.status === 'rejected'
+                    }"
+                  ></i>
+                  {{ element.status | titlecase }}
+                </span>
+              </ng-container>
+            </div>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: displayedColumns"
+          [ngClass]="{ 'status-pending': row.status === 'pending' }"
+        ></tr>
+      </table>
+
+      <!-- Pagination controls -->
+      <div class="pagination-controls">
+        <div class="pagination-info">
+          Showing
+          {{
+            Math.min(
+              (currentPage - 1) * pageSize + 1,
+              filteredDataSource.data.length
+            )
+          }}
+          to
+          {{ Math.min(currentPage * pageSize, filteredDataSource.data.length) }}
+          of {{ filteredDataSource.data.length }} appointments
+        </div>
+        <div class="pagination-buttons">
+          <button
+            [disabled]="currentPage === 1"
+            (click)="onPageChange(currentPage - 1)"
+            class="pagination-button"
+            aria-label="Go to previous page"
+          >
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <span class="pagination-page">{{ currentPage }}</span>
+          <button
+            [disabled]="
+              currentPage * pageSize >= filteredDataSource.data.length
+            "
+            (click)="onPageChange(currentPage + 1)"
+            class="pagination-button"
+            aria-label="Go to next page"
+          >
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- Empty state -->
+    <div
+      class="empty-state"
+      *ngIf="!isLoading && filteredDataSource.data.length === 0"
+    >
+      <div class="empty-icon">
+        <i class="far fa-calendar-times"></i>
+      </div>
+      <h2>No Pending Appointments Found</h2>
+      <p *ngIf="selectedStatus !== 'all'">
+        No appointments with status "{{ selectedStatus }}" were found. Try
+        selecting a different status.
+      </p>
+      <p *ngIf="selectedStatus === 'all'">
+        There are no appointments that need review at this time.
+      </p>
+      <button
+        class="refresh-button full"
+        (click)="refreshPage()"
+        aria-label="Refresh appointments list"
+      >
+        <i class="fas fa-sync-alt"></i> Refresh
+      </button>
+    </div>
+
+    <!-- Loading state -->
+    <div class="loading-state" *ngIf="isLoading">
+      <div class="spinner"></div>
+      <p>Loading appointments...</p>
+    </div>
+
+    <!-- Error state -->
+    <div class="error-state" *ngIf="error">
+      <div class="error-icon">
+        <i class="fas fa-exclamation-triangle"></i>
+      </div>
+      <h2>Error Loading Appointments</h2>
+      <p>{{ error }}</p>
+      <button class="retry-button" (click)="refreshPage()">Try Again</button>
+    </div>
+  </div>
+</div>

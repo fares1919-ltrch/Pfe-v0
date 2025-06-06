@@ -1,0 +1,224 @@
+<div class="appointments-container">
+  <div class="header">
+    <h1>Validated Appointments</h1>
+    <div class="header-actions">
+      <button mat-button class="filter-btn">
+        <mat-icon>filter_list</mat-icon>
+        Filter
+      </button>
+      <button
+        mat-raised-button
+        color="primary"
+        class="refresh-btn"
+        (click)="refreshAppointments()"
+      >
+        <mat-icon>refresh</mat-icon>
+        Refresh
+      </button>
+    </div>
+  </div>
+
+  <div class="appointments-grid">
+    <!-- Today's Appointments -->
+    <div class="appointment-section" *ngIf="todayAppointments.length > 0">
+      <div class="section-header">
+        <h2>Today's Validated Appointments</h2>
+        <div class="slider-controls" *ngIf="todayAppointments.length > 1">
+          <button class="arrow-btn" (click)="scrollCards('today', -1)">
+            <mat-icon>chevron_left</mat-icon>
+          </button>
+          <button class="arrow-btn" (click)="scrollCards('today', 1)">
+            <mat-icon>chevron_right</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <div class="cards-container" #todayCards>
+        <div
+          class="appointment-card"
+          *ngFor="let appointment of todayAppointments"
+          [ngClass]="appointment.status"
+        >
+          <div class="card-header">
+            <div class="user-info">
+              <div class="avatar">
+                <mat-icon>person</mat-icon>
+              </div>
+              <div class="details">
+                <h3>
+                  {{ appointment.user?.firstName }}
+                  {{ appointment.user?.lastName }}
+                </h3>
+                <span class="status-badge" [ngClass]="appointment.status">{{
+                  appointment.status
+                }}</span>
+              </div>
+            </div>
+            <div class="appointment-details">
+              <div class="detail-item">
+                <mat-icon>location_on</mat-icon>
+                <span>{{ appointment.center?.name || "Unknown Center" }}</span>
+              </div>
+              <div class="detail-item" *ngIf="appointment.center?.address">
+                <mat-icon>map</mat-icon>
+                <span>
+                  {{ appointment.center?.address?.street }},
+                  {{ appointment.center?.address?.city }},
+                  {{ appointment.center?.address?.state }}
+                  {{
+                    appointment.center?.address?.postalCode
+                      ? ", " + appointment.center?.address?.postalCode
+                      : ""
+                  }}
+                </span>
+              </div>
+              <div class="detail-item">
+                <mat-icon>schedule</mat-icon>
+                <span>{{ appointment.time }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="card-actions">
+            <button
+              class="action-btn complete"
+              (click)="completeAppointment(appointment.id)"
+              *ngIf="appointment.status === 'validated'"
+            >
+              <mat-icon>done_all</mat-icon>
+              Complete
+            </button>
+            <button
+              class="action-btn missed"
+              (click)="markAsMissed(appointment.id)"
+              *ngIf="appointment.status === 'validated'"
+            >
+              <mat-icon>person_off</mat-icon>
+              Mark as Missed
+            </button>
+            <button
+              class="action-btn view"
+              (click)="
+                viewDetails(
+                  appointment.user?._id || appointment.userId,
+                  appointment.id
+                )
+              "
+            >
+              <mat-icon>visibility</mat-icon>
+              View Details
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Upcoming Appointments -->
+    <div class="appointment-section" *ngIf="upcomingAppointments.length > 0">
+      <div class="section-header">
+        <h2>Upcoming Validated Appointments</h2>
+        <div class="slider-controls" *ngIf="upcomingAppointments.length > 1">
+          <button class="arrow-btn" (click)="scrollCards('upcoming', -1)">
+            <mat-icon>chevron_left</mat-icon>
+          </button>
+          <button class="arrow-btn" (click)="scrollCards('upcoming', 1)">
+            <mat-icon>chevron_right</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <div class="cards-container" #upcomingCards>
+        <div
+          class="appointment-card"
+          *ngFor="let appointment of upcomingAppointments"
+          [ngClass]="appointment.status"
+        >
+          <div class="card-header">
+            <div class="user-info">
+              <div class="avatar">
+                <mat-icon>person</mat-icon>
+              </div>
+              <div class="details">
+                <h3>
+                  {{ appointment.user?.firstName }}
+                  {{ appointment.user?.lastName }}
+                </h3>
+                <span class="status-badge" [ngClass]="appointment.status">{{
+                  appointment.status
+                }}</span>
+              </div>
+            </div>
+            <div class="appointment-details">
+              <div class="detail-item">
+                <mat-icon>location_on</mat-icon>
+                <span>{{ appointment.center?.name || "Unknown Center" }}</span>
+              </div>
+              <div class="detail-item" *ngIf="appointment.center?.address">
+                <mat-icon>map</mat-icon>
+                <span>
+                  {{ appointment.center?.address?.street }},
+                  {{ appointment.center?.address?.city }},
+                  {{ appointment.center?.address?.state }}
+                  {{
+                    appointment.center?.address?.postalCode
+                      ? ", " + appointment.center?.address?.postalCode
+                      : ""
+                  }}
+                </span>
+              </div>
+              <div class="detail-item">
+                <mat-icon>event</mat-icon>
+                <span>{{ appointment.date }}</span>
+              </div>
+              <div class="detail-item">
+                <mat-icon>schedule</mat-icon>
+                <span>{{ appointment.time }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="card-actions">
+            <button
+              class="action-btn view"
+              (click)="
+                viewDetails(
+                  appointment.user?._id || appointment.userId,
+                  appointment.id
+                )
+              "
+            >
+              <mat-icon>visibility</mat-icon>
+              View Details
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="empty-state"
+      *ngIf="
+        todayAppointments.length === 0 &&
+        upcomingAppointments.length === 0 &&
+        !isLoading
+      "
+    >
+      <mat-icon class="empty-icon">event_busy</mat-icon>
+      <h3>No Validated Appointments</h3>
+      <p>There are no validated appointments scheduled at this time.</p>
+      <button class="refresh-btn" (click)="refreshAppointments()">
+        <mat-icon>refresh</mat-icon>
+        Refresh
+      </button>
+    </div>
+
+    <div class="loading-spinner" *ngIf="isLoading">
+      <div class="spinner-circle"></div>
+      <span>Loading appointments...</span>
+    </div>
+
+    <div class="error-message" *ngIf="error">
+      <mat-icon>error_outline</mat-icon>
+      <span>{{ error }}</span>
+      <button class="retry-btn" (click)="refreshAppointments()">Retry</button>
+    </div>
+  </div>
+</div>

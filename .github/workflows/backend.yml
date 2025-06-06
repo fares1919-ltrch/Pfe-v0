@@ -1,0 +1,268 @@
+name: Backend CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'backend/**'
+
+env:
+  NODE_VERSION: '18.x'
+  MONGODB_VERSION: '6.0'
+
+jobs:
+  # Job 1: Run Tests
+  test:
+    name: Run Backend Tests
+    runs-on: ubuntu-latest
+    
+    services:
+      mongodb:
+        image: mongo:6.0
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.runCommand({ping: 1})'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: backend/package-lock.json
+        
+    - name: Install dependencies
+      working-directory: ./backend
+      run: |
+        npm ci
+        
+    - name: Run linting
+      working-directory: ./backend
+      run: |
+        npm run lint
+        
+    - name: Wait for MongoDB
+      run: |
+        until mongosh --eval "print('MongoDB is ready')" > /dev/null 2>&1; do
+          echo "Waiting for MongoDB..."
+          sleep 2
+        done
+        
+    - name: Run unit tests
+      working-directory: ./backend
+      run: |
+        npm run test:unit
+      env:
+        NODE_ENV: test
+        MONGODB_URI: mongodb://localhost:27017/identity_secure_test
+        JWT_SECRET: test_jwt_secret_key_for_ci
+        
+    - name: Run integration tests
+      working-directory: ./backend
+      run: |
+        npm run test:integration
+      env:
+        NODE_ENV: test
+        MONGODB_URI: mongodb://localhost:27017/identity_secure_test
+        JWT_SECRET: test_jwt_secret_key_for_ci
+        
+    - name: Generate test coverage
+      working-directory: ./backend
+      run: |
+        npm run test:coverage
+      env:
+        NODE_ENV: test
+        MONGODB_URI: mongodb://localhost:27017/identity_secure_test
+        JWT_SECRET: test_jwt_secret_key_for_ci
+        
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: backend-test-results
+        path: |
+          backend/coverage/
+          backend/test-results/
+          
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        directory: ./backend/coverage
+        flags: backend
+        name: backend-coverage
+
+  # Job 2: Security Scan
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: backend/package-lock.json
+        
+    - name: Install dependencies
+      working-directory: ./backend
+      run: npm ci
+      
+    - name: Run security audit
+      working-directory: ./backend
+      run: |
+        npm audit --audit-level=high
+        
+    - name: Run Snyk security scan
+      uses: snyk/actions/node@master
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      with:
+        args: --severity-threshold=high --file=backend/package.json
+        
+    - name: Upload security results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: backend-security-results
+        path: backend/security-reports/
+
+  # Job 3: Build and Deploy
+  deploy:
+    name: Deploy to Render
+    runs-on: ubuntu-latest
+    needs: [test, security]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: backend/package-lock.json
+        
+    - name: Install dependencies
+      working-directory: ./backend
+      run: npm ci --only=production
+      
+    - name: Create deployment package
+      run: |
+        tar -czf backend-deployment.tar.gz backend/
+        
+    - name: Deploy to Render
+      uses: johnbeynon/render-deploy-action@v0.0.8
+      with:
+        service-id: ${{ secrets.RENDER_SERVICE_ID }}
+        api-key: ${{ secrets.RENDER_API_KEY }}
+        
+    - name: Wait for deployment
+      run: |
+        echo "Waiting for deployment to complete..."
+        sleep 60
+        
+    - name: Health check
+      run: |
+        max_attempts=10
+        attempt=1
+        
+        while [ $attempt -le $max_attempts ]; do
+          echo "Health check attempt $attempt/$max_attempts"
+          
+          if curl -f ${{ secrets.RENDER_DEPLOYMENT_URL }}/api/health; then
+            echo "✅ Health check passed!"
+            break
+          fi
+          
+          if [ $attempt -eq $max_attempts ]; then
+            echo "❌ Health check failed after $max_attempts attempts"
+            exit 1
+          fi
+          
+          echo "Health check failed, retrying in 30 seconds..."
+          sleep 30
+          attempt=$((attempt + 1))
+        done
+        
+    - name: Run smoke tests
+      run: |
+        # Test authentication endpoint
+        curl -f ${{ secrets.RENDER_DEPLOYMENT_URL }}/api/auth/health || exit 1
+        
+        # Test database connection
+        curl -f ${{ secrets.RENDER_DEPLOYMENT_URL }}/api/db/health || exit 1
+        
+    - name: Notify deployment success
+      uses: 8398a7/action-slack@v3
+      if: success()
+      with:
+        status: success
+        text: '✅ Backend deployed successfully to production!'
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        
+    - name: Notify deployment failure
+      uses: 8398a7/action-slack@v3
+      if: failure()
+      with:
+        status: failure
+        text: '❌ Backend deployment failed!'
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  # Job 4: Database Migration
+  migrate:
+    name: Run Database Migrations
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: backend/package-lock.json
+        
+    - name: Install dependencies
+      working-directory: ./backend
+      run: npm ci
+      
+    - name: Run database migrations
+      working-directory: ./backend
+      run: |
+        npm run migrate:up
+      env:
+        NODE_ENV: production
+        MONGODB_URI: ${{ secrets.MONGODB_URI_PRODUCTION }}
+        
+    - name: Verify migrations
+      working-directory: ./backend
+      run: |
+        npm run migrate:status
+      env:
+        NODE_ENV: production
+        MONGODB_URI: ${{ secrets.MONGODB_URI_PRODUCTION }}

@@ -8,10 +8,10 @@
 \section*{Introduction}
 
 Dans la genèse d'un projet, la phase de spécification et d'analyse des besoins représente
-une étape fondamentale. Elle permet de définir avec précision les attentes des utilisateurs et les exigences que le système doit satisfaire. Pour initier cette phase, nous menons une étude approfondie des applications existantes en matière de gestion d'identité numérique et de lutte contre la fraude. Cette analyse minutieuse nous aide à identifier les éléments clés et les lacunes à combler avec notre solution. Au cours de cette démarche, nous formulons les exigences fonctionnelles et non fonctionnels du projet, posant ainsi les bases solides pour le développement d'Identity Secure. Nous introduisons également les premières contraintes de conception, illustrées par le diagramme de cas d'utilisation. Enfin, nous présentons la méthodologie qui guidera l'ensemble du processus de développement.
-\section{Contexte \& problématique}
+une étape fondamentale. Elle permet de définir avec précision les attentes des utilisateurs et les exigences que le système doit satisfaire . selon cette orientation,tout d'abord , nous menons une étude approfondie , en se basant sur les solutions existantes , en matière de gestion d'identité numérique et de lutte contre la fraude. Ensuite, nous identifions les éléments clés et les lacunes à combler avec notre solution. Au cours de cette démarche, nous formulons les exigences fonctionnelles et non fonctionnels du projet, posant ainsi les bases solides pour le développement d'Identity Secure. Nous introduisons également les premières contraintes de conception, illustrées par le diagramme de cas d'utilisation. Enfin, nous présentons la méthodologie qui guidera l'ensemble du processus de développement.
+\section*{Contexte \& problématique}
 
-Dans cette section, nous offrons une vue d'ensemble détaillée de notre projet de fin d'études. Nous expliquons le contexte dans lequel il s'inscrit, les motivations qui ont conduit à son élaboration, ainsi que la problématique centrale que nous cherchons à résoudre.
+Dans cette section, nous offrons une vue d'ensemble détaillée de notre projet de fin d'études. Nous présentons le contexte dans lequel il s'inscrit, les motivations qui ont conduit à son élaboration, ainsi que la problématique centrale que nous cherchons à résoudre.
 
 \subsection{Contexte}
 Le projet, intitulé "\textbf{Identity Secure} :  une plateforme innovante pour la génération d'une identité numérique basé sur les données biométriques afin de garantir sa sécurité et d'assurer la lutte contre les fraudes", s'inscrit dans le cadre de préparation du projet de fin d'études pour l'obtention du diplôme de Licence Nationale en sciences de l'Informatique (LNI) délivré par l'Institut Supérieur d'Informatique de Mahdia (ISIMa). Ce projet professionnel est réalisé sur une période de quatre mois, du 1er février 2024 au 31 mai 2024, au sein de l'entreprise Twyn-T4ISB \cite{b1}.
@@ -31,15 +31,18 @@ Twyn-T4ISB est une entreprise innovante spécialisée dans les technologies de b
 
 
 \subsection{Problématique}
-Le Brésil fait face à une crise majeure dans la gestion des identifiants fiscaux CPF (Cadastro de Pessoas Físicas), avec des conséquences économiques et sociales alarmantes. Selon les données récentes de la Receita Federal, plus de 3,8 millions de cas de fraude à l'identité ont été détectés en 2023, représentant une perte estimée à 18,7 milliards de reais pour l'économie brésilienne. Face à cette situation critique, plusieurs questions fondamentales se posent:
+Le Brésil fait face à une crise majeure dans la gestion des identifiants fiscaux CPF (Cadastro de Pessoas Físicas), avec des conséquences économiques et sociales alarmantes. Selon les données récentes de la Receita Federal, plus de 3,8 millions de cas de fraude à l'identité ont été détectés en 2023, représentant une perte estimée à 18,7 milliards de reais pour l'économie brésilienne. Face à cette situation critique, plusieurs questions fondamentales appellent une réponse, à savoir:
 
-\textbf{Quels sont les mécanismes à adopter pour surmonter la perte économique liée aux fraudes CPF?}, l'infrastructure actuelle de vérification d'identité souffre de failles structurelles importantes. Les systèmes centralisés traditionnels, conçus avant l'ère numérique, ne peuvent plus faire face à l'évolution rapide des techniques de fraude. Les processus manuels de vérification, encore largement utilisés, introduisent des délais considérables (jusqu'à 45 jours pour traiter certaines demandes) et des erreurs humaines dans près de 12\% des cas traités. Cette inefficacité systémique crée des opportunités d'exploitation par des réseaux criminels organisés qui utilisent des techniques de plus en plus sophistiquées.
+\textbf{Quels sont les mécanismes à adopter pour surmonter la perte économique liée aux fraudes CPF?}
+\item l'infrastructure actuelle de vérification d'identité souffre de failles structurelles importantes. Les systèmes centralisés traditionnels, conçus avant l'ère numérique, ne peuvent plus faire face à l'évolution rapide des techniques de fraude. Les processus manuels de vérification, encore largement utilisés, introduisent des délais considérables (jusqu'à 45 jours pour traiter certaines demandes) et des erreurs humaines dans près de 12\% des cas traités. Cette inefficacité systémique crée des opportunités d'exploitation par des réseaux criminels organisés qui utilisent des techniques de plus en plus sophistiquées.
 
-\textbf{Comment optimiser le processus de procuration d'un CPf et garantir sa sécurité?}, l'absence d'intégration biométrique fiable dans le processus de vérification CPF constitue une vulnérabilité critique. Les méthodes actuelles reposent principalement sur l'usage persistent des documents papier facilement falsifiables et des vérifications manuelles insuffisantes. Cette lacune technologique permet la création de multiples identités par une même personne et laisse la porte ouverte à l'usurpation d'identité . Les statistiques montrent que 68\% des fraudes détectées impliquent l'utilisation de documents falsifiés qui auraient pu être identifiés par des technologies biométriques appropriées.
+\textbf{Comment optimiser le processus de procuration d'un CPF et garantir sa sécurité?}
+\item l'absence d'intégration biométrique fiable dans le processus de vérification CPF constitue une vulnérabilité critique. Les méthodes actuelles reposent principalement sur l'usage persistent des documents papier facilement falsifiables et des vérifications manuelles insuffisantes. Cette lacune technologique permet la création de multiples identités par une même personne et laisse la porte ouverte à l'usurpation d'identité . Les statistiques montrent que 68\% des fraudes détectées impliquent l'utilisation de documents falsifiés qui auraient pu être identifiés par des technologies biométriques appropriées.
 
-\textbf{Comment detecter et s'informer des fraudes en temps réel}? Aujourd'hui, les bases de données gouvernementales des institutions publiques restent cloisonnées à case de la fragmentation ce qui empêche une détection efficace des fraudes en temps réel. Les différentes agences (sécurité sociale, services fiscaux, banques) opèrent en silos, avec des systèmes qui ne communiquent pas entre eux. Cette désarticulation institutionnelle permet aux fraudeurs d'exploiter les incohérences entre les systèmes, créant un environnement où les activités suspectes ne sont détectées qu'après que des dommages significatifs aient été causés. Les délais moyens de détection des fraudes dépassent actuellement 97 jours, période pendant laquelle les préjudices financiers s'accumulent.
+\textbf{Comment détecter et s'informer des fraudes en temps réel}?
+\item Aujourd'hui, les bases de données gouvernementales des institutions publiques restent cloisonnées à case de la fragmentation ce qui empêche une détection efficace des fraudes en temps réel. Les différentes agences (sécurité sociale, services fiscaux, banques) opèrent en silos, avec des systèmes qui ne communiquent pas entre eux. Cette désarticulation institutionnelle permet aux fraudeurs d'exploiter les incohérences entre les systèmes, créant un environnement où les activités suspectes ne sont détectées qu'après que des dommages significatifs aient été causés. Les délais moyens de détection des fraudes dépassent actuellement 97 jours, période pendant laquelle les préjudices financiers s'accumulent.
 
-Ces enjeux souligne la gravité croissante des fraudes liées au CPF pour mettre en lumière l'urgence de moderniser en profondeur le système d'identification fiscale au Brésil. Les failles actuelles — qu'elles soient technologiques, organisationnelles ou sécuritaires — ne permettent plus de répondre efficacement aux défis posés par des techniques de fraude de plus en plus sophistiquées. Pour restaurer la confiance dans les institutions publiques et préserver l'intégrité économique du pays, il devient essentiel d'adopter une approche intégrée, capable de surmonter la perte economique , garantir la fiabilité de l'identité numérique, d'assurer la sécurité des données personnelles, et de renforcer la capacité de détection proactive des activités frauduleuses.
+Ces enjeux souligne la gravité croissante des fraudes liées au CPF pour mettre en lumière l'urgence de moderniser en profondeur le système d'identification fiscale au Brésil. Les failles actuelles qu'elles soient technologiques, organisationnelles ou sécuritaires ne permettent plus de répondre efficacement aux défis posés par des techniques de fraude de plus en plus sophistiquées. Pour restaurer la confiance dans les institutions publiques et préserver l'intégrité économique du pays, il devient essentiel d'adopter une approche intégrée, capable de surmonter la perte economique , garantir la fiabilité de l'identité numérique, d'assurer la sécurité des données personnelles, et de renforcer la capacité de détection proactive des activités frauduleuses.
 
 
 \section{Etude de l'existant}
@@ -51,7 +54,7 @@ Suite à une étude approfondie du marché, plusieurs solutions existantes en ma
 e‑Estonia\cite{b2,b25} est le système d’identification électronique national estonien introduit en 2002 et reposant sur une carte à puce obligatoire pour tous les résidents\cite{b26}. La carte e‑ID, protégée par deux codes PIN et chiffrée en ECC 384 bits, sert à l’authentification dans tous les services publics et privés via la plateforme X‑Road\cite{b27}, du vote en ligne aux services de santé et d’éducation\cite{b26}.\\
 \begin{figure}[H]
   \centering
-  \includegraphics[scale=0.4]{chapitre0/e-estonia_home.png}
+  \includegraphics[width=\linewidth]{chapitre0/Capture d'écran 2025-06-02 145226.png}
   \caption{Portail e‑Estonia – page d’accueil}
 \end{figure}
 \begin{itemize}[label=\textbullet]
@@ -63,7 +66,7 @@ e‑Estonia\cite{b2,b25} est le système d’identification électronique nation
 IDEMIA\cite{b3,b30} est une SAS multinationale française née de la fusion OT‑Morpho\cite{b31}, spécialisée en solutions biométriques et cryptographiques, avec 2{,}9 Md € de CA et 15000 employés en 2023\cite{b32}. Ses technologies (reconnaissance faciale, iris, empreintes, cartes à puce) sécurisent l’émission et la vérification d’identités pour plus de 600 gouvernements et 2300 entreprises dans 180 pays\cite{b33}.\\
 \begin{figure}[H]
   \centering
-  \includegraphics[scale=0.4]{chapitre0/idemia_home.png}
+  \includegraphics[width=\linewidth]{chapitre0/Capture d'écran 2025-06-02 145025.png}
   \caption{Portail IDEMIA – page d’accueil}
 \end{figure}
 \begin{itemize}[label=\textbullet]
@@ -75,7 +78,7 @@ IDEMIA\cite{b3,b30} est une SAS multinationale française née de la fusion OT�
 Onfido\cite{b4,b36}, fondée à Londres en 2012 et intégrée à Entrust en 2024\cite{b37}, propose une solution d’Identity Verification reposant sur IA pour la vérification documentaire et biométrique dans 195 pays\cite{b36}. La plateforme allie capture intelligente, workflows no‑code et analyses AI pour KYC/AML et lutte contre la fraude\cite{b36}.\\
 \begin{figure}[H]
   \centering
-  \includegraphics[scale=0.4]{chapitre0/onfido_home.png}
+  \includegraphics[width=\linewidth]{chapitre0/onfidohome.jpeg}
   \caption{Portail Onfido – page d’accueil}
 \end{figure}
 \begin{itemize}[label=\textbullet]
@@ -87,12 +90,12 @@ Onfido\cite{b4,b36}, fondée à Londres en 2012 et intégrée à Entrust en 2024
 Serpro\cite{b5,b40} (Serviço Federal de Processamento de Dados), fondé en 1964, est le principal prestataire IT public du Brésil, rattaché au ministère de l’Économie, avec 7822 employés et 2{,}78 MdR\$ de CA en 2021\cite{b41}. Il gère le CPF, le SIAFI, le RENAVAM, et d’autres systèmes essentiels aux services publics et à la lutte contre la fraude\cite{b40}.\\
 \begin{figure}[H]
   \centering
-  \includegraphics[scale=0.4]{chapitre0/serpro_home.png}
-  \caption{Portail Serpro – page d’accueil}
+  \includegraphics[width=\linewidth,keepaspectratio]{chapitre0/Capture d'écran 2025-06-02 145147.png}
+  \caption{Serpro page d’accueil}
 \end{figure}
 \begin{itemize}[label=\textbullet]
-  \item \textbf{Processus d'utilisation :} Les citoyens demandent leur CPF en ligne ou en agence. Les organismes (banques, administrations) interrogent l’API Serpro pour vérifier le statut fiscal, récupérer les informations personnelles et déclencher les services associés, avec mise à jour en temps réel des données\cite{b42}.
-  \item \textbf{Acteurs :} Serpro développe et maintient la plateforme, le ministère de l’Économie supervise la régulation, les agences (Receita Federal, DETRAN, ANPD) effectuent les contrôles, les intégrateurs IT assurent l’interfaçage, et les citoyens et entreprises consomment le service pour prévenir la fraude et accéder aux prestations\cite{b42}.
+  \item \textbf{Processus d'utilisation :} Les citoyens demandent leur CPF en ligne ou en agence. Les organismes (banques, administrations) interrogent l’API Serpro pour vérifier le statut fiscal, récupérer les informations personnelles et déclencher les services associés, avec mise à jour en temps réel des données.
+  \item \textbf{Acteurs :} Serpro développe et maintient la plateforme, le ministère de l’Économie supervise la régulation, les agences (Receita Federal, DETRAN, ANPD) effectuent les contrôles, les intégrateurs IT assurent l’interfaçage, et les citoyens et entreprises consomment le service pour prévenir la fraude et accéder aux prestations.
 \end{itemize}
 
 
@@ -106,7 +109,7 @@ Afin d'évaluer les solutions présentées dans la section précédente, nous av
 
 \item \textbf{Critere 1 -} Portée géographique  :  Évalue la capacité de la solution à être déployée et utilisée dans différentes régions ou pays. Une portée géographique étendue indique une adaptabilité à divers contextes légaux et culturels.
 
-   
+
 \item \textbf{ Critère 2 :  }  Secteur d'application :  Examine les domaines d'utilisation de la solution, tels que les services gouvernementaux, les secteurs bancaires ou les entreprises privées. Ce critère permet de déterminer si la solution répond aux besoins spécifiques de l'utilisateur.
 
 \item \textbf{ Critère 3 :  }  Technologies utilisées :  Évalue les technologies mises en œuvre par la solution, telles que la biométrie, l'intelligence artificielle ou les systèmes de stockage décentralisés. Ce critère permet de mesurer l'innovation et l'efficacité de la solution.
@@ -184,8 +187,8 @@ Dans notre application, nous identifions cinq acteurs, correspondant chacun à u
 
   \item[\textbf{-}] \textbf{Manager CPF:} Responsable de la gestion de la plateforme Secure Identity au niveau organisationnel. Il supervise les comptes CPF, crée et gère les comptes des officiers de police et suit les statuts de leurs CPF.
 
-  \item[\textbf{-}] \textbf{Officier de police:}  officier de police chargé de mener les inspections sur le terrain à l'aide de \textbf{Identity Secure}
-
+  \item[\textbf{-}] \textbf{Officier de police:} Chargé de mener les inspections sur le terrain à l'aide de \textbf{Identity Secure}
+\item[\textbf{-}] \textbf{Administrateur:} Utilisateur disposant de privilèges étendus sur la plateforme. Il supervise l’ensemble des comptes (managers et officiers).
   \item[\textbf{-}] \textbf{ChatBot:} Module intelligent fournissant une assistance automatisée aux utilisateurs. Il peut aider à la navigation dans l'application et réponds aux questions sur les processus d'utilisation.
 \end{itemize}
 \subsection{Spécifications des besoins fonctionnels}
@@ -203,18 +206,44 @@ Le tableau 1.2 illustre les différents besoins fonctionnels de l'acteur « Inte
 {| >{\centering\arraybackslash}p{4.2cm} | >{\centering\arraybackslash}p{12.5cm} |}
 \rowcolor{gray!30} % couleur d’en-tête
 \hline \textbf{Fonctionnalité} & \textbf{Description}\\
-\hline  S'informer &  L'internaute peut consulter les différentes fonctionnalités et services intégrés dans Identity Secure sans besoin de s'inscrire ou de se connecter, y compris la documentation sur le processus d'obtention du CPF et les services disponibles. \\
+\hline  S'informer &  L'internaute peut consulter les différentes fonctionnalités et services intégrés dans Identity Secure sans besoin de s'inscrire ou de se connecter. \\
 \hline S'inscrire &  L'internaute peut créer un compte sur la plateforme Identity Secure en fournissant ses informations personnelles (nom, prénom, email, mot de passe) et en acceptant les conditions d'utilisation. \\
-\hline procurer aide &  L'internaute peut accéder à l'assistance en ligne via le ChatBot pour obtenir des informations sur le processus d'obtention du CPF et les services disponibles. \\
+\hline Procurer Aide &  L'internaute peut accéder à l'assistance en ligne via le ChatBot pour obtenir des informations sur le processus d'obtention du CPF et les services disponibles. \\
 \hline
 \end{tabular}
 \end{table}
-\subsubsection{Besoins fonctionnels de l'acteur «citoyens brésiliens»}
 
-Le tableau 1.3 illustre les différents besoins fonctionnels de l'acteur «citoyens brésiliens».
+
+
+\subsubsection{Besoins fonctionnels de l'acteur « Admin »}
+
+Le tableau 1.2 illustre les différents besoins fonctionnels de l'acteur « Admin ».
+
+\begin{table}[H]
+\centering
+\caption{ \centering Besoins fonctionnels de l'acteur « Administrateur »}
+\label{tab:backlog:ch1:1}
+\begin{tabular}
+{| >{\centering\arraybackslash}p{5cm} | >{\centering\arraybackslash}p{12.5cm} |}
+\rowcolor{gray!30} % couleur d’en-tête
+\hline \textbf{Fonctionnalité} & \textbf{Description}\\
+\hline Gérer officiers et managers &  L'administrateur peut gérer les comptes des officier et des managers \\
+\hline
+\end{tabular}
+\end{table}
+
+
+
+
+
+
+
+\subsubsection{Besoins fonctionnels de l'acteur «Citoyen brésilien»}
+
+Le tableau 1.3 illustre les différents besoins fonctionnels de l'acteur «citoyen brésilien».
 \begin{longtable}
 {| >{\centering\arraybackslash}p{4.2cm} | >{\arraybackslash}p{12.5cm} |}
-\caption{\centering Besoins fonctionnels de l'acteur « citoyens brésiliens »} \label{tab:besoins-citoyens} \\
+\caption{\centering Besoins fonctionnels de l'acteur « citoyen brésilien»} \label{tab:besoins-citoyens} \\
 \hline
 \rowcolor{gray!30} \textbf{Fonctionnalité} & \textbf{Description} \\
 \hline
@@ -233,15 +262,17 @@ S'inscrire & Le citoyen brésilien peut créer un compte sur la plateforme en fo
 \hline
 S'authentifier & Le citoyen brésilien peut se connecter à son espace personnel en utilisant son email et mot de passe pour accéder à ses fonctionnalités et données personnelles. \\
 \hline
-Récupérer Mot de passe & En cas d'oubli de son mot de passe, le citoyen brésilien peut demander une réinitialisation via un lien envoyé à son adresse email. \\
+Récupérer Mot de Passe & En cas d'oubli de son mot de passe, le citoyen brésilien peut demander une réinitialisation via un lien envoyé à son adresse email. \\
 \hline
-Gérer profil & Le citoyen brésilien peut gérer son profil en mettant à jour ses informations personnelles, son adresse et ses coordonnées. \\
+Gérer Profil & Le citoyen brésilien peut gérer son profil en mettant à jour ses informations personnelles, son adresse et ses coordonnées. \\
 \hline
-Soumettre une demande rendez-vous & Le citoyen brésilien peut soumettre une demande de rendez-vous pour fournir ses données biométriques, en spécifiant sa localisation et en choisissant un centre de service. \\
+Soumettre Rendez-vous & Le citoyen brésilien peut soumettre un rendez-vous afin d'obtenir son numéro CPF. \\
 \hline
-Consulter la date de son rendez-vous & Le citoyen brésilien peut consulter les détails de son rendez-vous, y compris la date, l'heure et le lieu, et demander une modification si nécessaire. \\
+Consulter Rendez-vous& Le citoyen brésilien peut consulter les détails de son rendez-vous, y compris la date, l'heure et le lieu.\\
 \hline
-Gérer transaction basées CPF & Le citoyen brésilien peut consulter son numéro CPF,statut CPF et ses transactions et utilisations externes. et peux effectuer des actions comme demander blocage en cas de fraude. \\
+Gérer Transaction Basées CPF & Le citoyen brésilien peut consulter ses transactions banquaires basés sur son numéro CPF.En cas de fraude, il peut signaler  son compte banquaire lié à cette transaction tout en envoyant un demande . \\
+\hline
+Consulter CPF & Le citoyen brésilien peut consulter son numéro CPF,son statut CPF et il peut télécharger son certificat CPF aussi . \\
 \hline
 Procurer aide & Le citoyen brésilien peut interagir avec le ChatBot pour obtenir de l'aide sur l'utilisation de la plateforme et le processus CPF. \\
 \hline
@@ -255,7 +286,7 @@ Procurer aide & Le citoyen brésilien peut interagir avec le ChatBot pour obteni
 Le tableau 1.4 montre les différents besoins fonctionnels de l'acteur «Manager CPF».
 \begin{longtable}
 {| >{\centering\arraybackslash}p{4.2cm} | >{\arraybackslash}p{12.5cm} |}
-\caption{\centering Besoins fonctionnels de l'acteur « citoyens brésiliens »} \label{tab:besoins-citoyens} \\
+\caption{\centering Besoins fonctionnels de l'acteur « Manager CPF »} \label{tab:besoins-citoyens} \\
 \hline
 \rowcolor{gray!30} \textbf{Fonctionnalité} & \textbf{Description} \\
 \hline
@@ -268,18 +299,17 @@ Le tableau 1.4 montre les différents besoins fonctionnels de l'acteur «Manager
 \hline
 \endlastfoot
 
-S'authentifier & Le Manager CPF peut se connecter à son espace de gestion en utilisant son email et mot de passe pour accéder aux fonctionnalités administratives. \\
+S'authentifier & Le Manager CPF peut se connecter à son espace de gestion en utilisant son email et mot de passe . \\
 \hline
-Récupérer Mot de passe & En cas d'oubli de son mot de passe, le Manager CPF peut demander une réinitialisation via un lien envoyé à son adresse email. \\
+Récupérer Mot de Passe & En cas d'oubli de son mot de passe, le Manager CPF peut demander une réinitialisation via un lien envoyé à son adresse email. \\
 \hline
-Gérer profil & Le Manager CPF peut gérer son profil professionnel et ses paramètres de notification. \\
+Gérer Profil & Le Manager CPF peut gérer son profil et modifier ses données. \\
 \hline
-Consulter Fraude & Le Manager CPF peut consulter et gérer la liste des demandes de fraudes et blocage. \\
+Gérer Fraude & Le Manager CPF peut consulter et gérer la liste des fraudes des fausses transactions . \\
 \hline
-Consulter notifications & Le Manager CPF peut consulter toutes nouvelles demandes , inscription
-fraude , blacklist pour etre uau courant. \\
+Consulter Déduplications & Le Manager CPF peut consulter la liste des déduplications qui sont détecter au cours d'un nouvel ajout des données biométriques. \\
 \hline
-Consulter citoyens & Le Manager CPF peut consulter la liste des citoyens avec des filtres par statut (actif, suspendu, bloqué) et par état de génération du CPF. \\
+Consulter Liste Citoyens & Le Manager CPF peut consulter la liste des citoyens avec des filtres par statut (active,suspended,pending,fraudulent) et par état de génération du CPF. \\
 \hline
 
 \end{longtable}
@@ -291,7 +321,7 @@ Consulter citoyens & Le Manager CPF peut consulter la liste des citoyens avec de
 Le tableau 1.5 illustre les différents besoins fonctionnels de l'acteur «officier de police».
 \begin{table}[H]
 \centering
-\caption{\centering Besoins fonctionnels de l'acteur « officier de police »}
+\caption{\centering Besoins fonctionnels de l'acteur « Officier de police »}
 
 \begin{tabular}
 {| >{\centering\arraybackslash}p{4.2cm} | >{\centering\arraybackslash}p{12.5cm} |}
@@ -300,17 +330,17 @@ Le tableau 1.5 illustre les différents besoins fonctionnels de l'acteur «offic
 \hline
 S'authentifier & L'officier de police peut se connecter à son espace de travail en utilisant son email et mot de passe pour accéder aux fonctionnalités de gestion des rendez-vous et des données biométriques. \\
 \hline
-Récupérer Mot de passe & En cas d'oubli de son mot de passe, l'officier de police peut demander une réinitialisation via un lien envoyé à son adresse email.\\
+Récupérer Mot de Passe & En cas d'oubli de son mot de passe, l'officier de police peut demander une réinitialisation via un lien envoyé à son adresse email.\\
 \hline
-Gerer profile & L'officier de police peut gérer son profil professionnel et ses paramètres de notification.\\
+Gérer Profil & L'officier de police peut gérer son profil en mettant à jour ses informations personnelles et professionelles\\
 \hline
-plannifier rendez vous & L'officier de police peut planifier et gérer les rendez-vous pour la collecte des données biométriques, en tenant compte des disponibilités du centre.\\
+Plannifier Rendez-vous & l'officier de police peut planifier et gérer les rendez-vous en les validant ou en les annulant.\\
 \hline
-consulter rendez-vous & L'officier de police peut consulter son calendrier de rendez-vous et les détails associés à chaque rendez-vous.\\
+Consulter Rendez-vous Plannifiées & L'officier de police peut consulter tous les rendez-vous et les détails associés à chaque rendez-vous.\\
 \hline
-televerser les donnees biometriques & L'officier de police peut télécharger et enregistrer les données biométriques des citoyens (empreintes digitales, photo d'identité, iris) lors des rendez-vous.\\
+Téléverser Données Biométriques & L'officier de police peut téléverser et enregistrer les données biométriques des citoyens (empreintes digitales, photo d'identité, iris) lors des rendez-vous.\\
 \hline
-consulter liste citoyen & L'officier de police peut consulter la liste des citoyens ayant déjà un CPF et leurs informations associées.\\
+Consulter Liste Citoyens & Le Manager CPF peut consulter la liste des citoyens avec des filtres par statut (active, suspended, fraudulent , generated) et par état de génération du CPF. \\
 \hline
 \end{tabular}
 \end{table}
@@ -342,7 +372,6 @@ Dans le cadre du projet \textbf{Identity Secure}, plusieurs besoins non fonction
   \item \textbf{Cryptage des données biométriques} : Application de l'algorithme AES-256-GCM pour le chiffrement des données biométriques sensibles, tant en transit qu'au repos.
   \item \textbf{Validation des tokens} : Vérification systématique de l'authenticité et de la validité des tokens JWT à chaque requête via un intercepteur HTTP dédié.
   \item \textbf{Protection contre les attaques} : Mise en place de mécanismes de détection et de prévention des tentatives d'accès non autorisées, avec verrouillage temporaire des comptes après plusieurs échecs d'authentification.
-  \item \textbf{Gestion sécurisée des réinitialisations de mot de passe} : Génération de tokens cryptographiquement sécurisés avec une durée de validité limitée (1 heure) pour les demandes de réinitialisation de mot de passe.
 \end{itemize}
 
 \textbf{- Performance du système :} Notre application assure des temps de réponse rapides et des performances optimales grâce à :
@@ -380,8 +409,12 @@ Dans le cadre du projet \textbf{Identity Secure}, plusieurs besoins non fonction
   \item \textbf{Attributs ARIA} : Intégration d'attributs d'accessibilité dans les composants UI pour améliorer la compatibilité avec les lecteurs d'écran.
   \item \textbf{Textes alternatifs} : Ajout systématique d'attributs \texttt{alt} descriptifs pour les images, notamment les photos de profil et les éléments biométriques.
   \item \textbf{Thèmes adaptés} : Support de thèmes clairs et sombres pour s'adapter aux préférences visuelles des utilisateurs.
+  \item \textbf{Compatibilité multiplateforme} : ’application doit être accessible sur les navigateurs modernes (Chrome, Firefox, Edge…) et les systèmes d’exploitation courants (Windows, Android, iOS…).
+  \item \textbf{Facilité d’utilisation} :L’interface doit être intuitive, simple à prendre en main, et permettre à l’utilisateur de réaliser ses tâches avec un minimum d’efforts.
+
+
 \end{itemize}
-\section{Méthodologie adoptée}
+\section*{Méthodologie adoptée}
 
 Une méthodologie est un cadre utilisé pour structurer, planifier et contrôler le développement d'une application. Dans la réalisation de notre projet, nous avons opté pour «Scrum» comme méthodologie de conception et de développement.
 
@@ -427,7 +460,7 @@ La figure \ref{fig:scrum-process} illustre le principe de base de la méthodolog
 
 \addcontentsline{toc}{section}{Conclusion}
 
-\section{Conclusion}
+\section*{Conclusion}
 
 Dans ce premier chapitre introductif, nous avons situé notre projet \textbf{Identity Secure} dans son contexte général et exposé succinctement les objectifs visés. Ainsi nous avons examiné les solutions existantes, mis en évidence leurs limitations et proposé une alternative. Ensuite, nous avons identifié les divers acteurs impliqués dans le projet, ainsi que les exigences fonctionnelles et non fonctionnelles. Enfin, nous avons détaillé la méthodologie Scrum que nous avons sélectionnée pour piloter le projet.\\
 Le chapitre suivant se concentrera sur la phase de préparation.

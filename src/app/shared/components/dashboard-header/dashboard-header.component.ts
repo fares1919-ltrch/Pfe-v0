@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, HostListener, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, HostListener, Inject, PLATFORM_ID, OnDestroy } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ProfileService } from '../../../core/services/profile.service';
@@ -7,11 +7,15 @@ import { trigger, transition, style, animate } from '@angular/animations';
 import { TokenStorageService } from '../../../core/services/token-storage.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { CookieService } from 'ngx-cookie-service';
+import { NotificationService } from '../../../core/services/notification.service';
+import { SocketService } from '../../../core/services/socket.service';
+import { Subscription } from 'rxjs';
+import { RealTimeNotificationsComponent } from '../real-time-notifications/real-time-notifications.component';
 
 @Component({
   selector: 'app-dashboard-header',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, RealTimeNotificationsComponent],
   templateUrl: './dashboard-header.component.html',
   styleUrls: ['./dashboard-header.component.scss'],
   animations: [
@@ -24,10 +28,20 @@ import { CookieService } from 'ngx-cookie-service';
         style({ transform: 'rotate(180deg)' }),
         animate('300ms ease-in', style({ transform: 'rotate(0deg)' }))
       ])
+    ]),
+    trigger('fadeInOut', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(-10px)' }),
+        animate('200ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
+      ]),
+      transition(':leave', [
+        style({ opacity: 1, transform: 'translateY(0)' }),
+        animate('200ms ease-in', style({ opacity: 0, transform: 'translateY(-10px)' }))
+      ])
     ])
   ]
 })
-export class DashboardHeaderComponent implements OnInit {
+export class DashboardHeaderComponent implements OnInit, OnDestroy {
   @Input() userRole: string = '';
   @Input() username: string = '';
   @Input() isSidebarCollapsed: boolean = false;
@@ -35,12 +49,15 @@ export class DashboardHeaderComponent implements OnInit {
 
   userPhotoUrl: string = 'assets/images/avatar-placeholder.png';
   dropdownOpen = false;
+  notificationsOpen = false;
   alwaysShowSidebar = false;
   isToggling = false;
   isProfileClicked = false;
   isLoggingOut = false;
   currentUser: any;
+  unreadNotificationsCount = 0;
   private isBrowser: boolean;
+  private subscriptions: Subscription[] = [];
 
   constructor(
     private profileService: ProfileService,
@@ -48,12 +65,17 @@ export class DashboardHeaderComponent implements OnInit {
     private authService: AuthService,
     private router: Router,
     private cookieService: CookieService,
+    private notificationService: NotificationService,
+    private socketService: SocketService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
   }
 
   ngOnInit(): void {
+    if (this.userRole === 'admin') {
+      return;
+    }
     this.currentUser = this.tokenStorage.getUser();
     if (this.currentUser) {
       this.username = this.currentUser.username;
@@ -74,6 +96,20 @@ export class DashboardHeaderComponent implements OnInit {
         // fallback to placeholder
       }
     });
+
+    this.subscriptions.push(
+      this.notificationService.unreadCount$.subscribe(count => {
+        this.unreadNotificationsCount = count;
+      })
+    );
+
+    this.socketService.connect();
+
+    this.updateUnreadCount();
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
   logout(): void {
@@ -90,6 +126,10 @@ export class DashboardHeaderComponent implements OnInit {
       this.dropdownOpen = false;
     }
 
+    if (!target.closest('.notification-btn') && !target.closest('.notifications-panel') && this.notificationsOpen) {
+      this.notificationsOpen = false;
+    }
+
     this.isProfileClicked = false;
   }
 
@@ -100,6 +140,31 @@ export class DashboardHeaderComponent implements OnInit {
 
     this.isProfileClicked = true;
     this.dropdownOpen = !this.dropdownOpen;
+
+    if (this.notificationsOpen) {
+      this.notificationsOpen = false;
+    }
+  }
+
+  toggleNotifications(event: MouseEvent): void {
+    event.stopPropagation();
+    this.notificationsOpen = !this.notificationsOpen;
+
+    if (this.dropdownOpen) {
+      this.dropdownOpen = false;
+    }
+
+    if (this.notificationsOpen && this.unreadNotificationsCount > 0) {
+      this.updateUnreadCount();
+    }
+  }
+
+  private updateUnreadCount(): void {
+    this.notificationService.getUnreadCount().subscribe({
+      error: (error) => {
+        console.error('Failed to fetch unread notification count', error);
+      }
+    });
   }
 
   goToProfile(): void {
@@ -116,5 +181,9 @@ export class DashboardHeaderComponent implements OnInit {
     setTimeout(() => {
       this.isToggling = false;
     }, 400);
+  }
+
+  onNotificationPanelToggled(isOpen: boolean): void {
+    this.notificationsOpen = isOpen;
   }
 }

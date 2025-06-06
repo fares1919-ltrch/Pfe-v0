@@ -9,12 +9,33 @@
         <div class="identity-content">
           <div class="profile-image-container">
             <div class="image-wrapper">
-              <img
-                [src]="profileImageUrl"
-                alt="Profile"
-                class="profile-image"
-              />
+              <ng-container
+                *ngIf="
+                  profileImageUrl === 'assets/images/default-profile.jpg';
+                  else userPhoto
+                "
+              >
+                <span class="default-avatar-icon">
+                  <span class="material-icons">account_circle</span>
+                </span>
+              </ng-container>
+              <ng-template #userPhoto>
+                <img
+                  [src]="profileImageUrl"
+                  alt="Profile"
+                  class="profile-image"
+                />
+              </ng-template>
               <div class="image-halo"></div>
+              <button
+                *ngIf="profileImageUrl !== 'assets/images/default-profile.jpg'"
+                class="delete-photo-btn"
+                (click)="onDeleteProfilePhoto()"
+                title="Delete profile photo"
+                type="button"
+              >
+                <span class="material-icons">delete</span>
+              </button>
             </div>
             <div class="image-upload mt-2">
               <input
