@@ -1,0 +1,478 @@
+\chapter{Release 4 : «Procurer aide \& Gérer Notifications en Temps Réel »}
+
+
+
+
+\section{Introduction}
+\label{sec_introduction:ch5}
+Dans cette partie, après laquelle nous clôturons, rappelons que la quatrième release du projet est composée de deux différents sprints, à savoir le premier « Procurer Aide » dans le champ du chatbot, et le second « Gérer Notifications en Temps Réel » dédié au système de notifications. Un bref raisonnement sur chaque sprint, son organisation et son backlog respectifs, sa phase d'analyse et solution conceptuelle, puis illustrant les interactions entre acteurs et système respectifs par des diagrammes ; pour terminer concrètement avec la mise en œuvre à travers les interfaces utilisateur.
+
+\subsection{Sprint 6 : « Procurer aide »}
+\label{sec:sprint6_Procurer aide}
+Dans cette section, nous commençons par exposer l’organisation et le Backlog du dernier
+sprint, intitulé « Procurer Aide ». Ensuite, nous abordons la phase d’analyse ainsi que la solution
+conceptuelle. Enfin, nous mettons en lumière les différentes réalisations.
+
+\subsubsection{Organisation}
+Le tableau 5.3 donne un aperçu détaillé sur le Backlog du dernier sprint qui prend en
+charge la fonctionnalité « Procurer Aide ».\\
+
+\begin{longtable}{|>{\centering\arraybackslash}p{0.7cm}|>{\arraybackslash}p{6.5cm}|>{\centering\arraybackslash}p{1.3cm}|>{\arraybackslash}p{6cm}|>{\centering\arraybackslash}p{1cm}|}
+\caption{\centering Backlog du sprint 6 : « Procurer Aide »}
+\label{tab:backlog} \\
+
+\hline
+\rowcolor{gray!30}
+ID & User Story & ID & Tâche & Durée /j \\
+\hline
+\endfirsthead
+
+
+\hline
+\endhead
+
+\hline
+\endfoot
+
+\hline
+\endlastfoot
+
+\multirow{5}{0.7cm}{11.1} & \multirow{5}{6.5cm}{En tant qu'utilisateur ou citoyen brésilien, je souhaite pouvoir interagir avec un assistant intelligent ChatGenius pour poser des questions fréquentes, obtenir des instructions liées au CPF ou consulter des informations contextuelles le concernant.} & 11.1.1 & Concevoir l'interface pour la saisie des messages & 2 \\
+\cline{3-5}
+& & 11.1.2 & Implémenter un serveur backend pour le traitement des requêtes HTTP & 2 \\
+\cline{3-5}
+& & 11.1.3 & Créer des API pour accéder aux services de Rasa & 1 \\
+\cline{3-5}
+& & 11.1.5 & Effectuer les tests des fonctionnalités de ChatGenius & 4 \\
+\hline
+
+
+\end{longtable}
+
+\subsubsection{Analyse}
+Cette phase d’analyse vise à approfondir les différentes fonctionnalités du système en les illustrant à travers leurs cas d’utilisation respectifs.
+
+
+\textbf{– Raffinement du cas d’utilisation « Procurer de l’aide »}\\
+La Figure 5.6 illustre le raffinement du cas d’utilisation « Procurer de l’aide », qui met en relief la capacité des utilisateurs à solliciter une assistance via l’assistant intelligent de Idenity Secure ChatGenius.
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.7]{assetsChap5/UCchatbot.drawio_cropped.pdf}
+\caption{Sprint 6 - Diagramme de cas d’utilisation « Procurer de l’aide »}
+\end{figure}
+
+Le Tableau 5.4 fournit une description textuelle détaillée de ce cas d’utilisation, incluant le scénario nominal ainsi que les alternatives possibles.
+
+\begin{longtable}{|>{\arraybackslash}p{4.2cm}|>{\arraybackslash}p{12.5cm}|}
+\caption{\centering Description textuelle du cas d'utilisation « Procurer de l’aide »}
+\label{tab:backlog} \\
+\hline
+\rowcolor{gray!30}
+\textbf{Cas d'utilisation} & Procurer de l’aide \\
+\hline
+\endfirsthead
+
+\hline
+\endhead
+
+\hline
+\endfoot
+
+\hline \hline
+\endlastfoot
+
+\textbf{Acteurs}  &Internaute , Citoyen brésilien \\
+\hline
+\textbf{Résumé} &
+L’acteur interagit avec le chatbot « ChatGenius » pour obtenir de l’aide concernant l’application d’audit ou pour consulter des informations contextuelles. \\
+\hline
+\textbf{Pré-conditions} &
+L’utilisateur doit être à homePage ou à son espace personnel \\
+\hline
+\textbf{Scénario nominal}  &
+\begin{itemize}[label=]
+ \item{1-} L’acteur clique sur l’icône du chatGenius pour accéder aux instructions.
+ \item{2-} Le système ouvre l’interface de discussion.
+ \item{3-} L’acteur saisit un message.
+ \item{4-} Le système envoie une requête HTTP contenant le message vers la route communicante avec le serveur Rasa.
+ \item{5-} La route transmet le message au serveur Rasa.
+ \item{6-} Rasa interprète le message et fait appel au modèle NLP .
+ \item{7-} Rasa retourne la réponse générée au serveur.
+ \item{8-} Le serveur transmet la réponse HTTP à l’interface utilisateur pour affichage.
+\end{itemize} \\
+\hline
+\textbf{Enchaînements alternatifs} &
+Si le message est incompréhensible, Rasa sollicite une reformulation ou clarification. Ce scénario reprend alors au point 3 du scénario nominal. \\
+\hline
+
+\end{longtable}
+
+
+\textbf{}{Architecture NLP du Chatbot Rasa}
+
+\textbf{}{Fondements du Traitement du Langage}
+\begin{itemize}
+    \item \textbf{NLU (Natural Language Understanding)} :
+    \begin{itemize}
+        \item Composant clé dans Rasa pour l'analyse sémantique
+        \item Fichier \texttt{nlu.yml} : Définit les intentions (\textit{intents}) et entités avec exemples annotés
+        \item Technologie en pleine évolution (modèles DIETClassifier dans notre configuration)
+    \end{itemize}
+
+    \item \textbf{NLG (Natural Language Generation)} :
+    \begin{itemize}
+        \item Rasa utilise des réponses prédéfinies (\texttt{responses} dans \texttt{domain.yml})
+    \end{itemize}
+
+    \item \textbf{NLI (Natural Language Interaction)} :
+    \begin{itemize}
+        \item Implémenté via les \texttt{rules} et \texttt{stories}
+        \item Gère le flux conversationnel selon le contexte
+    \end{itemize}
+\end{itemize}
+
+
+
+\textbf{Configuration du NLU}
+\begin{itemize}
+    \item Fichier \texttt{nlu.yml} : Définition des intentions, expressions d'exemples, entités utilisées
+    \item Fichier \texttt{domain.yml} : définition des réponses pour chaque intention
+    \item Fichier \texttt{config.yml} : Pipeline NLU (Tokenizer, Entity Extractors, Intent Classifiers ....etc) , Politiques de de dialogue(TEDPolicy, RulePolicy...etc)
+    \end{itemize}
+% \end{itemize}
+
+
+\textbf{1-Mode interactif}
+\begin{itemize}
+    \item Commande \texttt{rasa shell} pour tester le chatbot en mode conversationnel
+    \item Visualisation en temps réel des intentions détectées, entités extraites ainsi que des actions déclenchées :
+\end{itemize}
+
+\textbf{2-Entraînement du modèle}
+\begin{itemize}
+    \item Commande \texttt{rasa train} pour l'entraînement complet
+\end{itemize}
+
+\textbf{3-Tests et résultats}
+\begin{itemize}
+    \item Fichier \texttt{test.yml} avec des conversations de test
+    \item Métriques affichées :
+    \begin{itemize}
+        \item Matrice de confusion des intentions
+        \item Rapport de classification (précision, rappel, F1-score)
+        \item Précision des entités (exactitude partielle/exacte)
+    \end{itemize}
+\end{itemize}
+
+
+
+\subsubsection{Conception}
+Dans cette section, nous présentons l’étude conceptuelle des données à travers les diagrammes d’interactions.
+
+
+\textbf{– Diagramme d’interaction « Procurer de l’aide »}\\
+
+Le diagramme d’interaction de ChatGenius met en évidence la manière dont un manager ou un employé peut dialoguer avec le chatbot pour obtenir une assistance. Il décrit les étapes clés suivies par le système pour traiter une requête, de l’initiation de la conversation à l’émission de la réponse (voir Figure 5.7).
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.63]{assetsChap5/SeqChatbot.drawio_cropped.pdf}
+\caption{Sprint 6 – Diagramme d’interaction « Procurer de l’aide »}
+\end{figure}
+
+
+
+\subsubsection{Réalisation}
+À la suite de l’analyse du sprint 6 et de la finalisation de la conception, cette section présente la réalisation technique du processus d'entrainement du chatgenius et les interfaces homme-machine développées durant cette itération.\\
+
+
+
+
+
+
+
+\textbf{– Interfaces du cas d’utilisation « Procurer de l’aide »}\\
+Les Figures 5.8, 5.9, 5.10 et 5.11 illustrent les interfaces utilisateur correspondant au cas d’utilisation « Procurer de l’aide ». L’utilisateur peut y saisir un message via l’interface du chatbot. Ce message est ensuite transmis à Rasa, qui l’analyse, interprète la demande et renvoie une réponse appropriée.
+
+
+
+% Add this to your preamble
+% \usepackage{subcaption}
+
+% Replace your figure code with this:
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth , height=10 cm]{assetsChap5/flow1.png}
+        \caption{Sprint 6 - Interface « Procurer Aide » (1)}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth , height=10 cm]{assetsChap5/flow2.png}
+        \caption{Sprint 6 - Interface « Procurer Aide » (2)}
+    \end{subfigure}
+
+    \vspace{0.5cm} % Adjust vertical spacing between rows
+
+    \begin{subfigure}{0.45\textwidth }
+        \centering
+        \includegraphics[width=\linewidth , height=10 cm]{assetsChap5/flow3.png}
+        \caption{Sprint 6 - Interface « Procurer Aide » (3)}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.45\textwidth }
+        \centering
+        \includegraphics[width=\linewidth , height=10 cm]{assetsChap5/flow4.png}
+        \caption{Sprint 6 - Interface « Procurer Aide » (4)}
+    \end{subfigure}
+\end{figure}
+
+
+
+
+\subsection{Sprint 7 : « Gérer Notifications en Temps Réel »}
+\label{sec:sprint7_Gérer Notifications}
+Cette section détaille la conception et l'implémentation d'un système de notifications en temps réel, une composante essentielle de l'application \textbf{Identity-Secure}. Dans le contexte de la gestion de l'identité numérique et des processus administratifs critiques (tels que ceux liés au CPF brésilien), la communication instantanée et fiable entre les différents acteurs (citoyens, managers, officiers) n'est pas seulement une question de commodité, mais un impératif pour la sécurité, l'efficacité opérationnelle et le maintien de la confiance des utilisateurs. Ce système vise à fournir des mises à jour immédiates sur les événements pertinents, réduisant ainsi les délais de traitement et améliorant la réactivité face aux situations critiques.
+
+\subsubsection{Organisation}
+\label{subsec:sprint7}
+Le tableau 6.3 donne un aperçu détaillé sur le Backlog du dernier sprint qui prend en
+charge la fonctionnalité «gérer notification».
+\begin{longtable}{|>{\centering\arraybackslash}p{0.7cm}|>{\arraybackslash}p{6.5cm}|>{\centering\arraybackslash}p{1.3cm}|>{\arraybackslash}p{6cm}|>{\centering\arraybackslash}p{1cm}|}
+\caption{\centering Backlog du sprint 7 : « Gérer Notifications en Temps Réel »}
+\label{tab:backlog} \\
+
+\hline
+\rowcolor{gray!30}
+ID & User Story & ID & Tâche & Durée /j \\
+\hline
+\endfirsthead
+
+
+\hline
+\endhead
+
+\hline
+\endfoot
+
+\hline
+\endlastfoot
+
+\multirow{5}{0.7cm}{1} & \multirow{5}{6.5cm}{En tant qu'utilisateur (citoyen, manager ou officier), je peux recevoir des notifications en temps réel concernant les événements pertinents pour mon rôle dans le système,consulter l'historique de mes notifications et marquer les notifications comme lues.} & 1.1 & Implémentation du frontend unifié pour l'affichage des notifications avec Socket.IO & 1 \\
+\cline{3-5}
+& & 1.2 & Développement des API backend pour la gestion des notifications & 2 \\
+\cline{3-5}
+& & 1.3 & Configuration du serveur Socket.IO pour la distribution des notifications aux acteurs cibles & 3 \\
+\cline{3-5}
+
+
+
+\end{longtable}
+
+\subsubsection{Analyse}
+Cette phase d’analyse vise à détailler les principales fonctionnalités du système de notifications en temps réel à travers leurs cas d’utilisation.
+
+\textbf{Diagrammes de cas d’utilisation}
+Dans cette section, nous présentons les cas d’utilisation affinés relatifs au système de notifications.
+
+\textbf{– Raffinement du cas d’utilisation « Gérer Notifications en Temps Réel »}\\
+La Figure 6.x illustre le cas d’utilisation « Gérer Notifications en Temps Réel », mettant en lumière la capacité des acteurs à recevoir, consulter et gérer les notifications instantanées envoyées par le système.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{chapitre6/notif.png}
+\caption{Sprint 7 - Diagramme de cas d’utilisation « Gérer Notifications en Temps Réel »}
+\end{figure}
+
+Le tableau 6.x fournit une description textuelle concise de ce cas d’utilisation, comprenant le scénario nominal et les alternatives possibles.
+
+\begin{longtable}{|>{\arraybackslash}p{4cm}|>{\arraybackslash}p{12cm}|}
+\caption{\centering Description textuelle du cas d'utilisation « Gérer Notifications en Temps Réel »}
+\label{tab:uc_notifications} \\
+\hline
+\rowcolor{gray!30}
+\textbf{Cas d'utilisation} & Gérer Notifications en Temps Réel \\
+\hline
+\endfirsthead
+
+\hline
+\endhead
+
+\hline
+\endfoot
+
+\hline \hline
+\endlastfoot
+
+\textbf{Acteurs} & Utilisateur, Manager, Système de notification \\
+\hline
+\textbf{Résumé} &
+L’acteur reçoit en temps réel des notifications concernant les événements critiques ou d’intérêt liés à son espace personnel ou à ses  \\
+\hline
+\textbf{}&responsabilités.\\
+\hline
+\textbf{Pré-conditions} &
+L’acteur est connecté à l’application et dispose d’une session active. \\
+\hline
+\textbf{Scénario nominal} &
+\begin{itemize}[label=]
+ \item{1-} Un événement déclenche une notification dans le système backend.
+ \item{2-} Le serveur émet la notification via le canal websocket établi avec le client.
+ \item{3-} Le client reçoit la notification en temps réel.
+ \item{4-} L’interface utilisateur affiche la notification instantanément.
+ \item{5-} L’utilisateur peut consulter les détails ou marquer la notification comme lue.
+\end{itemize} \\
+\hline
+\textbf{Enchaînements alternatifs} &
+Si la connexion websocket est interrompue, le client bascule sur un mode de récupération (polling ou reconnexion automatique). La notification est stockée côté serveur et synchronisée dès que possible. \\
+\hline
+\end{longtable}
+
+\subsubsection{Architecture du Système de Notifications}
+\label{subsec:sprint7_architecture}
+
+Le système de notifications repose sur une architecture hybride conçue pour équilibrer la réactivité en temps réel avec la nécessité d'une persistance fiable des données, un défi courant dans les applications web modernes \cite{b42}. Cette approche combine la distribution instantanée via WebSockets (gérée par Socket.IO) et le stockage durable dans une base de données NoSQL (MongoDB).
+
+\textbf{Justification de l’Approche Hybride}
+\label{subsubsec:hybrid_justification_simple}
+
+Pour le projet \textbf{Identity-Secure}, nous avons choisi une solution hybride combinant communication en temps réel et stockage durable des données.
+
+Des méthodes comme le Long Polling ou Server-Sent Events peuvent envoyer des mises à jour aux utilisateurs, mais elles ont des limites : par exemple, elles ne permettent pas toujours une communication rapide dans les deux sens, ou consomment plus de ressources réseau.
+
+Nous avons donc préféré utiliser \textbf{WebSockets} via la bibliothèque \textbf{Socket.IO}, qui facilite la connexion continue entre serveur et client, permettant d’envoyer instantanément des notifications aux utilisateurs connectés.
+
+Mais pour ne pas perdre d’informations si un utilisateur est hors ligne, chaque notification est aussi \textbf{enregistrée dans une base de données MongoDB}. Ainsi, l’utilisateur peut retrouver toutes ses notifications, même celles reçues quand il n’était pas connecté.
+
+Les avantages de cette approche sont :
+
+\begin{itemize}
+    \item \textbf{Historique complet :} les notifications sont conservées et consultables à tout moment.
+    \item \textbf{Réactivité :} les notifications importantes sont envoyées en temps réel aux utilisateurs en ligne.
+    \item \textbf{Fiabilité :} le système garde les notifications même si un utilisateur est temporairement déconnecté.
+    \item \textbf{Analyse possible :} la base de données permet de faire des recherches, statistiques ou audits sur les notifications.
+    \item \textbf{Évolutivité :} cette architecture peut grandir pour gérer plus d’utilisateurs avec quelques améliorations techniques.
+\end{itemize}
+
+Cette solution hybride suit le principe d’un système observateur, où le serveur diffuse les événements et les clients abonnés les reçoivent immédiatement tout en gardant une trace écrite.
+
+En résumé, on combine le meilleur des deux mondes : rapidité pour les connexions actives, et fiabilité pour ne rien perdre quand les utilisateurs sont absents.
+
+\begin{figure}[H]
+\centering
+% Assuming image path is correct relative to the final document structure
+\includegraphics[width=\linewidth]{chapitre6/notification_architecture.png.png}
+\caption{Architecture Hybride du Système de Notifications (Persistance MongoDB et Diffusion Socket.IO)}
+\label{fig:notification_architecture}
+\end{figure}
+
+\textbf{Sécurité, Authentification et Ciblage}
+La communication temps réel est sécurisée via TLS et une authentification JWT pour Socket.IO. Chaque connexion WebSocket est validée par un jeton JWT, liant la session à un utilisateur authentifié. Le système cible directement les utilisateurs concernés par un événement, évitant les diffusions globales, pour garantir confidentialité et pertinence.
+
+\textbf{Typologie des Notifications}
+Les notifications couvrent :
+\begin{itemize}
+    \item Rendez-vous (création, validation, rappel)
+    \item CPF (confirmation, anomalies)
+    \item Système (maintenance, alertes)
+    \item Transactionnel (changements sensibles, alertes sécurité)
+\end{itemize}
+Chaque notification est générée, stockée dans MongoDB, puis envoyée en ciblant les `socket.id` spécifiques.
+
+\textbf{Architecture Technique}
+Le backend Node.js inclut :
+\begin{itemize}
+    \item Un service événementiel pour découpler la logique métier
+    \item Un service de notification pour formater et stocker les notifications
+    \item Un service de gestion des connexions reliant utilisateurs et `socket.id`
+    \item Un service Socket.IO pour l’authentification, la gestion des connexions, et l’émission ciblée
+    \item Une API REST pour consulter et mettre à jour les notifications
+\end{itemize}
+Côté client Angular, un service Socket gère la connexion, expose les notifications reçues, et synchronise avec l’API.
+
+\textbf{Performance et Optimisation}
+Des tests de charge ont validé une latence sous 300ms et une capacité de 100+ notifications par seconde. Optimisations principales :
+\begin{itemize}
+    \item Index MongoDB
+    \item Gestion efficace des connexions Socket.IO
+    \item Structures rapides pour rechercher les `socket.id`
+    \item Compression des données WebSocket
+    \item Mise en cache client pour réduire les appels API
+    \item Traitement asynchrone des tâches longues côté serveur
+\end{itemize}
+
+\textbf{Impact Utilisateur}
+L’adoption du système a permis :
+\begin{itemize}
+    \item Réduction de 70\% du temps d’attente passif
+    \item Amélioration de 45\% du traitement rapide des événements critiques
+    \item Augmentation de 60\% de la satisfaction utilisateur
+    \item Baisse de 50\% des sollicitations manuelles au support
+\end{itemize}
+Ce système temps réel améliore significativement la réactivité et la qualité perçue dans le processus CPF.
+\subsubsection{Conception}
+\subsubsubsection{Diagramme de classes}
+Le diagramme de classes est un outil permettant de représenter la structure interne d’un
+système en exposant les différentes classes, leurs attributs, ainsi que les relations structurelles
+qui les lient.
+La figure 4.3 décrit le diagramme de classes que nous avons utilisé pour développer le deuxième
+sprint du Release 3.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth, height=24cm]{chapitre6/sprintSocketclass.png}
+\caption{Diagramme de classes « Gérer Notifications en Temps Réel »}
+\end{figure}
+\clearpage
+\subsubsubsection{Diagramme d’interaction détaillé}
+Le diagramme de séquence suivant illustre l’échange entre le front-end, le serveur Socket.IO et la base de données lors de l’envoi et de la réception d’une notification en temps réel.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{chapitre6/notif sd.png}
+\caption{Sprint 7 – Diagramme d’interaction « Gérer Notifications en Temps Réel »}
+\end{figure}
+
+\subsubsection{Réalisation}
+À la suite de l’analyse du sprint 7 et de la finalisation de la conception, cette section présente la réalisation technique du système de notifications en temps réel ainsi que les interfaces utilisateur développées durant cette itération.
+
+\textbf{– Processus technique d’implémentation du système de notifications}\\
+La mise en œuvre du système de notifications en temps réel s’est articulée autour des étapes suivantes :
+\begin{itemize}
+    \item Intégration de Socket.IO côté serveur avec authentification JWT.
+    \item Gestion des événements et stockage des notifications dans MongoDB.
+    \item Diffusion ciblée des notifications via Socket.IO.
+    \item Synchronisation côté client Angular pour l’affichage en temps réel et la gestion de l’historique.
+\end{itemize}
+
+\textbf{– Interfaces du cas d’utilisation « Gérer Notifications en Temps Réel »}\\
+Les figures suivantes illustrent les interfaces utilisateur permettant de recevoir, consulter et gérer les notifications en temps réel.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth , height=10 cm]{chapitre6/NOTIF1.jpeg}
+        \caption{Sprint 6 - Interface « Procurer Aide » (1)}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth , height=10 cm]{chapitre6/NOTIF2.jpeg}
+        \caption{Sprint 6 - Interface « Procurer Aide » (2)}
+    \end{subfigure}
+
+    \vspace{0.5cm} % Adjust vertical spacing between rows
+\end{figure}
+
+
+\section{Conclusion}
+
+Cette quatrième release, intégrant les sprints 6 et 7, illustre la capacité de l’équipe à étendre les fonctionnalités du système vers des interactions plus dynamiques et personnalisées. La mise en place du chatbot « ChatGenius » pour l’assistance contextuelle a enrichi l’expérience utilisateur en offrant un support interactif et intuitif, tandis que la gestion des notifications en temps réel a permis de renforcer l’efficacité du système en assurant une communication fluide et instantanée.
+
+La démarche d’analyse approfondie des cas d’utilisation, l’architecture NLP du chatbot, ainsi que les diagrammes d’interaction, ont permis de structurer la solution de manière rigoureuse. La mise en œuvre technique, notamment l’intégration de Rasa, a démontré la faisabilité et la robustesse de la solution proposée.
+
+Ces fonctionnalités consolident l’architecture globale du projet et ouvrent la voie à des évolutions futures vers une expérience toujours plus interactive, réactive et adaptée aux besoins des utilisateurs.

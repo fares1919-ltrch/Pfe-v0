@@ -1,0 +1,408 @@
+\chapter{Phase de Préparation}
+\addcontentsline{toc}{section}{Introduction}
+\section*{Introduction}
+Le deuxième chapitre se met en perspective avec l'application préliminaire de la méthodologie Scrum, appelée "Phase de préparation". Durant cette période initiale, l'accent est mis sur l'exploration, la justification et l'organisation du projet.
+
+Dans ce chapitre, nous débutons par une section dédiée à la gestion du projet selon la méthodologie Scrum. Nous poursuivons ensuite avec la planification des différents sprints dans la section suivante. Une description des technologies et des outils de développement utilisés est ensuite fournie. Enfin, nous exposons le diagramme de cas d'utilisation général.
+
+\section*{Pilotage du projet avec Scrum}
+Dans cette section, nous explorons en détail les trois piliers fondamentaux de la méthodologie Scrum : les rôles assignés, la gestion du backlog du produit, et la procédure de planification des sprints.
+\subsection{Organisation de l'équipe}
+Dans le cadre de notre projet, l'équipe Scrum du projet « \textbf{Identity Secure} » est composée de
+15 membres et définie les rôles suivants :\\
+\textbf{– Product Owner:} Mr. Maher Elouaer\\
+\textbf{– Scrum Master:} Mrs. Arwa Ben romdhane\\
+\textbf{– Development Team:} Mrs. Tassnym Ben Laroussy \& Mr. Fares Latrach\\
+\subsection{Product backlog}
+Le backlog de produit est établi avant le début du développement des releases, en réponse aux besoins des utilisateurs. Il joue un rôle crucial dans la planification des releases et des sprints, en guidant le contenu de ces derniers pour lancer le travail. Le tableau 2.1 présente le backlog de notre projet, offrant un aperçu des "User Stories" organisées par thème et identifiées par un "ID". Chaque "User Story" se voit attribuer une priorité selon la méthode de priorisation "MoSCoW": Must have, Should have, Could have, Want have.
+
+\begin{longtable}
+{|>{\centering\arraybackslash}p{0.7cm}|
+>{\arraybackslash}p{3cm}|
+>{\centering\arraybackslash}p{1cm}|
+>{\arraybackslash}p{8cm}|
+>{\centering\arraybackslash}p{1.5cm}|}
+
+\caption{Backlog de « \textbf{Identity Secure} »}
+\label{tab:backlog} \\
+
+\hline
+\rowcolor{gray!30}
+ID & Fonctionnalité & ID & User Story & Priorité \\
+\hline
+\endfirsthead
+
+% Aucun header répété sur les pages suivantes
+\endhead
+
+\hline
+\endfoot
+
+\hline
+\endlastfoot
+
+\multirow{1}{0.7cm}{1} & \multirow{1}{3cm}{S'informer}
+& 1.1 & En tant qu'internaute, je peux consulter la documentation d'Identity Secure afin de comprendre les services proposés et le processus d'obtention du CPF. & M\\
+\hline
+
+\multirow{2}{0.7cm}{2} & \multirow{2}{3cm}{S'inscrire / S'authentifier}
+& 2.1 & En tant qu'internaute, je souhaite pouvoir m'inscrire via un formulaire d'inscription. & M \\
+\cline{3-5}
+& & 2.2 & En tant que citoyen brésilien, manager CPF ou officier de police, je dois pouvoir m'authentifier. & M  \\
+\hline
+
+\multirow{1}{0.7cm}{3} & \multirow{1}{3cm}{Récupérer mot de passe}
+& 3.1 & En tant que citoyen brésilien, Manager CPF ou Officier de police, je peux récupérer mon mot de passe afin de restaurer l'accès à mon compte. & M \\
+\hline
+
+\multirow{1}{0.7cm}{4} & \multirow{1}{3cm}{Gérer profil}
+& 4.1 & En tant que citoyen brésilien, Manager CPF ou Officier de police, je peux consulter et mon profil et mettre à jour mes données en  changeant mon mot de passe, gérant mes sessions et supprimant mon compte .& S \\
+\hline
+
+\multirow{1}{0.7cm}{5} & \multirow{1}{3cm}{Gérer rendez-vous}
+& 5.1 & En tant que citoyen, je peux soumettre une demande de rendez-vous, en spécifiant ma localisation et en choisissant une date appropriée. & M\\
+\cline{3-5}
+& & 5.2 & En tant que citoyen, je peux consulter les détails(date , statut, centre) de mon rendez-vous. & S \\
+\cline{3-5}
+& & 5.3 & En tant qu'officier de police, je peut planifier les rendez-vous en les validant ou en les rejetant. & M \\
+\hline
+
+\multirow{1}{0.7cm}{6} & \multirow{1}{3cm}{Gérer transactions et Fraudes}
+& 6.1 & En tant que manager CPF, je peux consulter et gérer les fraudes liées aux comptes. & M \\
+\cline{3-5}
+& & 6.2 & En tant que manager CPF ou officier de police, je peux consulter la liste des citoyens avec des filtres par statut (active, suspended, fraudulent, pending) et par état de génération du CPF et par déduplications. & M \\
+\cline{3-5}
+& & 6.3 & En tant que citoyen brésilien je peux gérer mes transactions basées su mon CPF notamment consulter et signaler les frauduleuses. & M \\
+\hline
+
+\multirow{1}{0.7cm}{7} & \multirow{1}{3cm}{Gérer CPF}
+& 7.1 & En tant que citoyen, je peux consulter mon numéro CPF et son statut et recevoir des notifications des transactions basées sur mon numéro CPF & M\\
+\cline{3-5}
+& & 7.2 & En tant que manager CPF, je peux gérer les réclamations des demandes de blockage. & M \\
+\cline{3-5}
+& & 7.3 & En tant que manager CPF, je peux consulter les déduplications détéctées dans la base . & M \\
+\hline
+& & 7.4 & En tant qu'officier de police, je peux téléverser et enregistrer les données biométriques des citoyens (empreintes digitales, image faciale, iris). & M \\
+\cline{3-5}
+& & 7.5 & En tant qu'officier de police, je peux consulter les rendez-vous et les détails associés à chaque rendez-vous. & M \\
+\hline
+
+
+\multirow{1}{0.7cm}{8} & \multirow{1}{3cm}{Gérer Rôles}
+& 8.1 & En tant qu'admin, je peux valider les ddemandes de confirmations des managers et des officiers & M\\
+\hline
+
+
+
+\multirow{1}{0.7cm}{9} & \multirow{1}{3cm}{Procurer aide}
+& 9.1 & En tant qu'utilisateur, je peux interagir avec le ChatBot pour obtenir de l'aide sur l'utilisation de la plateforme, le processus CPF et la résolution des problèmes courants. & C\\
+\hline
+
+\end{longtable}
+\subsection{Planification des sprints}
+Après avoir complété et ordonné le Backlog de produit, nous avons réalisé, les durées prévisionnelles du travail à effectuer durant chaque sprint. Après avoir évalué le travail estimé, nous avons identifié 3 releases. Le tableau 2.2 montre la planification des sprints.
+
+\begin{table}[h]
+\centering
+\caption{Planification des sprints}
+\begin{tabular}{|>{\centering\arraybackslash}p{2cm}|>{\centering\arraybackslash}p{2cm}|>{\centering\arraybackslash}p{5cm}|>{\centering\arraybackslash}p{3cm}|}
+\hline
+\rowcolor{gray!30}
+\textbf{Release} & \textbf{ID Sprint} & \textbf{Nom du sprint} & \textbf{Période} \\
+\hline
+Release 1 & 1 & Gérer Utilisateurs & 25 jours \\
+\hline
+Release 2 & 2 & Gérer Rendez-vous & 19 jours \\
+\hline
+\multirow{2}{*}{Release 3} & 3 & Gérer CPF & 15 jours \\
+\cline{2-4}
+& 4 & Gérer Transactions et Fraudes & 15 jours \\
+\hline
+Release 4 & 5 & Procurer Aide et gérer notifications & 20 jours \\
+\hline
+\end{tabular}
+\end{table}
+%SOCKET6 CHATBOT9 15
+
+\section{Technologies et outils de développement } Les Frameworks, les classes et les bibliothèques ont un impact direct sur la productivité
+afin de nous aider à accélérer le développement et améliorer la qualité complète du code. Dans
+cette section, nous présentons les produits puis les outils et les langages de programmation
+que nous avons utilisés pour mener à bien notre projet.
+\subsection{Frameworks de développement}
+Dans cette partie, nous présentons les frameworks Front-end et Back-end utilisés pour
+le développement du site web.
+\subsubsection{Framework Back-end:}
+ Nous avons privilégié des outils et des technologies spécifiquement adaptés à cet environnement. \textbf{Node.js}\cite{b6}, en tant que framework \textbf{JavaScript}\cite{b7} côté serveur, offre une flexibilité et une scalabilité très appréciées.\\ En combinaison avec \textbf{Express.js}\cite{b8}, un framework web minimaliste pour Node.js, nous avons pu développer des API robustes et efficaces pour notre application.\\ En outre, l'utilisation de \textbf{MongoDB}\cite{b9} comme système de gestion de base de données non-relationnelle a été un choix judicieux pour répondre à nos besoins de stockage de données structurées.
+ \\ Cette combinaison d'outils et de technologies nous a permis de créer une architecture Back-end solide et performante pour notre application
+ \subsubsection{Framework Front-end:}
+ Le paysage des frameworks de développement front-end connaît une évolution rapide et constante, avec une prolifération de solutions adaptées aux exigences modernes des applications web. Parmi les frameworks les plus influents de l'écosystème JavaScript, on distingue \textbf{Angular}\cite{b10}, \textbf{NextJs}\cite{b11}, \textbf{React}\cite{b12} et \textbf{Vue.js}\cite{b13}.
+
+ Après une analyse comparative approfondie tenant compte de critères tels que la robustesse architecturale, l'écosystème, la courbe d'apprentissage et les performances, notre choix s'est porté sur \textbf{Angular}.
+
+ Angular est un framework complet développé et maintenu par Google, qui s'appuie sur le langage \textbf{TypeScript}, offrant ainsi les avantages du typage statique, de la détection d'erreurs précoce et des fonctionnalités avancées d'intellisense. Cette technologie s'intègre parfaitement avec les langages \textbf{HTML} et \textbf{CSS} tout en proposant une architecture de type \textbf{MVVM} (Model-View-ViewModel) qui sépare efficacement la logique métier de l'interface utilisateur.
+
+
+
+ L'architecture d'Angular repose sur plusieurs éléments fondamentaux:
+
+ \begin{itemize}
+    \item \textbf{Modules (NgModules)}: Ils constituent l'unité fondamentale d'organisation du code, offrant un mécanisme de conteneurisation pour regrouper des composants, directives, pipes et services liés fonctionnellement. Ils facilitent la modularité, le lazy loading et permettent une meilleure gestion des dépendances via le système d'injection intégré.
+
+    \item \textbf{Composants}: Ils représentent les blocs de construction essentiels de l'interface utilisateur, encapsulant une portion d'UI avec sa logique associée. Chaque composant Angular comprend un template HTML définissant la structure de rendu, une classe TypeScript contenant la logique métier, des métadonnées (décorateur \texttt{@Component}) configurant le comportement du composant, et des styles CSS/SCSS encapsulés.
+
+    \item \textbf{Directives}: Elles étendent la syntaxe HTML en permettant d'ajouter des comportements spécifiques aux éléments du DOM. Angular propose trois types de directives: directives de composants (avec template), directives structurelles (\texttt{ngIf}, \texttt{ngFor}) qui modifient la structure du DOM, et directives d'attributs (\texttt{ngClass}, \texttt{ngStyle}) qui modifient l'apparence ou le comportement.
+
+    \item \textbf{Services}: Classes TypeScript spécialisées dans la fourniture de fonctionnalités transversales comme l'accès aux données, la gestion d'état ou les utilitaires. Leur conception selon le principe de responsabilité unique (SRP) facilite la testabilité et la maintenance.
+
+    \item \textbf{Injection de dépendances}: Mécanisme avancé permettant de fournir des instances de services aux composants, offrant ainsi un couplage faible et une meilleure testabilité.
+ \end{itemize}
+
+
+ L'adoption d'Angular pour notre solution repose sur des avantages techniques décisifs:
+
+ \begin{itemize}
+    \item \textbf{Architecture MVVM et composants autonomes:} La séparation claire entre présentation et logique métier améliore la maintenabilité et facilite le développement collaboratif. Les composants réutilisables permettent une composition d'interfaces complexes sans duplication de code.
+
+    \item \textbf{Système de détection des changements optimisé:} L'implémentation d'une détection de changement unidirectionnelle basée sur le pattern Observable réduit considérablement les cycles de rendu inutiles et améliore les performances.
+
+    \item \textbf{RxJS intégré:} L'utilisation native de la programmation réactive facilite la gestion des flux asynchrones complexes, particulièrement efficace pour les requêtes HTTP, les événements utilisateur et la gestion d'état.
+
+    \item \textbf{Écosystème robuste:} Angular propose un ensemble complet d'outils officiels (Angular CLI, Angular DevTools) et de bibliothèques (Angular Material, Angular Forms) qui accélèrent considérablement le développement.
+
+    \item \textbf{Performances optimisées:} Les nombreuses optimisations d'Angular incluent la compilation ahead-of-time (AOC), l'analyse statique du code permettant d'éliminer le code mort (tree-shaking), et la possibilité d'implémenter des stratégies de détection de changements avancées pour les composants nécessitant des performances accrues.
+ \end{itemize}
+
+
+
+ \subsection{Outils de conception et de développement}
+Pour la réalisation de notre application \textbf{« Identity Secure »}, nous avons eu recours à plusieurs outils de conception et de développement modernes et performants. Ces derniers sont présentés ci-dessous :
+
+\subsubsection*{Node.js:}
+Node.js \cite{b6}est une plateforme JavaScript côté serveur qui permet d'exécuter du code JavaScript en dehors du navigateur. Elle offre un environnement d'exécution performant et asynchrone, idéal pour le développement d'applications web scalables.
+\begin{figure}[H]
+\centering
+\fbox{\includegraphics[width=3.4cm]{chapitre1/nodejs.png}}
+\caption{Logo Node.js}
+\end{figure}
+
+\subsubsection*{Express:}
+Express Js \cite{b8} est un framework web minimaliste pour Node.js. Il simplifie la création d'applications web et d'API RESTful en JavaScript, en offrant des fonctionnalités robustes pour la gestion des routes, des middlewares et des requêtes asynchrones.
+\begin{figure}[H]
+\centering
+\fbox{\includegraphics[width=3.4cm]{chapitre1/express.jpeg}}
+\caption{Logo Express}
+\end{figure}
+
+\subsubsection*{Angular:}
+Angular\cite{b10} est un framework JavaScript développé par Google, utilisé pour construire des applications web interactives et dynamiques. Il offre une architecture MVVM, un système d'injection de dépendances, et des outils avancés pour simplifier le développement, notamment la gestion des états, le routing et la création de composants réutilisables.
+\begin{figure}[H]
+\centering
+\fbox{\includegraphics[width=3.4cm]{chapitre1/Angular_gradient.png}}
+\caption{Logo Angular}
+\end{figure}
+
+\subsubsection*{MongoDB:}
+MongoDB \cite{b9}est un système de gestion de base de données NoSQL orienté documents, qui stocke les données au format BSON (Binary JSON). Particulièrement adapté aux applications modernes nécessitant une grande flexibilité de schéma et une scalabilité horizontale, MongoDB excelle dans la gestion de données non structurées ou semi-structurées. Son modèle de données basé sur des documents JSON facilite l'intégration avec les applications JavaScript et permet des requêtes complexes via son puissant moteur d'agrégation.
+\begin{figure}[H]
+\centering
+\fbox{\includegraphics[width=3.4cm]{chapitre1/mongodb.png}}
+\caption{Logo MongoDB}
+\end{figure}
+
+\subsubsection*{Tailwind CSS:}
+Tailwind\cite{b15} CSS est un framework CSS utilitaire qui permet de construire rapidement des interfaces utilisateur personnalisées sans quitter votre HTML. Contrairement aux frameworks traditionnels comme Bootstrap, Tailwind ne propose pas de composants prédéfinis mais plutôt un système de classes utilitaires qui peuvent être composées pour créer n'importe quel design. Cette approche "utility-first" offre une flexibilité maximale tout en réduisant considérablement la taille du CSS final grâce à son système de purge qui élimine les styles non utilisés.
+\begin{figure}[H]
+\centering
+\fbox{\includegraphics[width=3.4cm]{chapitre1/tailwind-css.png}}
+\caption{Logo Tailwind CSS}
+\end{figure}
+
+\subsubsection*{rasa:}
+Rasa \cite{b17}est une plateforme open-source pour créer des chatbots et des assistants virtuels. Utilisant Python, elle offre des outils puissants pour développer, entraîner et déployer des chatbots personnalisés avec une approche d'apprentissage par renforcement. Reconnaissable pour sa flexibilité et son intégration facile, Rasa permet de créer des assistants virtuels capables de conversations naturelles.
+\begin{figure}[H]
+\centering
+\fbox{\includegraphics[width=3.4cm]{chapitre1/rasa-logo.png}}
+\caption{Logo rasa}
+\end{figure}
+
+\subsubsection*{TypeScript:}
+TypeScript\cite{b18} est une extension de JavaScript\cite{b7} développée par Microsoft. Elle ajoute des fonctionnalités de typage statique en option au langage JavaScript, permettant de détecter les erreurs dès la phase de développement. TypeScript améliore la maintenabilité du code, la documentation et l'expérience de développement tout en restant compatible avec JavaScript. Utilisé principalement dans les projets Angular et React, TypeScript est apprécié pour sa robustesse et sa capacité à améliorer la qualité du code dans les applications complexes.
+\begin{figure}[H]
+\centering
+\fbox{\includegraphics[width=3.4cm]{chapitre1/typescript.png}}
+\caption{Logo TypeScript}
+\end{figure}
+
+\subsubsection*{Visual Studio Code:}
+Visual Studio Code, ou VS Code, \cite{b19}est un éditeur de code léger et polyvalent de Microsoft. Avec ses fonctionnalités avancées comme IntelliSense, le débogage intégré, le contrôle de version Git et son écosystème riche d'extensions, il est largement utilisé par les développeurs pour sa performance et sa personnalisation extensive.
+\begin{figure}[H]
+\centering
+\fbox{\includegraphics[width=3.1cm]{chapitre1/vscode.jpg}}
+\caption{Logo Visual Studio Code}
+\end{figure}
+
+\subsubsection*{Postman:}
+Postman \cite{b20}est un outil de développement d'API qui permet aux développeurs de tester, déboguer et documenter les API de manière efficace. Son interface conviviale simplifie le processus de test des requêtes HTTP, la création de collections de tests automatisés et facilite la collaboration au sein des équipes via le partage de documentation interactive.
+\begin{figure}[H]
+\centering
+\fbox{\includegraphics[width=3.2cm]{chapitre1/postmann.png}}
+\caption{Logo Postman}
+\end{figure}
+
+\subsubsection*{Canva:}
+Canva \cite{b21}est un outil de conception graphique en ligne qui permet de créer facilement des designs professionnels pour diverses utilisations comme les présentations, les affiches, les logos ou les médias sociaux. Son interface intuitive, sa bibliothèque de templates et d'éléments graphiques, ainsi que ses fonctionnalités de collaboration en font un outil précieux pour la création d'assets visuels cohérents et attrayants pour notre application.
+\begin{figure}[H]
+\centering
+\fbox{\includegraphics[width=3.2cm]{chapitre1/canva.png}}
+\caption{Logo Canva}
+\end{figure}
+
+\subsubsection*{Draw.io:}
+Draw.io \cite{b22}est une application en ligne pour créer rapidement des diagrammes de haute qualité, tels que des organigrammes et des schémas réseau, grâce à son interface conviviale et à ses nombreux modèles prédéfinis. Son intégration avec les services cloud facilite le travail collaboratif sur les diagrammes techniques.
+\begin{figure}[H]
+\centering
+\fbox{\includegraphics[width=3.2cm]{chapitre1/draw.png}}
+\caption{Logo Draw.io}
+\end{figure}
+
+\subsubsection*{Overleaf:}
+Overleaf \cite{b23}est une plateforme en ligne pour rédiger et collaborer sur des documents LaTeX en temps réel, offrant un éditeur intuitif avec prévisualisation instantanée et un contrôle de version intégré, ce qui en fait un outil idéal pour la documentation technique et les rapports formels du projet.
+\begin{figure}[H]
+\centering
+\fbox{\includegraphics[width=3.2cm]{chapitre1/overlaf.png}}
+\caption{Logo Overleaf}
+\end{figure}
+
+\subsubsection*{Git:}
+Git\cite{b44} est un système de contrôle de version distribué qui permet de suivre les modifications apportées au code source tout en favorisant la collaboration entre plusieurs développeurs. Grâce à ses fonctionnalités de branchement et de fusion, Git facilite la gestion de l'historique des versions et la coordination des contributions au projet.
+\begin{figure}[H]
+\centering
+\fbox{\includegraphics[width=3.2cm]{chapitre1/git.png}}
+\caption{Logo Git}
+\end{figure}
+
+\subsubsection*{GitHub:}
+GitHub\cite{b45} est une plateforme en ligne qui repose sur Git et offre un espace de stockage centralisé pour les projets de développement. Il facilite la gestion de versions, l’hébergement de dépôts, ainsi que la collaboration et le suivi des problèmes (issues) grâce à son interface conviviale et ses fonctionnalités sociales telles que les pull requests et les forks.
+\begin{figure}[H]
+\centering
+\fbox{\includegraphics[width=3.2cm]{chapitre1/github.png}}
+\caption{Logo GitHub}
+\end{figure}
+
+\subsection{Langage de modélisation}
+Pour notre projet, nous avons choisi d'utiliser le langage de modélisation UML, acronyme de "Unified Modeling Language", qui se traduit en français par "Langage de modélisation unifié". UML est un langage visuel composé de divers diagrammes, chacun offrant une perspective spécifique du projet, ce qui permet de représenter le logiciel à développer, son fonctionnement, sa mise en route, et les actions qu'il peut accomplir.
+
+
+L'UML \cite{b24}est un langage de modélisation visuelle riche en sémantique et en syntaxe. Il est conçu pour faciliter l'architecture, la conception et la mise en œuvre de systèmes logiciels complexes, en abordant à la fois leur structure et leur comportement. Au-delà du domaine du développement logiciel, UML est également appliqué dans la modélisation des processus industriels. Comparable aux plans utilisés dans d'autres secteurs, UML se compose de divers types de diagrammes. Bien qu'il ne soit pas un langage de programmation, il existe des outils permettant de générer du code en plusieurs langages à partir des diagrammes UML. En général, les diagrammes UML décrivent les limites, la structure et le comportement du système et des objets qu'il contient.
+
+\begin{figure}[H]
+\centering
+\fbox{\includegraphics[width=0.5\textwidth]{chapitre1/uml.png}}
+\caption{Le Logo de UML}
+\end{figure}
+
+\textbf{Les principaux objectifs de l'utilisation de l'UML sont :}
+\begin{itemize}
+    \item Analyser et comprendre le comportement du système;
+    \item Identifier les erreurs et les omissions dès le début du cycle de vie du projet;
+    \item Présenter les conceptions proposées et faciliter la communication avec les parties prenantes;
+    \item Clarifier et documenter les exigences;
+    \item Guider la mise en œuvre du projet.
+\end{itemize}
+
+
+L'UML propose une variété de diagrammes que les développeurs utilisent pour visualiser les objets, les états et les processus d'un logiciel ou d'un système. Ces diagrammes incluent :
+\begin{itemize}
+    \item \textbf{Diagramme des cas d'utilisation :} décrit les interactions entre les utilisateurs et le système;
+    \item \textbf{Diagramme de séquence :} montre l'ordre des interactions entre les objets dans un cas d'utilisation;
+    \item \textbf{Diagramme des composants :} illustre les composants du système et leurs relations;
+    \item \textbf{Diagramme de classe :} représente les classes du système et leurs relations;
+    \item \textbf{Diagramme d'activité :} visualise le flux de travail ou les activités d'un système;
+    \item \textbf{Diagramme de collaboration :} décrit les interactions entre les objets pour accomplir une fonction;
+    \item \textbf{Diagramme de déploiement :} montre la configuration matérielle et le déploiement du logiciel;
+    \item \textbf{Diagramme d'état :} modélise les différents états d'un objet et les transitions entre ces états.
+\end{itemize}
+
+
+
+
+
+\section{Architecture générale de « \textbf{Identity Secure} »}
+Dans cette section, nous exposons à la fois l'architecture logicielle et l'architecture physique de notre application. La figure 2.2 illustre l'architecture générale adoptée, laquelle est divisée en trois parties :\\
+
+\textbf{-Front-end:} Il représente les interfaces de l'application, c'est-à-dire les éléments avec lesquels l'utilisateur peut interagir.
+
+\textbf{-Back-end:} Il englobe les fonctionnalités de l'application et leur implémentation. Il est invisible pour les utilisateurs de l'application, mais il assure le dynamisme de celle-ci.
+
+\textbf{-Base de données:} Elle permet aux utilisateurs de gérer les données en les consultant, les saisissant, les modifiant ou les supprimant, tout en garantissant les droits des utilisateurs.
+\begin{figure}[H]
+\centering
+
+\includegraphics[width=12cm, height=7cm]{chapitre1/archi.png}
+\caption{ Architecture générale de l'application}
+\end{figure}
+
+\subsection{Architecture logicielle}
+La figure ci-dessus présente l'architecture de notre application. Cette architecture moderne est composée des couches suivantes :
+\begin{itemize}
+
+
+
+ \item \textbf{Couche présentation:} Cette couche représente l'aspect visuel et interactif de l'application. Elle est responsable de l'affichage des données aux utilisateurs et fait appel à la couche métier pour répondre aux requêtes des clients via les Web services REST.
+
+ \item \textbf{Web services REST:} Les API REST permettent la communication entre la partie Back-end et la partie Front-end. Elles se basent principalement sur des échanges entre l'utilisateur et le serveur via des requêtes HTTP émises vers l'URL de la ressource, générant ainsi une réponse. Les réponses peuvent être formatées de diverses manières, mais dans notre application, toutes nos API REST renvoient des réponses au format JSON.
+
+ \item \textbf{Couche sécurité:} Cette couche assure la sécurisation de l'application en gérant l'authentification et l'autorisation des utilisateurs.
+
+ \item \textbf{Couche métier:} Correspondant à l'aspect fonctionnel de l'application, cette couche contient tous les traitements métiers que l'application effectue sur les données en réponse aux requêtes des utilisateurs. Elle fournit les services des différents modules fonctionnels ainsi que les services de communication avec la base de données.
+
+ \item \textbf{Couche persistance:} Cette couche gère l'accès aux données persistantes de l'application. Elle utilise un ORM pour décrire l'accès aux données via une couche d'abstraction commune, facilitant l'interaction avec différentes sources de données.
+\end{itemize}
+
+\subsection{Architecture physique}
+
+L'architecture 3-tiers est un modèle qui organise une application en trois niveaux ou couches, basé sur le principe client-serveur. Chaque couche remplit un rôle spécifique dans le fonctionnement global de l'application.
+
+\textbf{Identity Secure} adapte une architecture 3-tiers qui est composée de trois niveaux détaillés comme-suit :
+\begin{itemize}
+    \item \textbf{  Le client} : Initie les requêtes en direction de la couche de traitement et reçoit les réponses correspondantes.
+    \item \textbf{ Le serveur d'application} : Aussi nommé middleware, il fournit des services applicatifs à la couche de présentation en réponse aux requêtes des clients. Pour offrir ces services, il peut nécessiter l'intervention d'un autre serveur.
+    \item \textbf{ Le serveur de base de données} : Cette composante gère l'accès aux données de l'application.
+\end{itemize}
+
+
+\subsection{Pattern architectural}
+L'architecture \textbf{MVC} est l'un des design patterns les plus célèbres, signifiant Modèle-Vue-Contrôleur. Ce pattern permet de bien organiser l'interface graphique d'un programme en décomposant l'architecture de l'application en trois sous-parties (voir figure 2.4) :
+
+\begin{itemize}
+    \item \textbf{Modèle} : Responsable de la gestion des données de l'application, incluant leur accès et leur mise à jour.
+
+    \item \textbf{Vue} : Gère les interactions avec l'utilisateur, notamment la présentation, la saisie et la validation des données. Son rôle principal est d'afficher les résultats.
+
+    \item \textbf{Contrôleur} : Module chargé du traitement des actions de l'utilisateur. Il effectue des modifications sur les données du modèle et de la vue.
+\end{itemize}.
+
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{chapitre1/flowControlMVC.png}
+\caption{Architecture MVC}
+\end{figure}
+
+
+\section*{Diagrammes génériques}
+Le diagramme des cas d'utilisation capture le comportement fonctionnel du système. Pour ce faire nous avons regroupé tous les cas d'utilisations possibles dans la Figure 2.5 ci-dessous :
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=16cm, height = 19 cm]{chapitre1/global19_05.png}
+\vspace{2mm} % Adds 5mm of space between the figure and the caption
+\caption{Diagramme de cas d'utilisation global}
+\end{figure}
+
+\addcontentsline{toc}{section}{Conclusion}
+\section*{Conclusion}
+Dans ce chapitre, nous avons présenté la planification de notre projet. Par la suite nous avons présenté l'environnement matériel et logiciel .
+\newline
+Dans le chapitre suivant, nous entamerons le premier sprint.

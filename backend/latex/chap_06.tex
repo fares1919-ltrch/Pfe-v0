@@ -1,0 +1,91 @@
+\chapter{Release 5 : «DevOps \& Déploiement Continu»}
+\label{chap_sprint6}
+
+\section{Introduction}
+\label{sec_introduction:ch6}
+Dans cette release finale, nous implémentons les pratiques DevOps modernes pour automatiser l'intégration, les tests et le déploiement de notre application Identity Secure. Cette approche garantit la qualité du code, facilite la maintenance continue du système et assure une livraison fiable en production. L'adoption de GitHub Actions comme plateforme CI/CD nous permet d'automatiser l'ensemble du cycle de vie du développement logiciel.
+
+\section{Sprint 6 : «DevOps \& Déploiement Continu»}
+Dans cette section, nous présentons l'organisation et le Backlog du sixième sprint dédié à l'implémentation des pratiques DevOps. Nous abordons ensuite la phase d'analyse, la solution conceptuelle, et les réalisations concrètes de notre pipeline CI/CD.
+
+\subsection{Organisation}
+Le tableau 6.1 donne un aperçu détaillé sur le Backlog du sixième sprint qui prend en charge l'automatisation des processus de développement et de déploiement.
+
+\begin{longtable}{|>{\centering\arraybackslash}p{0.7cm}|>{\arraybackslash}p{6.5cm}|>{\centering\arraybackslash}p{1.3cm}|>{\arraybackslash}p{6cm}|>{\centering\arraybackslash}p{1cm}|}
+\caption{Backlog du sprint 6 : « DevOps \& Déploiement Continu »} \label{tab:backlog} \\
+
+\hline
+ID & User Story & ID & Tâche & Durée /j \\
+\hline
+\endfirsthead
+
+% Header for subsequent pages
+\hline
+ID & User Story & ID & Tâche & Durée /j \\
+\hline
+\endhead
+
+% Footer for intermediate pages
+\hline
+\endfoot
+
+% Final footer
+\hline
+\endlastfoot
+
+% Backlog content
+\multirow{4}{0.7cm}{6.1} & \multirow{4}{6.5cm}{En tant que développeur, je veux automatiser les tests pour garantir la qualité du code à chaque modification et détecter les régressions rapidement.} & 6.1.1 & Configuration des tests unitaires automatisés pour le frontend Angular & 1.5 \\
+\cline{3-5}
+& & 6.1.2 & Configuration des tests unitaires automatisés pour le backend Node.js & 1.5 \\
+\cline{3-5}
+& & 6.1.3 & Mise en place des tests d'intégration avec base de données MongoDB & 1 \\
+\cline{3-5}
+& & 6.1.4 & Configuration du workflow GitHub Actions pour l'exécution automatique des tests & 1 \\
+\hline
+
+\multirow{3}{0.7cm}{6.2} & \multirow{3}{6.5cm}{En tant que développeur, je veux automatiser le déploiement pour réduire les erreurs manuelles et accélérer la mise en production.} & 6.2.1 & Configuration du déploiement automatique du frontend sur Vercel via GitHub Actions & 1.5 \\
+\cline{3-5}
+& & 6.2.2 & Configuration du déploiement automatique du backend sur Render via GitHub Actions & 1.5 \\
+\cline{3-5}
+& & 6.2.3 & Mise en place de la gestion des variables d'environnement pour différents environnements & 1 \\
+\hline
+
+\multirow{3}{0.7cm}{6.3} & \multirow{3}{6.5cm}{En tant qu'équipe, nous voulons surveiller la santé de l'application en production et recevoir des alertes en cas de problème.} & 6.3.1 & Intégration d'outils de monitoring et de logging dans les workflows & 1 \\
+\cline{3-5}
+& & 6.3.2 & Configuration des notifications automatiques en cas d'échec de build ou de déploiement & 0.5 \\
+\cline{3-5}
+& & 6.3.3 & Mise en place de vérifications de santé post-déploiement & 0.5 \\
+\hline
+
+\multicolumn{4}{|r|}{\textbf{Total estimé :}} & \textbf{10 j} \\
+\hline
+
+\end{longtable}
+
+\subsection{Analyse}
+Durant cette phase d'analyse, nous définissons les fonctionnalités DevOps essentielles et l'architecture CI/CD adoptée pour automatiser le cycle de développement d'Identity Secure.
+
+\subsubsection{Cas d'utilisation principal}
+Le cas d'utilisation « Automatiser Tests \& Déploiement » permet aux développeurs d'automatiser l'ensemble du processus de validation et de mise en production du code. Ce processus inclut l'exécution automatique des tests, la validation de la sécurité, et le déploiement conditionnel en production.
+
+\subsection{Conception}
+L'architecture CI/CD adoptée repose sur GitHub Actions pour orchestrer trois pipelines principaux : frontend (Angular), backend (Node.js), et sécurité. Chaque pipeline exécute des étapes de validation (tests, linting, sécurité) avant le déploiement automatique sur Vercel (frontend) et Render (backend). Le processus garantit la qualité du code et la sécurité avant chaque mise en production.
+
+\subsection{Réalisation}
+L'implémentation du pipeline CI/CD comprend trois workflows GitHub Actions principaux :
+
+\textbf{– Workflow Frontend} : Automatise les tests Angular (Karma/Jasmine), la validation de sécurité (npm audit, Snyk), et le déploiement sur Vercel avec vérifications de performance via Lighthouse.
+
+\textbf{– Workflow Backend} : Gère les tests Node.js avec MongoDB, l'analyse de sécurité, et le déploiement sur Render avec vérifications de santé post-déploiement.
+
+\textbf{– Workflow Sécurité} : Exécute des scans quotidiens avec OWASP Dependency Check, CodeQL, et génère des rapports de vulnérabilités avec notifications automatiques.
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.8]{chapitre6/cicd_overview.png}
+\caption{ Sprint 6 - Vue d'ensemble du pipeline CI/CD }
+\end{figure}
+
+\addcontentsline{toc}{section}{Conclusion}
+\section*{Conclusion}
+L'implémentation du pipeline CI/CD avec GitHub Actions marque l'aboutissement de notre projet Identity Secure en intégrant les pratiques DevOps modernes. Cette automatisation garantit la qualité du code, réduit les risques de déploiement et facilite la maintenance continue de l'application. Le système mis en place assure une livraison fiable et rapide des nouvelles fonctionnalités tout en maintenant la stabilité de la production.
